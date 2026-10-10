@@ -1,0 +1,98 @@
+[
+  {
+    "id": "boss_combat",
+    "sourceSha256": "1bc9f4a2e6b5370c640fe1f6e234d96fd535f82a8dea65b9a28fc79f9e663d8e",
+    "atlasSha256": "d718f44c568dc79fa551532f91fc3d2318b768132c0a9fc5d68873f6bce7a400",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "atlasSize": [
+      4150,
+      263
+    ],
+    "frameCount": 16,
+    "scale": 0.921986,
+    "alphaPreserved": true
+  },
+  {
+    "id": "boss_motion",
+    "sourceSha256": "a983837d20875d383820e571363b63a544e64320f72244b341c7bbc97dc15f58",
+    "atlasSha256": "5b7ad1e469336de5cd7db8b3f536486fdf60bb2c57b41bf9cc0f19248d7de876",
+    "sourceSize": [
+      1774,
+      887
+    ],
+    "atlasSize": [
+      2080,
+      314
+    ],
+    "frameCount": 8,
+    "scale": 0.729412,
+    "alphaPreserved": true
+  },
+  {
+    "id": "aoi_attack",
+    "sourceSha256": "5a13c86559c4bdb2e5d92eaea63c719cce873c522ab3514203a2d1d43427f267",
+    "atlasSha256": "2b5afab98d66b2080598fc851f5464ed9572ffd38d8829a2348fc36d7138eaaf",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "atlasSize": [
+      3784,
+      274
+    ],
+    "frameCount": 16,
+    "scale": 1.015385,
+    "alphaPreserved": false
+  },
+  {
+    "id": "aoi_gait_final",
+    "sourceSha256": "d2ff8b4c7b1b69983f4c5e583cfc4d80b420f6ac138d5be4ea86af017d46d28b",
+    "atlasSha256": "1f635b86059c04d636710642b3574122b7cf3a5636a4d00ad48ffe93bd2844a6",
+    "sourceSize": [
+      2172,
+      724
+    ],
+    "atlasSize": [
+      675,
+      265
+    ],
+    "frameCount": 4,
+    "scale": 0.387097,
+    "alphaPreserved": false
+  },
+  {
+    "id": "thug_combat",
+    "sourceSha256": "9bdf4f90f9504f20b3aa8209e13eb0d3471fae6b58c21d45dc463ac672d84213",
+    "atlasSha256": "372221e5090431ffe69d88bc5bc8b7f5dd0e1dfe972246687dd3f05632eee8e7",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "atlasSize": [
+      5010,
+      302
+    ],
+    "frameCount": 16,
+    "scale": 1.094891,
+    "alphaPreserved": false
+  },
+  {
+    "id": "yankee_combat",
+    "sourceSha256": "55f08129a2c91168b920b0d103e1fe2773c71f06802ed5c173767c8c26ea0b84",
+    "atlasSha256": "fae75c8c0ebe62a3213c10567e24b56e6e4c699fe713380ebe64da50cb5741b7",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "atlasSize": [
+      4735,
+      301
+    ],
+    "frameCount": 16,
+    "scale": 1.06383,
+    "alphaPreserved": false
+  }
+]
