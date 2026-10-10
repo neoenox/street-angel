@@ -43,12 +43,16 @@ function characterBreath(){return 1}
 function playerIdleFrame(){return 3}
 function restraintFrame(e){
   if(e.restraintExit>0&&(e.state==='idle'||e.state==='walk'))return 3;
-  if(e.state==='restrained')return (e.t||0)<8?0:1+(Math.floor(((e.t||0)-8)/10)%2);
-  if(e.state==='holding')return 1+(Math.floor((e.t||0)/16)%2);
+  if(e.state==='restrained'||e.state==='holding')return 1;
   if(e.atk?.n==='restrain'){
     if(e.state==='windup')return 0;
     if(e.state==='attack')return (e.t||0)<=e.atk.he?1:3;
   }
   return null;
 }
-if(typeof module!=='undefined')module.exports={enemyPose,playerAttackFrame,playerIdleFrame,restraintFrame,CHARACTER_PROFILES,characterBreath,spriteFacing};
+function restraintSway(e){
+  if(e.styKey!=='aoi'||e.state!=='restrained')return 0;
+  const t=e.t||0;
+  return Math.sin(t*.19)*.025*Math.min(t/8,1)*e.face;
+}
+if(typeof module!=='undefined')module.exports={enemyPose,playerAttackFrame,playerIdleFrame,restraintFrame,restraintSway,CHARACTER_PROFILES,characterBreath,spriteFacing};

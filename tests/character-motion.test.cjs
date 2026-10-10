@@ -1,17 +1,29 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { enemyPose, playerAttackFrame, playerIdleFrame,characterBreath,spriteFacing } = require('../character-motion.js');
-const {restraintFrame}=require('../character-motion.js');
+const {restraintFrame,restraintSway}=require('../character-motion.js');
 
-test('restraint uses dedicated reach, grip, struggle and release poses without replacing other reactions',()=>{
+test('restraint keeps a single grip pose without replacing other reactions',()=>{
  assert.equal(restraintFrame({state:'windup',atk:{n:'restrain'}}),0);
  assert.equal(restraintFrame({state:'attack',t:5,atk:{n:'restrain',he:10}}),1);
- assert.equal(restraintFrame({state:'holding',t:16}),2);
- assert.equal(restraintFrame({state:'restrained',t:0}),0);
- assert.equal(restraintFrame({state:'restrained',t:18}),2);
+ assert.equal(restraintFrame({state:'holding',t:16}),1);
+ assert.equal(restraintFrame({state:'restrained',t:0}),1);
+ assert.equal(restraintFrame({state:'restrained',t:18}),1);
  assert.equal(restraintFrame({state:'idle',restraintExit:12}),3);
  assert.equal(restraintFrame({state:'hurt',restraintExit:12}),null);
  assert.equal(restraintFrame({state:'idle',restraintExit:0}),null);
+});
+
+test('restraint sway is bounded, mirrored and stops immediately on release',()=>{
+ for(let t=0;t<=180;t++){
+  const p={styKey:'aoi',state:'restrained',t,face:1};
+  assert.ok(Math.abs(restraintSway(p))<=.025);
+  assert.equal(restraintSway({...p,face:-1}),-restraintSway(p));
+  assert.equal(restraintSway({...p,state:'idle'}),0);
+  assert.equal(restraintSway({...p,styKey:'thug',state:'holding'}),0);
+  assert.equal(restraintFrame(p),1);
+ }
+ assert.equal(restraintSway({styKey:'aoi',state:'restrained',t:0,face:1}),0);
 });
 
 test('every character holds one static idle frame at all times',()=>{
