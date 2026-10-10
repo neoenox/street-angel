@@ -1,0 +1,36 @@
+<meta charset="utf-8"><title>t3d</title>
+<body style="margin:0;background:#334"><canvas id="c" width="900" height="420"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script>
+const MAP={'DEF-hips':'pelvis','DEF-spine001':'spine_01','DEF-spine002':'spine_02','DEF-spine003':'spine_03','DEF-neck':'neck_01','DEF-head':'Head'};
+for(const s of['L','R']){const l=s.toLowerCase();Object.assign(MAP,{['DEF-shoulder'+s]:'clavicle_'+l,['DEF-upper_arm'+s]:'upperarm_'+l,['DEF-forearm'+s]:'lowerarm_'+l,['DEF-hand'+s]:'hand_'+l,['DEF-thigh'+s]:'thigh_'+l,['DEF-shin'+s]:'calf_'+l,['DEF-foot'+s]:'foot_'+l,['DEF-toe'+s]:'ball_'+l});
+ for(const f of['index','middle','pinky','ring'])for(const n of['01','02','03'])MAP['DEF-f_'+f+n+s]=f+'_'+n+'_'+l;
+ for(const n of['01','02','03'])MAP['DEF-thumb'+n+s]='thumb_'+n+'_'+l;}
+const load=u=>new Promise((res,rej)=>new THREE.GLTFLoader().load(u,res,undefined,rej));
+(async()=>{
+ const [fe,a1,a2]=await Promise.all([load('assets/female.glb'),load('assets/anim1.glb'),load('assets/anim2.glb')]);
+ const clips={};
+ a2.animations.forEach(c=>clips[c.name]=c);
+ a1.animations.forEach(c=>{const tr=c.tracks.filter(t=>{const i=t.name.lastIndexOf('.');const b=t.name.slice(0,i);return MAP[b]||b==='root'}).map(t=>{const i=t.name.lastIndexOf('.');const b=t.name.slice(0,i),p=t.name.slice(i);const n=(MAP[b]||b)+p;const T=t.constructor;return new T(n,t.times,t.values)});clips[c.name]=new THREE.AnimationClip(c.name,c.duration,tr)});
+ window.clips=clips;
+ const r=new THREE.WebGLRenderer({canvas:document.getElementById('c'),antialias:true});
+ const sc=new THREE.Scene();sc.background=new THREE.Color(0x445566);
+ sc.add(new THREE.HemisphereLight(0xffffff,0x444455,1.2));const dl=new THREE.DirectionalLight(0xffffff,1.5);dl.position.set(2,4,5);sc.add(dl);
+ const cam=new THREE.OrthographicCamera(-4.5,4.5,2.4,-0.4,.1,50);cam.position.set(0,0,10);
+ const names=['Punch_Jab','Punch_Cross','Melee_Hook','Hit_Chest','Hit_Knockback','Death01','LayToIdle','Idle_Loop','Walk_Loop'];
+ const info=[];
+ names.forEach((n,i)=>{
+  const m=THREE.SkeletonUtils?null:null;
+  const mdl=i===0?fe.scene:null;
+ });
+ // one model per pose: clone via re-load is heavy; instead use separate mixers on cloned scene using simple clone of skinned mesh
+ const models=[];
+ for(let i=0;i<names.length;i++){
+   const g=await load('assets/female.glb');const s=g.scene;s.position.set(-3.8+i*.95,0,0);s.rotation.y=1.2;sc.add(s);
+   const mx=new THREE.AnimationMixer(s);const c=clips[names[i]];if(!c){info.push('missing '+names[i]);continue}
+   const a=mx.clipAction(c);a.play();mx.setTime(Math.min(c.duration*.45,c.duration));models.push(s);
+ }
+ r.render(sc,cam);document.title='done '+info.join(',');
+})().catch(e=>document.title='ERR '+e);
+</script>
