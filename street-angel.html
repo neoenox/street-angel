@@ -66,6 +66,13 @@ canvas:focus-visible,button:focus-visible{outline:2px solid var(--accent2);outli
   #wrap{width:100%}#orientation-hint{display:block}#compact-hud:not([hidden]){display:grid}
   #help{font-size:13px;gap:9px 12px;line-height:1.8}
 }
+@media(pointer:coarse) and (max-width:370px){
+  #tp{flex-wrap:nowrap;gap:12px}
+  #tp .dpad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px);gap:4px}
+  #tp .acts{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px);gap:4px}
+  #tp button{font-size:11px;min-height:44px}
+  #tp [data-k=Space]{font-size:10px}
+}
 @media(pointer:coarse) and (orientation:landscape) and (max-height:520px){
   body{padding:6px 10px;gap:6px;justify-content:center}
   #wrap{width:min(100%,calc((100svh - 124px)*16/9))}
