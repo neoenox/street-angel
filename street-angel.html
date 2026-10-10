@@ -5,7 +5,7 @@
 <script src="visual-style.js?v=2"></script>
 <script src="damage-voice.js?v=3"></script>
 <script src="character-motion.js?v=4"></script>
-<script src="enemy-restraint.js?v=2"></script>
+<script src="enemy-restraint.js?v=3"></script>
 <script src="assets/characters/aoi_restraint_v1.js"></script>
 <script src="assets/characters/thug_restraint_v1.js"></script>
 <script src="assets/characters/yankee_restraint_v1.js"></script>
@@ -478,7 +478,7 @@ function drawPerson(e){
   g.filter='none';
   // windup '!' is drawn centrally by warn() for every character in drawCharacters
 }
-function warn(e){if(e.state==='windup'&&Math.floor(e.t/3)%2){txt(e.atk?.n==='restrain'?'掴む!':'!',e.x-cam,e.y-e.z-e.scale*172,26*e.scale**.5,'#ff3d3d','center',4)}}
+function warn(e){if(e.state==='windup'&&e.atk?.n!=='restrain'&&Math.floor(e.t/3)%2){txt('!',e.x-cam,e.y-e.z-e.scale*172,26*e.scale**.5,'#ff3d3d','center',4)}}
 /* 2D sprite player (ChatGPT sprite sheet). Actions without drawn frames reuse the stance with a tilt and lunge until their sheets exist. */
 const SPR={ready:false,walkImg:new Image(),atkImg:new Image(),hitImg:new Image(),jumpImg:new Image()};
 let sprLoaded=0;const sprOk=()=>{if(++sprLoaded===4)SPR.ready=!!(window.SPR_WALK4&&window.SPR_AOI_ATK_V2&&window.SPR_HIT&&window.SPR_JUMP)};
@@ -718,14 +718,18 @@ function updEnemy(e){
         if(e.cd<=0&&!e.next)e.next=!def.boss&&!p.heldBy&&!(p.restraintCooldown>0)&&Math.random()<.25?EnemyRestraint.attack:pick(def.atks);
         if(e.next&&tokens()<ST.tok&&(p.state!=='down'||Math.random()<.02)){
           const A=e.next,tx=p.x-(dx>=0?1:-1)*A.range*.8;
-          if(Math.abs(dx)<A.range&&Math.abs(p.y-e.y)<Math.min(16,A.dt*.6)){e.atk=A;e.state='windup';e.t=0;e.hitSet=new Set();e.next=null;if(A.n==='rush'||A.n==='slam')sfx.warn()}
+          if(Math.abs(dx)<A.range&&Math.abs(p.y-e.y)<Math.min(16,A.dt*.6)){
+            e.atk=A;e.state=A.wind>0?'windup':'attack';e.t=0;e.hitSet=new Set();e.next=null;
+            if(A.n==='rush'||A.n==='slam')sfx.warn();
+            if(e.state==='attack'){e.vx=e.face*(A.lunge||0);strike(e,A,[p])}
+          }
           else moved=steer(e,tx,p.y,def.spd);
         }else{
           const hx=p.x+e.side*e.hold,hy=p.y+Math.sin(e.at*.03+e.id)*38;
           if(Math.abs(hx-e.x)>14||Math.abs(hy-e.y)>10)moved=steer(e,hx,clamp(hy,Y0,Y1),def.spd*.8);
         }
       }
-      if(e.state!=='windup')e.state=moved?'walk':'idle';
+      if(e.state==='idle'||e.state==='walk')e.state=moved?'walk':'idle';
       break}
     case'windup':{
       e.face=(p.x>=e.x)?1:-1;
