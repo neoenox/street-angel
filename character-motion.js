@@ -18,7 +18,8 @@ function enemyPose(e) {
       : {sheet:1,frame:t<A.he+(A.dur-A.he)*.6?14:0};
   }
   let frame=0;
-  if(st==='windup')frame=4;
+  if(st==='holding')frame=5;
+  else if(st==='windup')frame=4;
   else if(st==='attack')frame=t<A.hs?4:t<=A.hs+(A.he-A.hs)/2?5:t<=A.he?6:7;
   else if(st==='hurt')frame=t/Math.max(1,e.stun||16)<.5?2:3;
   else if(st==='down'||st==='dead')frame=e.z>1.5?(t<26?(e.vz>0&&t<14?8:9):10):(e.lt||0)<5?10:11;
