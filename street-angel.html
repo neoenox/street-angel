@@ -29,11 +29,25 @@
   --accent2:#ffc247;
   color-scheme:dark;
 }
-html,body{height:100%}
+html{min-height:100%}
 body{background:var(--bg);color:var(--fg);margin:0;padding-inline:16px;padding-block:12px;box-sizing:border-box;
-  font-family:"Yu Gothic UI","Hiragino Sans","Meiryo",sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
-#wrap{width:min(100%,calc((100vh - 70px)*16/9));min-width:0}
-canvas{display:block;width:100%;aspect-ratio:16/9;background:#000;border:2px solid var(--panel);border-radius:4px;image-rendering:auto}
+  min-height:100svh;font-family:"Yu Gothic UI","Hiragino Sans","Meiryo",sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+#wrap{width:min(100%,calc((100svh - 90px)*16/9));min-width:0}
+canvas{display:block;box-sizing:border-box;width:100%;aspect-ratio:16/9;background:#000;border:2px solid var(--panel);border-radius:4px;image-rendering:auto}
+canvas:focus-visible,button:focus-visible{outline:2px solid var(--accent2);outline-offset:3px}
+#orientation-hint{display:none;margin:0;color:#d5c8d8;font-size:14px;line-height:1.7;text-align:center}
+#orientation-hint strong{display:block;color:var(--fg);font-size:18px}
+#compact-hud{display:none;width:100%;max-width:560px;box-sizing:border-box;background:var(--panel);border:1px solid #443047;padding:10px 12px;gap:8px;font-size:14px}
+#compact-hud[hidden]{display:none}
+.hud-row{display:flex;align-items:center;gap:8px}.hud-row label{min-width:2em;color:#d7cde6}
+.hud-row meter{flex:1;min-width:40px;height:14px;accent-color:var(--accent2)}
+.hud-row meter::-webkit-meter-bar{background:#30263c;border:0;border-radius:3px}
+.hud-row meter::-webkit-meter-optimum-value{background:#ffc247}
+#compact-sp::-webkit-meter-optimum-value{background:#75bfff}
+.hud-row meter::-moz-meter-bar{background:#ffc247}
+#compact-sp::-moz-meter-bar{background:#75bfff}
+.hud-row output{min-width:3em;text-align:right;font-variant-numeric:tabular-nums}
+#compact-sp{accent-color:#75bfff}.hud-meta{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:#d7cde6}
 #help{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;font-size:13px;color:var(--muted);margin:0;padding:0;list-style:none}
 #tp{display:none;width:min(100%,640px);justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;user-select:none;-webkit-user-select:none;touch-action:none}
 #tp .dpad{display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(2,64px);gap:6px}
@@ -47,8 +61,28 @@ canvas{display:block;width:100%;aspect-ratio:16/9;background:#000;border:2px sol
 @media (pointer:coarse){#tp{display:flex}#help{display:none}#wrap{width:min(100%,calc((100vh - 250px)*16/9))}}
 @media (pointer:coarse) and (max-width:520px){#tp .dpad{grid-template-columns:repeat(3,50px);grid-template-rows:repeat(2,50px)}#tp .acts{grid-template-columns:repeat(3,58px)}#tp button{font-size:12px;min-height:48px}}
 #help b{color:var(--accent2);font-weight:700;background:var(--panel);padding:1px 7px;border-radius:3px;margin-right:4px;font-family:ui-monospace,Consolas,monospace}
+@media(max-width:600px){
+  body{padding:18px 12px;justify-content:flex-start;gap:12px}
+  #wrap{width:100%}#orientation-hint{display:block}#compact-hud:not([hidden]){display:grid}
+  #help{font-size:13px;gap:9px 12px;line-height:1.8}
+}
+@media(pointer:coarse) and (orientation:landscape) and (max-height:520px){
+  body{padding:6px 10px;gap:6px;justify-content:center}
+  #wrap{width:min(100%,calc((100svh - 112px)*16/9))}
+  #orientation-hint,#compact-hud:not([hidden]){display:none}
+  #tp{flex-wrap:nowrap;width:min(100%,640px);gap:16px}
+  #tp .dpad{grid-template-columns:repeat(3,36px);grid-template-rows:repeat(2,32px);gap:4px}
+  #tp .acts{grid-template-columns:repeat(3,66px);grid-template-rows:repeat(2,32px);gap:4px}
+  #tp button{font-size:12px;min-height:32px}
+}
 </style>
-<div id="wrap"><canvas id="c" width="960" height="540" tabindex="0"></canvas></div>
+<p id="orientation-hint"><strong>ストリートエンジェル 葵</strong>横向きにすると、キャラと攻撃が大きく見えます。</p>
+<div id="compact-hud" aria-label="葵の状態" hidden>
+  <div class="hud-meta"><span id="compact-stage">STAGE 1</span><span id="compact-lives">残機 3</span><span id="compact-score">0 pts</span></div>
+  <div class="hud-row"><label for="compact-hp">体力</label><meter id="compact-hp" min="0" max="100" value="100"></meter><output id="compact-hp-text">100</output></div>
+  <div class="hud-row"><label for="compact-sp">必殺</label><meter id="compact-sp" min="0" max="100" value="0"></meter><output id="compact-sp-text">0%</output></div>
+</div>
+<div id="wrap"><canvas id="c" width="960" height="540" tabindex="0" aria-label="ストリートエンジェル 葵のゲーム画面"></canvas></div>
 <ul id="help">
 <li><b>←↑↓→ / WASD</b>移動</li><li><b>Z / J</b>パンチ(3連)</li><li><b>X / K</b>キック</li>
 <li><b>Space</b>ジャンプ(+Z/Xで飛び蹴り)</li><li><b>C / L</b>必殺(ゲージ50%)</li><li><b>P</b>ポーズ</li><li><b>M</b>音 ON/OFF</li><li><b>ゲームパッド</b>X パンチ / B キック / A ジャンプ / Y 必殺 / Start ポーズ</li>
@@ -61,6 +95,17 @@ canvas{display:block;width:100%;aspect-ratio:16/9;background:#000;border:2px sol
 (()=>{
 const cv=document.getElementById('c'),g=cv.getContext('2d');
 const W=960,H=540,Y0=384,Y1=506,GR=0.55;
+const smallScreen=matchMedia('(max-width:600px)'),shortTouch=matchMedia('(pointer:coarse) and (orientation:landscape) and (max-height:520px)');
+const compactHUD=document.getElementById('compact-hud');
+const compactUI=Object.fromEntries(['stage','lives','score','hp','hp-text','sp','sp-text'].map(k=>[k,document.getElementById('compact-'+k)]));
+function useCompactHUD(){return smallScreen.matches&&!shortTouch.matches}
+function updateCompactHUD(){
+  compactHUD.hidden=mode==='title';
+  if(!useCompactHUD()||mode==='title')return;
+  const values={stage:ST.name,lives:'残機 '+P.lives,score:score+' pts','hp-text':String(Math.ceil(P.hp)),'sp-text':P.meter>=50?'使用可':Math.floor(P.meter)+'%'};
+  for(const [k,value] of Object.entries(values))if(compactUI[k].textContent!==value)compactUI[k].textContent=value;
+  compactUI.hp.value=P.hp;compactUI.hp.max=P.maxhp;compactUI.sp.value=P.meter;
+}
 const FONT='"Yu Gothic UI","Hiragino Sans","Meiryo",sans-serif';
 const rand=(a,b)=>a+Math.random()*(b-a),ri=(a,b)=>Math.floor(rand(a,b+1)),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t;
 const pick=a=>a[Math.floor(Math.random()*a.length)];
@@ -754,6 +799,11 @@ function drawFx(){
 function bar(x,y,w,h,v,col1,col2,bg='#120c1c'){g.fillStyle=bg;g.fillRect(x-2,y-2,w+4,h+4);g.fillStyle='#3a2a44';g.fillRect(x,y,w,h);const gr=g.createLinearGradient(x,y,x,y+h);gr.addColorStop(0,col1);gr.addColorStop(1,col2);g.fillStyle=gr;g.fillRect(x,y,w*clamp(v,0,1),h)}
 const PORT=new Image();PORT.src='assets/portrait.png';
 function drawHUD(){
+  if(useCompactHUD()){
+    // Status stays readable in HTML; reserve the small canvas for combat.
+    if(lastTarget&&lastTargetT>0){txt(lastTarget.def.name,W-24,30,24,'#fff','right',4);bar(W-224,40,200,12,lastTarget.hp/lastTarget.maxhp,'#ff6a5a','#c4281c')}
+    if(combo>=2)txt(combo+' HIT!',24,42,32,'#ffe14f','left',5);
+  }else{
   // portrait (concept art crop, falls back to a flat circle while loading)
   g.fillStyle='#120c1c';g.beginPath();g.arc(44,44,32,0,7);g.fill();g.save();g.beginPath();g.arc(44,44,29,0,7);g.clip();
   if(PORT.complete&&PORT.naturalWidth)g.drawImage(PORT,10,10,68,68);else{g.fillStyle='#ff9ac0';g.fillRect(10,10,70,70)}
@@ -766,9 +816,10 @@ function drawHUD(){
   txt('SCORE',W-24,28,12,'#a89cb8','right',3);txt(String(score).padStart(7,'0'),W-24,52,28,'#fff','right',5);
   txt(ST.name,W-24,74,13,'#ffc247','right',3);
   if(lastTarget&&lastTargetT>0&&!lastTarget.def.boss){const t=lastTarget;txt(t.def.name,W-24,98,14,'#fff','right',3);bar(W-184,104,160,10,t.hp/t.maxhp,'#ff6a5a','#c4281c')}
-  const boss=enemies.find(e=>e.def.boss&&e.hp>0);
-  if(boss){txt(boss.def.name,W/2-220,H-40,18,'#ffc247','left',4);bar(W/2-220,H-32,440,14,boss.hp/boss.maxhp,'#ff5a5a','#a01818')}
   if(combo>=2){txt(combo+' HIT!',24,120,26+Math.min(10,combo),'#ffe14f','left',5)}
+  }
+  const boss=enemies.find(e=>e.def.boss&&e.hp>0);
+  if(boss){txt(boss.def.name,W/2-220,H-40,useCompactHUD()?26:18,'#ffc247','left',4);bar(W/2-220,H-32,440,14,boss.hp/boss.maxhp,'#ff5a5a','#a01818')}
   if(goT>30&&Math.floor(goT/22)%2&&!waveActive&&!clearT){txt('GO',W-70,H/2-30,44,'#ffe14f','right',6);g.fillStyle='#ffe14f';g.strokeStyle='#120c1c';g.lineWidth=5;g.beginPath();g.moveTo(W-60,H/2-62);g.lineTo(W-26,H/2-44);g.lineTo(W-60,H/2-26);g.closePath();g.stroke();g.fill()}
 }
 function drawBanner(){
@@ -780,6 +831,7 @@ function drawBanner(){
   txt(banner.sub,W/2,272,22,'#fff','center',5);g.restore();
 }
 function render(){
+  updateCompactHUD();
   if(cv.width!==W*2){cv.width=W*2;cv.height=H*2}
   g.setTransform(2,0,0,2,0,0);g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
   g.save();
