@@ -1,0 +1,120 @@
+{
+  "date": "2026-10-10",
+  "provenance": "Generated with built-in ImageGen using project-owned reference artwork. No external stock assets. Retain original source bytes; runtime atlases are normalized derivatives.",
+  "assets": [
+    {
+      "id": "boss_combat",
+      "source": "boss-combat-source.png",
+      "generatedFile": "exec-9a5fece8-ac8f-49ec-beca-44fde25bc56a.png",
+      "cols": 4,
+      "rows": 4,
+      "referenceFrame": 0,
+      "referenceHeight": 260,
+      "anchor": "red",
+      "output": "boss_combat_v2",
+      "global": "SPR_BOSSC_V2",
+      "prompt": "Use case: game sprite asset. Make a production 2D anime beat-em-up sprite sheet, exactly 4 columns x 4 rows, 16 separate full-body poses. Reference image is character identity/style only: use ONLY the rightmost character Gota, the gang boss. Male adult, muscular tall but slimmer than Brute, huge black pompadour, stern visible eyes (REMOVE sunglasses), cheek scar, long open black Japanese school delinquent coat with gold buttons, dark burgundy shirt, red waist sash, black trousers and black leather shoes. Consistent clean dark ink outline, restrained 3-tone cel shading matching the reference art. All poses face RIGHT in profile/three-quarter side view. Fixed camera, fixed proportions and head size, no perspective changes, uniform cell grid, generous blank gutters, each complete body isolated. Genuine transparent background, no shadow, no text, no guides or labels. Row 1: guard stance, subtle breathing guard, recoiling from a hit, stagger leaning backward. Row 2: jab anticipation fist drawn back, straight punch fully extended right, punch follow-through, recovery guard. Row 3: airborne knockback curled, airborne falling backward, landing on side, lying flat facing right. Row 4: lying on side, pushing up on one hand, kneeling with one knee up, standing back into guard. Do not crop extremities, no weapons. This is an animation atlas, not a scene.",
+      "tool": "built-in image_gen",
+      "references": [
+        "source_art/09_enemy_lineup_concept.webp"
+      ],
+      "notes": "",
+      "sourceSha256": "1bc9f4a2e6b5370c640fe1f6e234d96fd535f82a8dea65b9a28fc79f9e663d8e"
+    },
+    {
+      "id": "boss_motion",
+      "source": "boss-motion-source.png",
+      "generatedFile": "exec-655e4ba0-3941-4bea-b615-41c272ce8134.png",
+      "cols": 4,
+      "rows": 2,
+      "referenceFrame": 0,
+      "referenceHeight": 310,
+      "anchor": "red",
+      "output": "boss_motion_v2",
+      "global": "SPR_BOSSM_V2",
+      "prompt": "Production 2D anime beat-em-up sprite atlas, EXACT 4 columns by 2 rows, 8 isolated complete full body poses, even cells and large transparent gutters. Reference is identity and ink/cel shading style only. Draw only the rightmost gang boss Gota: huge black pompadour, stern visible eyes WITHOUT sunglasses, scar on cheek, open long black delinquent school coat with gold buttons, dark burgundy shirt, red sash, black pants, black shoes. All poses face RIGHT in side/three-quarter view, same body scale/head size/camera, clean dark outlines and restrained 3-tone shading. Row1 is four-frame walk cycle: 1 left foot planted forward and right foot behind; 2 right leg passing left, low foot lift; 3 right foot planted forward left behind; 4 left leg passing right. Coat tails lag behind motion. Row2: 1 shoulder charge windup, knees bent body leaning forward; 2 charging forward RIGHT with right shoulder leading and coat trailing; 3 standing overhead two-fist hammer windup, both hands raised above head; 4 deep crouch with BOTH fists slamming ground ahead to RIGHT. Full limbs inside each cell; isolated genuine transparency; NO shadows, effects, lettering, guides, borders, extra characters.",
+      "tool": "built-in image_gen",
+      "references": [
+        "source_art/09_enemy_lineup_concept.webp"
+      ],
+      "notes": "",
+      "sourceSha256": "a983837d20875d383820e571363b63a544e64320f72244b341c7bbc97dc15f58"
+    },
+    {
+      "id": "aoi_attack",
+      "source": "aoi-attack-source.png",
+      "generatedFile": "exec-ba7416f1-2aa2-4a70-92bb-37155fe7cf47.png",
+      "cols": 4,
+      "rows": 4,
+      "referenceFrame": 3,
+      "referenceHeight": 264,
+      "anchor": "navy",
+      "output": "aoi_attack_v2",
+      "global": "SPR_AOI_ATK_V2",
+      "prompt": "Production game animation atlas for Aoi, EXACT 4 columns x 4 rows = 16 COMPLETE poses, isolated with wide blank gutters. Use reference solely for character identity. Same black high ponytail/red hair tie, white navy-collar sailor blouse and red scarf, RED boxing gloves, navy pleated skirt over modest dark safety shorts, navy knee socks, white sneakers. Respectful athletic nonsexual character. Clean anime dark outlines, restrained 3-tone cel shading, stable about 6.5-head proportions, side/three-quarter game view facing RIGHT. Paint on a perfectly flat SOLID PURE GREEN #00FF00 chroma background, no shadows, no highlights/glows outside character, no labels or lines. Uniform 4x4 grid, fixed head size, same body scale on every frame; don't enlarge crouched poses. Every cell keeps full ponytail/hands/shoes inside. Row1 left-to-right: lead jab anticipation with weight on rear leg, jab fully extended RIGHT stepping forward, jab follow-through with shoulder rotated, recovery into stable boxing guard. Row2: rear cross windup torso twisted back, rear cross extended RIGHT transferring weight to front foot, cross follow-through, recovery guard. Row3: low uppercut anticipation bent knees, uppercut rising, uppercut fully extended upward with both feet still visible, recovery guard. Row4: kick chamber knee bent, side kick fully extended RIGHT at waist height with supporting foot firmly planted, kick follow-through, recovered boxing guard. Avoid camera rotation, inconsistent head size, airborne floating feet, detached body parts, weapons, text, excessive musculature. Clear athletic weight transfer and fabric/hair lag.",
+      "tool": "built-in image_gen",
+      "references": [
+        "source_art/02_aoi_design_sheet_3view.webp"
+      ],
+      "notes": "",
+      "sourceSha256": "5a13c86559c4bdb2e5d92eaea63c719cce873c522ab3514203a2d1d43427f267"
+    },
+    {
+      "id": "aoi_gait_final",
+      "source": "aoi-walk-source.png",
+      "generatedFile": "exec-d9666a1f-5a9b-45a2-8bfa-c5c0b7c703f5.png",
+      "cols": 4,
+      "rows": 1,
+      "referenceFrame": 0,
+      "referenceHeight": 264,
+      "anchor": "navy",
+      "output": "aoi_walk_v2",
+      "global": "SPR_AOI_WALK_V2",
+      "prompt": "Edit this 4-cell Aoi walk sprite sheet, keep character identity, costume, body size, head, face, arms, background and 4 equal horizontal cells. Fix legs ONLY. She is WALKING smoothly with feet close to ground, not marching. Cell1 remains left/near leg forward right/far leg back. Cell2: support LEFT/near leg straight under hip; RIGHT/far leg passes in front with knee relaxed and sole only about 20 pixels above ground, much LOWER than original raised knee. Cell3: reverse limb depth order: RIGHT/FAR leg is in FRONT to the right and is shaded DARKER across thigh, sock and sneaker; LEFT/NEAR leg is BEHIND to left and LIGHTER. Cell4: support RIGHT/FAR leg straight under hip and darker; LEFT/NEAR leg passing slightly forward only 20px lifted, LIGHTER. Near left limb consistently lighter, far right limb darker in all cells, clear overlap at thighs so cell1 vs3 and cell2 vs4 are distinct. Preserve natural anatomy and modest safety shorts. No extra clothes/accessories, no markings/text/grid. Pure #00FF00 green background and clean outlines, no effects. Feet must not be cropped.",
+      "tool": "built-in image_gen",
+      "references": [
+        "source_art/character-v2/aoi-walk-intermediate.png"
+      ],
+      "notes": "Intermediate was generated from the Aoi design sheet and the technical gait guide. Passing feet were then lowered. Near/far leg alternation remains imperfect; not a hand-authored gait.",
+      "sourceSha256": "d2ff8b4c7b1b69983f4c5e583cfc4d80b420f6ac138d5be4ea86af017d46d28b"
+    },
+    {
+      "id": "thug_combat",
+      "source": "thug-combat-source.png",
+      "generatedFile": "exec-3a6c6201-8601-4d98-b70e-f6f18c8a7e8b.png",
+      "cols": 4,
+      "rows": 4,
+      "referenceFrame": 0,
+      "referenceHeight": 300,
+      "anchor": "red",
+      "output": "thug_combat_v2",
+      "global": "SPR_THUGC_V2",
+      "prompt": "Production 2D anime beat-em-up sprite atlas, EXACT 4 columns x 4 rows, sixteen complete full-body poses in equal cells with wide clean gutters. Fixed side/three-quarter camera facing RIGHT; same head size and body scale throughout. Clean dark outlines, restrained 3-tone cel shading matching supplied character lineup. All limbs inside cells. Pure flat #00FF00 green background, NO shadows, NO text, NO effects, NO grid lines. Use ONLY leftmost man: red spiky short mohawk, RED sleeveless tank with black cobra badge, blue jeans chain, black boots, left hand white wraps, right fingerless black glove. Lean wiry street brawler, narrower shoulders and less muscular than reference, cocky hunched posture, loose low guard, more scrappy than heroic. Row1 = forward hunched guard, breathing hunched guard, hit flinch, backward stagger. Row2 = large rear fist drawn back with shoulder twist anticipation, straight punch fully extended RIGHT with rear heel raised, aggressive punch follow-through torso leaning forward, recovery low guard. Row3 = airborne knockback, falling backward, landing on side, lying flat. Row4 = lying, pushing up, kneeling, standing into hunched guard. Preserve red mohawk and costume, no weapons.",
+      "tool": "built-in image_gen",
+      "references": [
+        "source_art/09_enemy_lineup_concept.webp"
+      ],
+      "notes": "",
+      "sourceSha256": "9bdf4f90f9504f20b3aa8209e13eb0d3471fae6b58c21d45dc463ac672d84213"
+    },
+    {
+      "id": "yankee_combat",
+      "source": "yankee-combat-source.png",
+      "generatedFile": "exec-0834d734-6229-453f-94d5-667fb06ffd11.png",
+      "cols": 4,
+      "rows": 4,
+      "referenceFrame": 0,
+      "referenceHeight": 300,
+      "anchor": "teal",
+      "output": "yankee_combat_v2",
+      "global": "SPR_YKC_V2",
+      "prompt": "Production 2D anime beat-em-up sprite atlas, EXACT 4 columns x 4 rows, sixteen complete full-body poses in equal cells with wide clean gutters. Fixed side/three-quarter camera facing RIGHT; same head size and body scale throughout. Clean dark outlines, restrained 3-tone cel shading matching supplied character lineup. All limbs inside cells. Pure flat #00FF00 green background, NO shadows, NO text, NO effects, NO grid lines. Use ONLY second man from left: slim athletic young male, black spiky hair, blue bandana, teal track jacket with white/red sleeve stripes, black undershirt, light gray loose cargo pants, white/red sneakers. Give him a sideways kickboxer guard and light agile stance. Row1 = sideways guard, guard subtle breathing, hit flinch, backward stagger. Row2 = knee chamber preparing side kick, powerful side kick fully extended RIGHT at waist height with rear foot planted, extended kick follow-through with jacket swinging, foot lowered recovering guard. Row3 = airborne knockback, falling backward, landing on side, lying down. Row4 = lying, pushing up on hand, kneeling, standing into sideways guard. Preserve modest natural anatomy and identifiable outfit. Legs clearly drawn; kick anticipation must be visibly different from a punch.",
+      "tool": "built-in image_gen",
+      "references": [
+        "source_art/09_enemy_lineup_concept.webp"
+      ],
+      "notes": "",
+      "sourceSha256": "55f08129a2c91168b920b0d103e1fe2773c71f06802ed5c173767c8c26ea0b84"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "purpose": "Temporary female damage speech for Aoi only, not acted recordings.",
+  "engine": "Windows System.Speech SAPI",
+  "voice": "Microsoft Haruka Desktop",
+  "locale": "ja-JP",
+  "rate": 2,
+  "volume": 90,
+  "processing": "Trim silence, RMS level balance with peak cap, 5ms edge fades.",
+  "generator": "tools/generate_aoi_voice.ps1 + tools/prepare_aoi_voice.py",
+  "files": [
+    {
+      "file": "aoi-hurt-u.wav",
+      "text": "うっ",
+      "duration": 0.138,
+      "sampleRate": 22050,
+      "channels": 1,
+      "bits": 16,
+      "sourceSha256": "0f8267613252c81b01e19fe7d939d11e9d0daa050a8cd3b8d48fefdb4e898f6c",
+      "sha256": "a527515a5b991741d152fcfeb544644965038d4935580f955db1687dd8fc41b3"
+    },
+    {
+      "file": "aoi-hurt-ku.wav",
+      "text": "くっ",
+      "duration": 0.1375,
+      "sampleRate": 22050,
+      "channels": 1,
+      "bits": 16,
+      "sourceSha256": "e56c0fd84383994fe9d308ef923c9b0da00d1fcc989c590a24f6835158b8d4d6",
+      "sha256": "b3ab3293beebb883eece3bddcb4a7ec73df4e2a7449d793e7ba2fb8a571145e1"
+    }
+  ]
+}
