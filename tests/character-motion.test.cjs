@@ -1,6 +1,18 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { enemyPose, playerAttackFrame, playerIdleFrame,characterBreath,spriteFacing } = require('../character-motion.js');
+const {restraintFrame}=require('../character-motion.js');
+
+test('restraint uses dedicated reach, grip, struggle and release poses without replacing other reactions',()=>{
+ assert.equal(restraintFrame({state:'windup',atk:{n:'restrain'}}),0);
+ assert.equal(restraintFrame({state:'attack',t:5,atk:{n:'restrain',he:10}}),1);
+ assert.equal(restraintFrame({state:'holding',t:16}),2);
+ assert.equal(restraintFrame({state:'restrained',t:0}),0);
+ assert.equal(restraintFrame({state:'restrained',t:18}),2);
+ assert.equal(restraintFrame({state:'idle',restraintExit:12}),3);
+ assert.equal(restraintFrame({state:'hurt',restraintExit:12}),null);
+ assert.equal(restraintFrame({state:'idle',restraintExit:0}),null);
+});
 
 test('every character holds one static idle frame at all times',()=>{
  for(const style of ['aoi','thug','yankee','brute','boss'])for(const t of [0,24,59,120,600]){

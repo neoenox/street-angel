@@ -1,0 +1,30 @@
+[
+  {
+    "kind": "aoi",
+    "sourceSha256": "1967763f794f1787ae3d96b9ebf1f210914846566b7944ba64575f18463dce5b",
+    "atlasSha256": "5673d15df33bfb8c97e663203cd1db6d147e08ff41e66aae85a2f1a384a4dd13",
+    "frameCount": 4,
+    "scale": 0.9962264150943396
+  },
+  {
+    "kind": "thug",
+    "sourceSha256": "1967763f794f1787ae3d96b9ebf1f210914846566b7944ba64575f18463dce5b",
+    "atlasSha256": "49fcdcbf4598fd2c559fdf84cf2321baf3827681fdd4a2a7140964ab0410d311",
+    "frameCount": 4,
+    "scale": 0.9295774647887324
+  },
+  {
+    "kind": "yankee",
+    "sourceSha256": "1967763f794f1787ae3d96b9ebf1f210914846566b7944ba64575f18463dce5b",
+    "atlasSha256": "cb7b5e4c71e3d00d69b4abbd26b379d011c11cf9e0c39c69831af01407d759b3",
+    "frameCount": 4,
+    "scale": 1.1070110701107012
+  },
+  {
+    "kind": "brute",
+    "sourceSha256": "1967763f794f1787ae3d96b9ebf1f210914846566b7944ba64575f18463dce5b",
+    "atlasSha256": "72137dd01fb6b4373ffa941e06c91d16989fbdecf6abacbd02d46a41deb0daa9",
+    "frameCount": 4,
+    "scale": 0.9361702127659575
+  }
+]
