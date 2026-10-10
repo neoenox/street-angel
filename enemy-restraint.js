@@ -1,8 +1,9 @@
 const EnemyRestraint=(()=>{
   const attack={n:'restrain',wind:0,dur:20,hs:0,he:6,reach:44,dt:16,range:42,anim:'punchF',lunge:0};
+  function isBehind(e,p){return (e.x-p.x)*p.face<-8}
   function capture(e,p){
-    if(p.hp<=0||p.inv>0||p.z>0||p.restraintCooldown>0||p.heldBy||!['idle','walk','attack','hurt'].includes(p.state))return false;
-    p.heldBy=e;e.heldPlayer=p;p.state='restrained';p.t=0;p.escape=0;p.atk=null;p.buf='';p.vx=p.vz=0;p.face=e.face;
+    if(!isBehind(e,p)||Math.abs(e.x-p.x)>attack.reach||Math.abs(e.y-p.y)>attack.dt||p.hp<=0||p.inv>0||p.z>0||p.restraintCooldown>0||p.heldBy||!['idle','walk','attack','hurt'].includes(p.state))return false;
+    e.face=p.face;p.heldBy=e;e.heldPlayer=p;p.state='restrained';p.t=0;p.escape=0;p.atk=null;p.buf='';p.vx=p.vz=0;
     e.state='holding';e.t=0;e.vx=0;e.next=null;align(e,p);return true;
   }
   function align(e,p){e.x=p.x-e.face*(e.type==='brute'?46:38);e.y=p.y}
@@ -19,6 +20,6 @@ const EnemyRestraint=(()=>{
     if(pressed)p.escape++;
     if(p.t>=180||p.escape>=8)release(p);
   }
-  return {attack,capture,release,tick,align};
+  return {attack,capture,release,tick,align,isBehind};
 })();
 if(typeof module!=='undefined')module.exports=EnemyRestraint;

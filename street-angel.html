@@ -5,8 +5,8 @@
 <script src="visual-style.js?v=2"></script>
 <script src="damage-voice.js?v=3"></script>
 <script src="character-motion.js?v=4"></script>
-<script src="enemy-restraint.js?v=4"></script>
-<script src="assets/characters/aoi_restraint_v2.js"></script>
+<script src="enemy-restraint.js?v=5"></script>
+<script src="assets/characters/aoi_restraint_v3.js"></script>
 <script src="assets/characters/thug_restraint_v2.js"></script>
 <script src="assets/characters/yankee_restraint_v2.js"></script>
 <script src="assets/characters/brute_restraint_v2.js"></script>
@@ -567,7 +567,7 @@ for(const kind of ['aoi','thug','yankee','brute']){
       shiftClothingPixels(pixels.data,kind,variant);ctx.putImageData(pixels,0,0);entry.palettes.push(c);
     }
   };
-  entry.img.src='assets/characters/'+kind+'_restraint_v2.png';RESTRAINT_SPRITES[kind]=entry;
+  entry.img.src='assets/characters/'+kind+'_restraint_'+(kind==='aoi'?'v3':'v2')+'.png';RESTRAINT_SPRITES[kind]=entry;
 }
 function drawRestraint(e){
   const i=restraintFrame(e),S=RESTRAINT_SPRITES[e.styKey];
@@ -716,7 +716,8 @@ function updEnemy(e){
       let moved=false;
       if(!e.entered){moved=steer(e,p.x,p.y,def.spd*1.3);if(e.x>cam+30&&e.x<cam+W-30)e.entered=true}
       else if(p.state!=='dead'){
-        if(e.cd<=0&&!e.next)e.next=!def.boss&&!p.heldBy&&!(p.restraintCooldown>0)&&Math.random()<.25?EnemyRestraint.attack:pick(def.atks);
+        if(e.next?.n==='restrain'&&!EnemyRestraint.isBehind(e,p))e.next=null;
+        if(e.cd<=0&&!e.next)e.next=!def.boss&&EnemyRestraint.isBehind(e,p)&&!p.heldBy&&!(p.restraintCooldown>0)&&Math.random()<.25?EnemyRestraint.attack:pick(def.atks);
         if(e.next&&tokens()<ST.tok&&(p.state!=='down'||Math.random()<.02)){
           const A=e.next,tx=p.x-(dx>=0?1:-1)*A.range*.8;
           if(Math.abs(dx)<A.range&&Math.abs(p.y-e.y)<Math.min(16,A.dt*.6)){

@@ -7,17 +7,28 @@ test('enemy AI grabs on its first close-range update without entering windup',()
  const [e,p]=pair();Object.assign(e,{kind:'enemy',type:'thug',face:-1,x:235,y:450,z:0,t:0,at:0,flash:0,entered:true,cd:0,next:R.attack,def:{spd:1,atks:[]}});
  Object.assign(p,{kind:'player'});e.state='idle';
  const ctx=vm.createContext({P:p,EnemyRestraint:R,ST:{tok:2,len:3000},cam:0,W:960,Y0:400,Y1:500,tokens:()=>0,
- clamp:(v,a,b)=>Math.max(a,Math.min(v,b)),sfx:{warn(){}},damage(){throw Error('grabs must not damage')}});
+ clamp:(v,a,b)=>Math.max(a,Math.min(v,b)),pick:a=>a[0],sfx:{warn(){}},damage(){throw Error('grabs must not damage')}});
  vm.runInContext(html.slice(html.indexOf('function strike(a,A,targets){'),html.indexOf('function spark('))+html.slice(html.indexOf('function steer('),html.indexOf('/* ---------- flow ---------- */')),ctx);
  ctx.updEnemy(e);assert.equal(e.state,'holding');assert.equal(p.state,'restrained');assert.equal(p.t,0);assert.equal(R.attack.wind,0);assert.equal(R.attack.hs,0);
+ R.release(p);p.restraintCooldown=0;p.face=1;e.x=235;e.state='idle';e.cd=0;e.next=R.attack;
+ e.def.atks=[{n:'jab',wind:18,range:60,dt:22}];ctx.updEnemy(e);
+ assert.equal(p.state,'idle');assert.equal(e.atk.n,'jab');assert.equal(e.state,'windup');
 });
-function pair(){return [{hp:36,state:'attack',x:240,y:450},{hp:100,state:'idle',x:200,y:450,z:0,inv:0,vx:3,vz:0,t:0}]}
+function pair(){return [{hp:36,state:'attack',x:235,y:450,face:-1},{hp:100,state:'idle',x:200,y:450,face:-1,z:0,inv:0,vx:3,vz:0,t:0}]}
 test('captor stays behind the player, facing the same direction on either side',()=>{
  for(const type of ['thug','yankee','brute'])for(const face of [-1,1]){
-  const [e,p]=pair();Object.assign(e,{type,face});assert.equal(R.capture(e,p),true);
+  const [e,p]=pair();p.face=face;Object.assign(e,{type,face,x:p.x-face*35});assert.equal(R.capture(e,p),true);
   assert.equal(p.face,face);assert.ok((p.x-e.x)*face>0);assert.equal(e.y,p.y);
   p.x+=10;R.align(e,p);assert.ok((p.x-e.x)*face>0);
  }
+});
+test('front, side and out-of-range grabs fail without turning or moving the player',()=>{
+ for(const face of [-1,1])for(const offset of [35,0,-7,-45]){
+  const [e,p]=pair();p.face=face;e.x=p.x+face*offset;
+  assert.equal(R.capture(e,p),false);assert.equal(p.state,'idle');assert.equal(p.face,face);assert.equal(p.x,200);
+ }
+ const [e,p]=pair();p.face=1;e.x=165;assert.equal(R.isBehind(e,p),true);p.face=-1;
+ assert.equal(R.capture(e,p),false);
 });
 test('capture holds in place without damage, throwing, or invulnerability',()=>{
  const [e,p]=pair();assert.equal(R.capture(e,p),true);assert.equal(p.state,'restrained');assert.equal(e.state,'holding');assert.equal(p.hp,100);assert.equal(p.x,200);assert.equal(p.vx,0);

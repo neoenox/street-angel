@@ -11,6 +11,7 @@ class RestraintAssetsTests(unittest.TestCase):
         reports=json.loads((root/'assets/characters/restraint-validation.json').read_text())
         self.assertEqual({r['kind'] for r in reports},{'aoi','thug','yankee','brute'})
         for r in reports:
+            source=root/'source_art/character-v2'/r['source']
             path=root/'assets/characters'/r['output']
             self.assertEqual(hashlib.sha256(source.read_bytes()).hexdigest(),r['sourceSha256'])
             self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(),r['atlasSha256'])

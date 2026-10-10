@@ -1,15 +1,17 @@
 [
   {
     "kind": "aoi",
-    "output": "aoi_restraint_v2.png",
+    "source": "aoi-restraint-rear-v3-source.png",
+    "output": "aoi_restraint_v3.png",
     "referenceHeight": 264,
-    "sourceSha256": "085046992daf51d44c2cd886f8115e5163dbe6952b521aa28345666b2f3fbcca",
-    "atlasSha256": "5dc213acd0a7c1406ee56b372813717946e8aee1dd323aa6aab8a4a557af8173",
+    "sourceSha256": "980758f0ea89db89713b34f4a9762a6e826d3ee85b1382d061fa2dc1b69afc19",
+    "atlasSha256": "b4171ada7e0775e4446622a0da7d494d6df384b155d77ec4733df1301716d9ed",
     "frameCount": 4,
-    "scale": 1.1379310344827587
+    "scale": 0.4105754276827372
   },
   {
     "kind": "thug",
+    "source": "restraint-rear-source.png",
     "output": "thug_restraint_v2.png",
     "referenceHeight": 300,
     "sourceSha256": "085046992daf51d44c2cd886f8115e5163dbe6952b521aa28345666b2f3fbcca",
@@ -19,6 +21,7 @@
   },
   {
     "kind": "yankee",
+    "source": "restraint-rear-source.png",
     "output": "yankee_restraint_v2.png",
     "referenceHeight": 300,
     "sourceSha256": "085046992daf51d44c2cd886f8115e5163dbe6952b521aa28345666b2f3fbcca",
@@ -28,6 +31,7 @@
   },
   {
     "kind": "brute",
+    "source": "restraint-rear-source.png",
     "output": "brute_restraint_v2.png",
     "referenceHeight": 331,
     "sourceSha256": "085046992daf51d44c2cd886f8115e5163dbe6952b521aa28345666b2f3fbcca",
