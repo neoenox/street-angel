@@ -68,12 +68,12 @@ canvas:focus-visible,button:focus-visible{outline:2px solid var(--accent2);outli
 }
 @media(pointer:coarse) and (orientation:landscape) and (max-height:520px){
   body{padding:6px 10px;gap:6px;justify-content:center}
-  #wrap{width:min(100%,calc((100svh - 112px)*16/9))}
+  #wrap{width:min(100%,calc((100svh - 124px)*16/9))}
   #orientation-hint,#compact-hud:not([hidden]){display:none}
   #tp{flex-wrap:nowrap;width:min(100%,640px);gap:16px}
-  #tp .dpad{grid-template-columns:repeat(3,36px);grid-template-rows:repeat(2,32px);gap:4px}
-  #tp .acts{grid-template-columns:repeat(3,66px);grid-template-rows:repeat(2,32px);gap:4px}
-  #tp button{font-size:12px;min-height:32px}
+  #tp .dpad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px);gap:4px}
+  #tp .acts{grid-template-columns:repeat(3,66px);grid-template-rows:repeat(2,44px);gap:4px}
+  #tp button{font-size:12px;min-height:44px}
 }
 </style>
 <p id="orientation-hint"><strong>ストリートエンジェル 葵</strong>横向きにすると、キャラと攻撃が大きく見えます。</p>
@@ -279,11 +279,21 @@ function buildBG(st){
       if(th==='hideout'){
         const t=RI(0,3),bw=RI(150,260);
         c.fillStyle='#2b1a1d';c.fillRect(x,70,bw,262);
-        c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=1;for(let by=70;by<332;by+=18){c.beginPath();c.moveTo(x,by);c.lineTo(x+bw,by);c.stroke();for(let bx=x+(by/18%2?0:20);bx<x+bw;bx+=40){c.beginPath();c.moveTo(bx,by);c.lineTo(bx,by+18);c.stroke()}}
+        const masonry=c.createLinearGradient(x,70,x+bw,332);masonry.addColorStop(0,'rgba(158,104,83,.1)');masonry.addColorStop(1,'rgba(8,6,12,.3)');c.fillStyle=masonry;c.fillRect(x,70,bw,262);
+        c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=1;for(let by=70;by<332;by+=18){c.beginPath();c.moveTo(x,by);c.lineTo(x+bw,by);c.stroke();for(let bx=x+(Math.floor((by-70)/18)%2?0:20);bx<x+bw;bx+=40){c.beginPath();c.moveTo(bx,by);c.lineTo(bx,by+18);c.stroke()}}
         if(t===0){c.fillStyle='#17090c';c.fillRect(x+30,110,bw-60,130);c.fillStyle='#d6402f';c.font='bold 54px '+FONT;c.fillText('黒蛇会',x+bw/2,175)}
-        if(t===1){c.fillStyle='#4a3a2a';for(let k=0;k<3;k++){c.fillRect(x+16+k*48,262-k*0,42,56);c.strokeStyle='#2a1c10';c.strokeRect(x+16+k*48,262,42,56)}c.fillStyle='#3a2a1c';c.fillRect(x+36,206,46,56);c.strokeRect(x+36,206,46,56)}
+        if(t===1){
+          for(const [cx,cy,cw,ch] of [[x+16,262,42,56],[x+64,262,42,56],[x+112,262,42,56],[x+36,206,46,56]]){
+            c.fillStyle='#4a3a2a';c.fillRect(cx,cy,cw,ch);c.fillStyle='#2d251f';c.fillRect(cx+cw-6,cy,6,ch);c.fillStyle='#68513a';c.fillRect(cx,cy,cw,4);
+            c.strokeStyle='#271e18';c.lineWidth=2;c.strokeRect(cx,cy,cw,ch);for(let sl=14;sl<ch;sl+=14){c.beginPath();c.moveTo(cx,cy+sl);c.lineTo(cx+cw,cy+sl);c.stroke()}
+            c.strokeStyle='#806349';c.lineWidth=3;c.beginPath();c.moveTo(cx+4,cy+ch-5);c.lineTo(cx+cw-7,cy+7);c.stroke();
+          }
+        }
         if(t===2){c.strokeStyle='#6b6070';c.lineWidth=8;c.beginPath();c.moveTo(x+20,70);c.lineTo(x+20,332);c.moveTo(x+60,70);c.lineTo(x+60,332);c.stroke();c.fillStyle='#ffcf7a';c.beginPath();c.moveTo(x+bw/2-18,70);c.lineTo(x+bw/2+18,70);c.lineTo(x+bw/2+30,102);c.lineTo(x+bw/2-30,102);c.fill();c.globalAlpha=.12;c.beginPath();c.moveTo(x+bw/2-22,102);c.lineTo(x+bw/2+22,102);c.lineTo(x+bw/2+90,332);c.lineTo(x+bw/2-90,332);c.fill();c.globalAlpha=1}
         if(t===3){c.fillStyle='#17090c';c.fillRect(x+bw/2-44,172,88,160);c.strokeStyle='#d6402f';c.lineWidth=3;c.beginPath();c.moveTo(x+bw/2-30,196);c.bezierCurveTo(x+bw/2+10,170,x+bw/2+30,230,x+bw/2-6,250);c.stroke()}
+        c.fillStyle='#17131b';c.fillRect(x+bw-7,70,7,262);c.fillStyle='#55444a';c.fillRect(x+bw-6,70,2,262);
+        for(let bolt=88;bolt<332;bolt+=52){c.fillStyle='#88716d';c.fillRect(x+bw-5,bolt,2,2)}
+        c.fillStyle='#17141a';c.fillRect(x,324,bw,8);
         x+=bw;continue;
       }
       const sw=RI(170,260),sh=RI(150,210),top=332-sh,fac=th==='dusk'?PK(['#7a4a5e','#5f4a78','#8a5a4a','#4e5f7a']):PK(['#1d1a3d','#241a42','#17203a']);
@@ -329,7 +339,9 @@ function buildBG(st){
   L.gnd=mkLayer(st.len+W,(c,w)=>{
     if(th==='hideout'){c.fillStyle='#34262a';c.fillRect(0,330,w,210);c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=2;
       for(let x=0;x<w;x+=90){c.beginPath();c.moveTo(x,360);c.lineTo(x-40,540);c.stroke()}for(let y=360;y<540;y+=44){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke()}
-      c.fillStyle='rgba(214,64,47,.25)';c.fillRect(0,330,w,4);return}
+      c.fillStyle='rgba(214,64,47,.25)';c.fillRect(0,330,w,4);
+      c.fillStyle='rgba(170,134,119,.12)';for(let i=0;i<w/30;i++)c.fillRect(R(0,w),R(380,535),R(2,6),1);
+      return}
     c.fillStyle=th==='dusk'?'#8c7a8a':'#2c2c4a';c.fillRect(0,330,w,44);
     c.fillStyle=th==='dusk'?'#a89aa6':'#3c3c60';c.fillRect(0,372,w,6);
     c.fillStyle=th==='dusk'?'#3b3444':'#14142a';c.fillRect(0,378,w,162);
