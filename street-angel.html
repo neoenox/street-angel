@@ -4,7 +4,7 @@
 <!-- All fighters use local 2D sheets. -->
 <script src="visual-style.js"></script>
 <script src="character-motion.js"></script>
-<script src="assets/characters/aoi_walk_v2.js"></script>
+<script src="assets/aoi_walk4.js"></script>
 <script src="assets/characters/aoi_attack_v2.js"></script>
 <script src="assets/characters/thug_combat_v2.js"></script>
 <script src="assets/characters/yankee_combat_v2.js"></script>
@@ -474,19 +474,19 @@ function drawPerson(e){
 function warn(e){if(e.state==='windup'&&Math.floor(e.t/3)%2){txt('!',e.x-cam,e.y-e.z-e.scale*172,26*e.scale**.5,'#ff3d3d','center',4)}}
 /* 2D sprite player (ChatGPT sprite sheet). Actions without drawn frames reuse the stance with a tilt and lunge until their sheets exist. */
 const SPR={ready:false,walkImg:new Image(),atkImg:new Image(),hitImg:new Image(),jumpImg:new Image()};
-let sprLoaded=0;const sprOk=()=>{if(++sprLoaded===4)SPR.ready=!!(window.SPR_AOI_WALK_V2&&window.SPR_AOI_ATK_V2&&window.SPR_HIT&&window.SPR_JUMP)};
-SPR.walkImg.onload=sprOk;SPR.atkImg.onload=sprOk;SPR.hitImg.onload=sprOk;SPR.jumpImg.onload=sprOk;SPR.jumpImg.src='assets/aoi_jump.png';SPR.hitImg.src='assets/aoi_hit.png';SPR.walkImg.src='assets/characters/aoi_walk_v2.png';SPR.atkImg.src='assets/characters/aoi_attack_v2.png';
+let sprLoaded=0;const sprOk=()=>{if(++sprLoaded===4)SPR.ready=!!(window.SPR_WALK4&&window.SPR_AOI_ATK_V2&&window.SPR_HIT&&window.SPR_JUMP)};
+SPR.walkImg.onload=sprOk;SPR.atkImg.onload=sprOk;SPR.hitImg.onload=sprOk;SPR.jumpImg.onload=sprOk;SPR.jumpImg.src='assets/aoi_jump.png';SPR.hitImg.src='assets/aoi_hit.png';SPR.walkImg.src='assets/aoi_walk4.png';SPR.atkImg.src='assets/characters/aoi_attack_v2.png';
 const JUMP_K=.94; // jump/special sheet: head read ~6% bigger than the attack guard
-const WALK_K=1; // New walk and attack sheets share the same reference scale.
+const WALK_K=1.04; // Retain the smoother original walk and its head-size correction.
 const SHEET_K=.82; // Retained hit sheet needs its original head-size correction.
 const IDLE_SEQ=[3,3]; // One stable guard, with subtle foot-anchored breathing.
-const WALK_SEQ=[0,1,2,3]; // Contact and low passing poses; never replay backward.
+const WALK_SEQ=[0,1,2,3,4,6,8,9]; // Restore the original eight-pose cycle; the four-pose replacement repeated the same leg.
 function drawSprite(e){
   let F=window.SPR_AOI_ATK_V2.frames,img=SPR.atkImg;const st=e.state,A=e.atk,t=e.t;
   let i=0,dx=0,dy=0,rot=0,vf=e.face;
   const ex=A?(t<A.hs?t/Math.max(1,A.hs):t<=A.he?1:Math.max(0,1-(t-A.he)/Math.max(1,Math.min(A.dur,40)-A.he))):0;
   if(st==='idle'){if(e.landT>0){F=window.SPR_JUMP.frames;img=SPR.jumpImg;i=e.landK||0}else i=IDLE_SEQ[Math.floor(e.at/24)%2]}
-  else if(st==='walk'){F=window.SPR_AOI_WALK_V2.frames;img=SPR.walkImg;i=WALK_SEQ[Math.floor(e.wp/2)%WALK_SEQ.length]}
+  else if(st==='walk'){F=window.SPR_WALK4.frames;img=SPR.walkImg;i=WALK_SEQ[Math.floor(e.wp/1.56)%WALK_SEQ.length]}
   else if(st==='jump'){F=window.SPR_JUMP.frames;img=SPR.jumpImg;i=e.vz>3?1:e.vz>-2?2:3}
   else if(st==='jatk'){F=window.SPR_JUMP.frames;img=SPR.jumpImg;i=e.vz>4?4:e.z>22?5:6}
   else if(st==='attack'||st==='windup'){
