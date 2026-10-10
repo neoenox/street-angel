@@ -3,6 +3,7 @@
 <title>ストリートエンジェル 葵</title>
 <!-- All fighters use local 2D sheets. -->
 <script src="visual-style.js"></script>
+<script src="damage-voice.js"></script>
 <script src="character-motion.js?v=2"></script>
 <script src="assets/aoi_walk4.js"></script>
 <script src="assets/characters/aoi_attack_v2.js"></script>
@@ -128,7 +129,8 @@ const dn=(...k)=>k.some(c=>keys[c]),hit=(...k)=>k.some(c=>press[c]);
 
 /* ---------- audio ---------- */
 let AC=null,muted=false;
-function audioInit(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume()}
+const damageVoice=new AoiDamageVoice(()=>AC,()=>muted);
+function audioInit(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();if(AC)damageVoice.warmup()}
 function tone(f0,f1,d,type='square',v=.06){if(!AC||muted)return;const t=AC.currentTime,o=AC.createOscillator(),gn=AC.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t+d);gn.gain.setValueAtTime(v,t);gn.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(gn);gn.connect(AC.destination);o.start(t);o.stop(t+d)}
 function noise(d,v=.1){if(!AC||muted)return;const n=Math.floor(AC.sampleRate*d),b=AC.createBuffer(1,n,AC.sampleRate),a=b.getChannelData(0);for(let i=0;i<n;i++)a[i]=(Math.random()*2-1)*(1-i/n);const s=AC.createBufferSource(),gn=AC.createGain();gn.gain.value=v;s.buffer=b;s.connect(gn);gn.connect(AC.destination);s.start()}
 const sfx={swing:()=>tone(700,250,.07,'sawtooth',.03),punch:()=>{noise(.07,.12);tone(190,70,.09,'square',.08)},heavy:()=>{noise(.16,.2);tone(120,40,.2,'square',.12)},
@@ -590,7 +592,7 @@ function damage(t,a,A){
     if(t.hp<=0){t.hp=0;score+=t.def.score;freeze=12;shake=10;sfx.ko();t.drop=t.def.boss?null:(t.type==='brute'||Math.random()<.18)?pick(['rice','rice','milk']):null;
       if(t.def.boss){freeze=40;shake=20;for(let i=0;i<30;i++)fx.push({k:'dot',x:t.x,y:t.y,z:t.z+40,vx:rand(-6,6),vz:rand(2,9),life:rand(20,40),col:pick(['#fff','#ffd95a','#ff3d6e'])})}}
   }else{
-    a.hitSet.add(t);t.inv=0;combo=0;sfx.hurt();t.meter=Math.min(100,t.meter+4);t.hurtN=(t.hurtN||0)+1;t.hurtT=0;
+    a.hitSet.add(t);t.inv=0;combo=0;sfx.hurt();damageVoice.play(t.kind);t.meter=Math.min(100,t.meter+4);t.hurtN=(t.hurtN||0)+1;t.hurtT=0;
     if(t.hurtN>=3){down=true;t.hurtN=0;t.hurtT=null}
     if(t.hp<=0){t.hp=0}
   }
@@ -713,6 +715,7 @@ function updEnemy(e){
 
 /* ---------- flow ---------- */
 function loadStage(i){
+  damageVoice.stop();
   stageIdx=i;ST=STAGES[i];BG=buildBG(ST);cam=0;limit=0;waveIdx=-1;waveActive=false;queue=[];enemies=[];items=[];fx=[];clearT=0;goT=0;
   P.x=80;P.y=450;P.state='idle';P.t=0;P.z=0;P.vz=0;P.vx=0;P.inv=60;
   banner={t:0,main:ST.name,sub:ST.title};
@@ -741,10 +744,10 @@ function updWaves(){
 }
 function update(){
   frame++;
-  if(hit('KeyM')){muted=!muted;if(muted)stopMusic()}
+  if(hit('KeyM')){muted=!muted;if(muted){stopMusic();damageVoice.stop()}}
   if(mode==='title'){if(hit('Enter','KeyZ','KeyJ','Space')&&mayStart())startGame();return}
   if(mode==='gameover'||mode==='win'){if(hit('Enter'))mode='title';return}
-  if(hit('KeyP','Escape')){paused=!paused}
+  if(hit('KeyP','Escape')){paused=!paused;if(paused)damageVoice.stop()}
   if(paused)return;
   if(banner){banner.t++;if(banner.t>150)banner=null}
   if(freeze>0){freeze--;return}
@@ -872,7 +875,7 @@ function loop(now){
   musicUpdate();render();requestAnimationFrame(loop);
 }
 /* Debug hooks are only exposed with ?debug (e.g. street-angel.html?debug) so production has no cheat/backdoor surface. */
-if(/[?&]debug\b/.test(location.search))window.__game=()=>({mode,P,enemies,cam,ST,score,startGame,loadStage,dbg:{SPR,ESET,assetsReady,mayStart,r3d:()=>false},pollPad,keys:()=>keys,musicTest:()=>{const _AC=AC,_MG=MG,_nb=noiseBuf,_mus=mus;try{AC=new OfflineAudioContext(1,44100*3,44100);MG=null;noiseBuf=null;mus={name:'dusk',th:MUS.dusk,step:0,next:.05};scheduleMusic();const a=mus.step;mus={name:'boss',th:MUS.boss,step:0,next:.05};scheduleMusic();return[a,mus.step]}finally{AC=_AC;MG=_MG;noiseBuf=_nb;mus=_mus}},step:n=>{for(let i=0;i<n;i++){update();press={}}render()}});
+if(/[?&]debug\b/.test(location.search))window.__game=()=>({mode,P,enemies,cam,ST,score,startGame,loadStage,dbg:{SPR,ESET,assetsReady,mayStart,damageVoice,r3d:()=>false},pollPad,keys:()=>keys,musicTest:()=>{const _AC=AC,_MG=MG,_nb=noiseBuf,_mus=mus;try{AC=new OfflineAudioContext(1,44100*3,44100);MG=null;noiseBuf=null;mus={name:'dusk',th:MUS.dusk,step:0,next:.05};scheduleMusic();const a=mus.step;mus={name:'boss',th:MUS.boss,step:0,next:.05};scheduleMusic();return[a,mus.step]}finally{AC=_AC;MG=_MG;noiseBuf=_nb;mus=_mus}},step:n=>{for(let i=0;i<n;i++){update();press={}}render()}});
 
 requestAnimationFrame(loop);
 })();
