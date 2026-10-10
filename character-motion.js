@@ -26,6 +26,10 @@ function enemyPose(e) {
   return {sheet:1,frame};
 }
 
+// Brute's overhead anticipation alone was drawn facing left in the source atlas.
+// Correct at draw time around the same anchor; hit/recovery and other sheets face right.
+function spriteFacing(style,sheet,frame,face){return style==='brute'&&sheet===1&&frame===4?-face:face}
+
 // A shared profile is used by the game and the character lineup.
 const CHARACTER_PROFILES={
   aoi:{width:1,breath:.003,period:52},
@@ -35,4 +39,4 @@ const CHARACTER_PROFILES={
   boss:{width:.94,breath:.002,period:66},
 };
 function characterBreath(style,phase,state){const p=CHARACTER_PROFILES[style]||CHARACTER_PROFILES.aoi;return state==='idle'?1+Math.sin(phase/p.period)*p.breath:1}
-if(typeof module!=='undefined')module.exports={enemyPose,playerAttackFrame,CHARACTER_PROFILES,characterBreath};
+if(typeof module!=='undefined')module.exports={enemyPose,playerAttackFrame,CHARACTER_PROFILES,characterBreath,spriteFacing};

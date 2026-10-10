@@ -3,7 +3,7 @@
 <title>ストリートエンジェル 葵</title>
 <!-- All fighters use local 2D sheets. -->
 <script src="visual-style.js"></script>
-<script src="character-motion.js"></script>
+<script src="character-motion.js?v=2"></script>
 <script src="assets/aoi_walk4.js"></script>
 <script src="assets/characters/aoi_attack_v2.js"></script>
 <script src="assets/characters/thug_combat_v2.js"></script>
@@ -543,7 +543,7 @@ function drawEnemy(e){
   const pose=enemyPose(e);let sheet=pose.sheet,i=pose.frame;
   if(st==='walk'){sheet=0;i=S.walkSeq[Math.floor(e.wp/S.walkDiv)%S.walkSeq.length]}
   const F=window[S.data[sheet]].frames,img=S.img[sheet],palettes=S.palettes[sheet];
-  blit(e,F,palettes?palettes[e.variant||0]:img,i,e.face,S.k);
+  blit(e,F,palettes?palettes[e.variant||0]:img,i,spriteFacing(e.styKey,sheet,i,e.face),S.k);
 }
 const hasSprite=e=>e.styKey==='aoi'?SPR.ready:ESET[e.styKey]?ESET[e.styKey].ready:false;
 const loadT0=performance.now();

@@ -1,6 +1,6 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { enemyPose, playerAttackFrame } = require('../character-motion.js');
+const { enemyPose, playerAttackFrame, spriteFacing } = require('../character-motion.js');
 
 test('boss charge and slam show different anticipation before damage starts', () => {
   assert.deepEqual(enemyPose({styKey:'boss',state:'windup',t:10,atk:{n:'rush'}}), {sheet:0,frame:4});
@@ -21,4 +21,16 @@ test('Aoi jab, cross, uppercut and kick reach their hit poses at damage onset', 
     assert.equal(playerAttackFrame(anim,7,7,12),expected);
   assert.equal(playerAttackFrame('upper',2,7,12),8);
   assert.equal(playerAttackFrame('kick',18,7,12),15);
+});
+
+test('Brute anticipation is corrected in both directions without reversing the hit or other fighters', () => {
+  for(const face of [-1,1]){
+    const wind=enemyPose({styKey:'brute',state:'windup'});
+    assert.equal(spriteFacing('brute',wind.sheet,wind.frame,face),-face);
+    for(let frame=0;frame<16;frame++){
+      assert.equal(spriteFacing('brute',0,frame,face),face);
+      if(frame!==4)assert.equal(spriteFacing('brute',1,frame,face),face);
+      for(const style of ['aoi','thug','yankee','boss'])assert.equal(spriteFacing(style,1,frame,face),face);
+    }
+  }
 });
