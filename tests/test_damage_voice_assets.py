@@ -7,6 +7,11 @@ import wave
 
 
 class DamageVoiceAssetsTests(unittest.TestCase):
+    def test_selected_voice_matches_user_supplied_bytes(self):
+        root = Path(__file__).parents[1] / 'assets/audio'
+        record = json.loads((root / 'selected-voice.json').read_text())
+        self.assertEqual(hashlib.sha256((root / record['file']).read_bytes()).hexdigest(), record['sha256'])
+
     def test_clips_are_short_non_silent_pcm_with_faded_edges_and_recorded_hashes(self):
         root = Path(__file__).parents[1] / 'assets/audio'
         provenance = json.loads((root / 'provenance.json').read_text(encoding='utf-8'))

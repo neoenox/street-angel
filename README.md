@@ -18,7 +18,7 @@ python -m http.server 8765
 |---|---|
 | `street-angel.html` | ゲーム本体(ゲームロジック、描画、音楽、入力、すべて) |
 | `r3d.js` / `vendor/` | 旧3D描画の保存用。現在のゲームでは読み込まない |
-| `damage-voice.js` / `assets/audio/` | 葵だけの短い被弾仮ボイス、重なり防止・ミュート連動 |
+| `damage-voice.js` / `assets/audio/` | 葵だけの指定MP3による被弾ボイス、重なり防止・ミュート連動 |
 | `character-motion.js` | 攻撃判定に合わせたポーズ選択・体格・呼吸の設定 |
 | `character-lab.html` | 5人の体格・構え・動き・向きを切り替えて比較 |
 | `visual-style.js` | 敵の赤・青緑の部分だけを色替えする処理。陰影・肌色・透明度を保ち、読み込み時にシートをキャッシュ |
@@ -79,4 +79,4 @@ python -m unittest discover -s tests -p "test_*.py"
 [キャラクターの変更・画像・確認結果](docs/character-review/README.md)を参照。保存してある旧3D素材は現在のゲームでは不要。配布するときはHTMLと読み込まれるスクリプト・画像を同じフォルダ構成で配信する。
 
 ## ダメージボイス
-葵の被弾時だけ、短い日本語女性合成音声を再生。敵の声はなし。Mで音声もミュートできる。[素材・再生成・確認結果](docs/damage-voice.md)を参照。
+葵の被弾時だけ、指定された `shozyo2-u.mp3` を再生。敵の声はなし。Mで音声もミュートできる。[素材・再生成・確認結果](docs/damage-voice.md)を参照。

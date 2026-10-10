@@ -1,4 +1,4 @@
-/* Short, local placeholder clips for Aoi only. Gameplay never waits for audio. */
+/* User-selected local damage voice for Aoi only. Gameplay never waits for audio. */
 class AoiDamageVoice {
   constructor(getContext,isMuted,fetcher=(...args)=>fetch(...args)){
     this.getContext=getContext;this.isMuted=isMuted;this.fetcher=fetcher;
@@ -6,9 +6,9 @@ class AoiDamageVoice {
   }
   warmup(){
     const ctx=this.getContext();if(!ctx)return Promise.resolve();
-    if(!this.loading)this.loading=Promise.all(['u','ku'].map(async name=>{
+    if(!this.loading)this.loading=Promise.all(['assets/audio/aoi-hurt.mp3'].map(async path=>{
       try{
-        const response=await this.fetcher('assets/audio/aoi-hurt-'+name+'.wav');
+        const response=await this.fetcher(path);
         if(!response.ok)return null;
         return await ctx.decodeAudioData(await response.arrayBuffer());
       }catch{return null}
