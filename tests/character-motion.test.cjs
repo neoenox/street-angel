@@ -1,6 +1,13 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { enemyPose, playerAttackFrame, spriteFacing } = require('../character-motion.js');
+const { enemyPose, playerAttackFrame, playerIdleFrame,characterBreath,spriteFacing } = require('../character-motion.js');
+
+test('every character holds one static idle frame at all times',()=>{
+ for(const style of ['aoi','thug','yankee','brute','boss'])for(const t of [0,24,59,120,600]){
+  assert.equal(style==='aoi'?playerIdleFrame(t):enemyPose({styKey:style,state:'idle',t}).frame,style==='aoi'?3:0);
+  assert.equal(characterBreath(style,t,'idle'),1);
+ }
+});
 
 test('boss charge and slam show different anticipation before damage starts', () => {
   assert.deepEqual(enemyPose({styKey:'boss',state:'windup',t:10,atk:{n:'rush'}}), {sheet:0,frame:4});

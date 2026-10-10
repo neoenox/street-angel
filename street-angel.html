@@ -2,9 +2,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ストリートエンジェル 葵</title>
 <!-- All fighters use local 2D sheets. -->
-<script src="visual-style.js"></script>
+<script src="visual-style.js?v=2"></script>
 <script src="damage-voice.js?v=3"></script>
-<script src="character-motion.js?v=2"></script>
+<script src="character-motion.js?v=3"></script>
 <script src="enemy-restraint.js"></script>
 <script src="assets/aoi_walk4.js"></script>
 <script src="assets/characters/aoi_attack_v2.js"></script>
@@ -482,13 +482,12 @@ SPR.walkImg.onload=sprOk;SPR.atkImg.onload=sprOk;SPR.hitImg.onload=sprOk;SPR.jum
 const JUMP_K=.94; // jump/special sheet: head read ~6% bigger than the attack guard
 const WALK_K=1.04; // Retain the smoother original walk and its head-size correction.
 const SHEET_K=.82; // Retained hit sheet needs its original head-size correction.
-const IDLE_SEQ=[3,3]; // One stable guard, with subtle foot-anchored breathing.
 const WALK_SEQ=[0,1,2,3,4,6,8,9]; // Restore the original eight-pose cycle; the four-pose replacement repeated the same leg.
 function drawSprite(e){
   let F=window.SPR_AOI_ATK_V2.frames,img=SPR.atkImg;const st=e.state,A=e.atk,t=e.t;
   let i=0,dx=0,dy=0,rot=0,vf=e.face;
   const ex=A?(t<A.hs?t/Math.max(1,A.hs):t<=A.he?1:Math.max(0,1-(t-A.he)/Math.max(1,Math.min(A.dur,40)-A.he))):0;
-  if(st==='idle'){if(e.landT>0){F=window.SPR_JUMP.frames;img=SPR.jumpImg;i=e.landK||0}else i=IDLE_SEQ[Math.floor(e.at/24)%2]}
+  if(st==='idle'){if(e.landT>0){F=window.SPR_JUMP.frames;img=SPR.jumpImg;i=e.landK||0}else i=playerIdleFrame()}
   else if(st==='walk'){F=window.SPR_WALK4.frames;img=SPR.walkImg;i=WALK_SEQ[Math.floor(e.wp/1.56)%WALK_SEQ.length]}
   else if(st==='jump'){F=window.SPR_JUMP.frames;img=SPR.jumpImg;i=e.vz>3?1:e.vz>-2?2:3}
   else if(st==='jatk'){F=window.SPR_JUMP.frames;img=SPR.jumpImg;i=e.vz>4?4:e.z>22?5:6}
@@ -524,7 +523,7 @@ const ESET={
 for(const key in ESET){const S=ESET[key];S.palettes={};S.files.forEach((f,n)=>{const im=new Image();im.onload=()=>{
   if(key==='thug'||key==='yankee'){
     S.palettes[n]=[im];
-    for(let variant=1;variant<3;variant++){
+    for(let variant=key==='yankee'?0:1;variant<3;variant++){
       const sheet=document.createElement('canvas');sheet.width=im.naturalWidth;sheet.height=im.naturalHeight;
       const ctx=sheet.getContext('2d');ctx.drawImage(im,0,0);
       const pixels=ctx.getImageData(0,0,sheet.width,sheet.height);shiftClothingPixels(pixels.data,key,variant);ctx.putImageData(pixels,0,0);

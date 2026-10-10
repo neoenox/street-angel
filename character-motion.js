@@ -39,5 +39,6 @@ const CHARACTER_PROFILES={
   brute:{width:1.02,breath:.004,period:70},
   boss:{width:.94,breath:.002,period:66},
 };
-function characterBreath(style,phase,state){const p=CHARACTER_PROFILES[style]||CHARACTER_PROFILES.aoi;return state==='idle'?1+Math.sin(phase/p.period)*p.breath:1}
-if(typeof module!=='undefined')module.exports={enemyPose,playerAttackFrame,CHARACTER_PROFILES,characterBreath,spriteFacing};
+function characterBreath(){return 1}
+function playerIdleFrame(){return 3}
+if(typeof module!=='undefined')module.exports={enemyPose,playerAttackFrame,playerIdleFrame,CHARACTER_PROFILES,characterBreath,spriteFacing};
