@@ -652,9 +652,9 @@ function updPlayer(p){
       else strike(p,ATK.jkick,enemies);
       if(p.z<=0){p.landK=p.state==='jatk'?7:0;p.landT=6;p.z=0;p.vz=0;p.state='idle';p.t=0;p.vx=0;sfx.land();for(let i=0;i<4;i++)fx.push({k:'dust',x:p.x,y:p.y,z:2,vx:rand(-2,2),vz:rand(0,1),life:16})}
       break}
-    case'hurt':p.x+=p.vx;p.vx*=.8;if(p.t>=p.stun){p.state='idle';p.t=0;p.inv=36}break;
+    case'hurt':p.x+=p.vx;p.vx*=.8;if(p.t>=p.stun){p.state='idle';p.t=0}break;
     case'down':downLogic(p);break;
-    case'getup':if(p.t>=28){p.state='idle';p.t=0;p.inv=Math.max(p.inv,70)}break;
+    case'getup':if(p.t>=28){p.state='idle';p.t=0}break;
     case'dead':
       if(p.t>50){p.lives--;
         if(p.lives<=0){mode='gameover';sfx.ko()}
