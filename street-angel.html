@@ -92,7 +92,7 @@ canvas:focus-visible,button:focus-visible{outline:2px solid var(--accent2);outli
 <div id="wrap"><canvas id="c" width="960" height="540" tabindex="0" aria-label="ストリートエンジェル 葵のゲーム画面"></canvas></div>
 <ul id="help">
 <li><b>←↑↓→ / WASD</b>移動</li><li><b>Z / J</b>パンチ(3連)</li><li><b>X / K</b>キック</li>
-<li><b>Space</b>ジャンプ(+Z/Xで飛び蹴り)</li><li><b>C / L</b>必殺(ゲージ50%)</li><li><b>P</b>ポーズ</li><li><b>M</b>音 ON/OFF</li><li><b>ゲームパッド</b>X パンチ / B キック / A ジャンプ / Y 必殺 / Start ポーズ</li>
+<li><b>Space</b>ジャンプ(+Z/Xで飛び蹴り)</li><li><b>C / L</b>必殺(ゲージ50%)</li><li><b>Z/X 連打</b>拘束脱出</li><li><b>P</b>ポーズ</li><li><b>M</b>音 ON/OFF</li><li><b>ゲームパッド</b>X パンチ / B キック / A ジャンプ / Y 必殺 / Start ポーズ</li>
 </ul>
 <div id="tp" aria-label="タッチ操作">
 <div class="dpad"><button data-k="ArrowUp">▲</button><button data-k="ArrowLeft">◀</button><button data-k="ArrowDown">▼</button><button data-k="ArrowRight">▶</button></div>
@@ -135,7 +135,8 @@ function tone(f0,f1,d,type='square',v=.06){if(!AC||muted)return;const t=AC.curre
 function noise(d,v=.1){if(!AC||muted)return;const n=Math.floor(AC.sampleRate*d),b=AC.createBuffer(1,n,AC.sampleRate),a=b.getChannelData(0);for(let i=0;i<n;i++)a[i]=(Math.random()*2-1)*(1-i/n);const s=AC.createBufferSource(),gn=AC.createGain();gn.gain.value=v;s.buffer=b;s.connect(gn);gn.connect(AC.destination);s.start()}
 const sfx={swing:()=>tone(700,250,.07,'sawtooth',.03),punch:()=>{noise(.07,.12);tone(190,70,.09,'square',.08)},heavy:()=>{noise(.16,.2);tone(120,40,.2,'square',.12)},
   hurt:()=>{tone(300,120,.15,'sawtooth',.07)},jump:()=>tone(260,520,.12,'triangle',.06),land:()=>noise(.05,.05),pick:()=>{tone(660,990,.1,'triangle',.07);setTimeout(()=>tone(990,1320,.1,'triangle',.07),80)},
-  special:()=>{tone(200,900,.35,'sawtooth',.06)},warn:()=>{tone(220,180,.4,'sawtooth',.1)},ko:()=>{tone(400,60,.5,'sawtooth',.1);noise(.3,.15)},clear:()=>{[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,f,.2,'square',.06),i*120))}};
+  special:()=>{tone(200,900,.35,'sawtooth',.06)},warn:()=>{tone(220,180,.4,'sawtooth',.1)},ko:()=>{tone(400,60,.5,'sawtooth',.1);noise(.3,.15)},clear:()=>{[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,f,.2,'square',.06),i*120))},
+  grab:()=>{tone(160,80,.18,'square',.09)},escape:()=>{tone(500,900,.12,'triangle',.07)}};
 
 /* ---------- music: a small procedural chiptune loop per theme ---------- */
 let MG=null,mus=null,musWant=null,noiseBuf=null;
@@ -227,8 +228,9 @@ const ET={
   atks:[{n:'jab',wind:18,dur:28,hs:5,he:11,dmg:6,reach:70,dt:22,kb:3,range:60,anim:'punchF',lunge:2.2,fr:.85,stun:16}]},
  yankee:{name:'ヤンキー',hp:30,spd:2.0,scale:1,sty:'yankee',score:150,cd:[30,80],hold:[130,210],poise:0,
   atks:[{n:'kick',wind:14,dur:34,hs:7,he:20,dmg:7,reach:92,dt:22,kb:4,range:120,anim:'kick',lunge:5.4,fr:.96,stun:18}]},
- brute:{name:'デカブツ',hp:120,spd:.9,scale:1.12,sty:'brute',score:400,cd:[60,130],hold:[170,250],poise:40,heavy:true,
-  atks:[{n:'hammer',wind:34,dur:54,hs:10,he:18,dmg:14,reach:82,dt:30,kb:7,down:true,vz:5,range:70,anim:'hammer',lunge:1.2,fr:.85}]},
+  brute:{name:'デカブツ',hp:120,spd:.9,scale:1.12,sty:'brute',score:400,cd:[60,130],hold:[170,250],poise:40,heavy:true,
+   atks:[{n:'hammer',wind:34,dur:54,hs:10,he:18,dmg:14,reach:82,dt:30,kb:7,down:true,vz:5,range:70,anim:'hammer',lunge:1.2,fr:.85},
+         {n:'grab',wind:20,dur:170,hs:8,he:160,dmg:0,reach:58,dt:22,range:54,anim:'grab',lunge:3.2,fr:.9,grab:{tick:25,tickDmg:2,mash:8,timeout:150,throwDmg:10}}]},
  boss:{name:'番長・剛田',hp:340,spd:1.5,scale:1.28,sty:'boss',score:3000,cd:[25,70],hold:[150,220],poise:70,heavy:true,boss:true,
   atks:[{n:'jab',wind:12,dur:22,hs:4,he:9,dmg:8,reach:62,dt:24,kb:4,range:56,anim:'punchF',lunge:2.5,fr:.85,stun:14},
         {n:'rush',wind:26,dur:38,hs:6,he:30,dmg:12,reach:62,dt:26,kb:8,down:true,vz:4,range:270,anim:'shoulder',lunge:8,fr:.995},
@@ -402,6 +404,8 @@ function poseOf(e){
     }
   }
   else if(st==='hurt'){P.lean=-.28;P.af=[-.9,-1.3];P.ab=[-.6,-1.1];P.lf=[.4,.2];P.lb=[-.1,-.4]}
+  else if(st==='held'){P.lean=-.12+Math.sin(e.t*.5)*.03;P.af=[-1.6,-1.8];P.ab=[-1.4,-1.6];P.lf=[.3,.1];P.lb=[-.2,-.3]}
+  else if(st==='holding'){P.lean=.15;P.af=[.9,.9];P.ab=[.9,.9];P.lf=[.4,.1];P.lb=[-.3,-.2]}
   else if(st==='jump'){P.lf=[.9,-.2];P.lb=[.1,-.7];P.af=[2.4,2.6];P.ab=[-2.2,-2.4]}
   else if(st==='down'||st==='dead'){P.lf=[.9,.4];P.lb=[.5,-.2];P.af=[-1,-1.4];P.ab=[-1.2,-1.6];
     if(e.z>.5){P.lean=-Math.min(1.45,.3+t*.1)}else{P.lean=-1.45;P.dy=39}}
@@ -497,6 +501,7 @@ function drawSprite(e){
     else{i=0;rot=.3*ex;dx=8*ex}
   }
   else if(st==='hurt'){F=window.SPR_HIT.frames;img=SPR.hitImg;const p=t/Math.max(1,e.stun||16);i=p<.4?0:p<.75?1:2}
+  else if(st==='held'){F=window.SPR_HIT.frames;img=SPR.hitImg;i=Math.floor(t/4)%2;dx=Math.sin(t*.9)*3}   // struggle
   else if(st==='down'||st==='dead'){
     F=window.SPR_HIT.frames;img=SPR.hitImg;
     if(e.z>1.5)i=t<26?(e.vz>0&&t<14?4:5):6;
@@ -568,13 +573,15 @@ function strike(a,A,targets){
   if(a.t<A.hs||a.t>A.he)return;
   for(const t of targets){
     if(a.hitSet.has(t)||(t.hp<=0&&t.kind==='enemy'))continue;
-    if(t.state==='down'||t.state==='dead'||t.state==='getup')continue;
+    if(t.state==='down'||t.state==='dead'||t.state==='getup'||t.state==='held'||t.state==='holding')continue;
     if(t.kind==='player'&&t.inv>0)continue;
     let dx=(t.x-a.x)*a.face;if(A.both)dx=Math.abs(t.x-a.x);
     if(dx<-10||dx>A.reach)continue;
     if(Math.abs(t.y-a.y)>(A.dt||24))continue;
     if(Math.abs(t.z-a.z)>58)continue;
-    a.hitSet.add(t);damage(t,a,A);
+    a.hitSet.add(t);
+    if(A.grab&&t.kind==='player'&&(t.state==='idle'||t.state==='walk'||t.state==='hurt')){startHold(a,t);continue}
+    damage(t,a,A);
   }
 }
 function spark(x,y,z,big){fx.push({k:'spark',x,y,z,life:big?14:9,max:big?14:9,big});for(let i=0;i<(big?7:3);i++)fx.push({k:'dot',x,y,z,vx:rand(-3,3),vz:rand(1,5),life:rand(10,20),col:pick(['#fff','#ffd95a','#ff7a4a'])})}
@@ -614,6 +621,15 @@ function downLogic(e){
     }}
 }
 function startAtk(e,A){e.state='attack';e.atk=A;e.t=0;e.hitSet=new Set();sfx.swing()}
+/* bearhug hold: victim struggles (held), holder squeezes (holding). victim side owns the timer. */
+function startHold(a,t){
+  const G=a.atk.grab;
+  t.state='held';t.t=0;t.mash=0;t.holder=a;t.grab=G;t.atk=null;t.vx=0;t.vz=0;t.inv=0;
+  a.state='holding';a.t=0;a.victim=t;a.atk=null;a.vx=0;
+  a.face=t.x>=a.x?1:-1;t.face=-a.face;
+  sfx.grab();shake=Math.max(shake,4);
+  fx.push({k:'txt',x:t.x,y:t.y,z:130,vz:.6,life:45,s:'つかまった!',col:'#ff9a5a'});
+}
 
 /* ---------- player ---------- */
 function updPlayer(p){
@@ -653,6 +669,21 @@ function updPlayer(p){
       if(p.z<=0){p.landK=p.state==='jatk'?7:0;p.landT=6;p.z=0;p.vz=0;p.state='idle';p.t=0;p.vx=0;sfx.land();for(let i=0;i<4;i++)fx.push({k:'dust',x:p.x,y:p.y,z:2,vx:rand(-2,2),vz:rand(0,1),life:16})}
       break}
     case'hurt':p.x+=p.vx;p.vx*=.8;if(p.t>=p.stun){p.state='idle';p.t=0}break;
+    case'held':{
+      const h=p.holder,G=p.grab;
+      if(!h||h.hp<=0||h.state!=='holding'){p.state='idle';p.t=0;p.holder=null;break}
+      if(atkP||kickP){p.mash++;shake=Math.max(shake,2);if(p.mash>=G.mash){   // mash out
+        h.state='hurt';h.t=0;h.stun=24;h.vx=-h.face*3;h.next=null;p.state='idle';p.t=0;p.holder=null;sfx.escape();break}}
+      if(spP&&p.meter>=50){p.meter-=50;   // special breaks the hold and punishes the holder
+        h.hp-=12;h.flash=5;h.state='hurt';h.t=0;h.stun=30;h.vx=-h.face*4;h.next=null;
+        p.state='idle';p.t=0;p.holder=null;sfx.special();shake=8;
+        if(h.hp<=0){h.hp=0;score+=h.def.score;freeze=12;shake=10;sfx.ko()}break}
+      if(p.t>0&&p.t%G.tick===0){p.hp-=G.tickDmg;p.flash=4;sfx.hurt();   // squeeze damage
+        if(p.hp<=0){p.hp=0;p.state='down';p.t=0;p.lt=0;p.vz=4;p.vx=-h.face*3;p.atk=null;p.holder=null;h.state='idle';h.t=0;h.cd=ri(20,50);shake=Math.max(shake,6);break}}
+      if(p.t>=G.timeout){const dir=-h.face;   // holder throws you off at the limit
+        p.hp=Math.max(0,p.hp-G.throwDmg);p.flash=5;p.state='down';p.t=0;p.lt=0;p.vz=5;p.vx=dir*6;p.atk=null;p.holder=null;
+        h.state='idle';h.t=0;h.cd=ri(h.def.cd[0],h.def.cd[1]);freeze=8;shake=10;sfx.heavy()}
+      break}
     case'down':downLogic(p);break;
     case'getup':if(p.t>=28){p.state='idle';p.t=0}break;
     case'dead':
@@ -667,7 +698,7 @@ function updPlayer(p){
 }
 
 /* ---------- enemies ---------- */
-function tokens(){return enemies.filter(e=>e.hp>0&&(e.state==='windup'||e.state==='attack')).length}
+function tokens(){return enemies.filter(e=>e.hp>0&&(e.state==='windup'||e.state==='attack'||e.state==='holding')).length}
 /* returns true while the enemy is travelling; the caller maps it to walk/idle once, so the state no longer flaps every tick */
 function steer(e,tx,ty,spd){const dx=tx-e.x,dy=ty-e.y,d=Math.hypot(dx,dy);if(d>2){const m=Math.min(spd,d);e.x+=dx/d*m;e.y+=dy/d*m*.72;e.wp+=.11*spd;return true}return false}
 function updEnemy(e){
@@ -705,6 +736,12 @@ function updEnemy(e){
       if(e.t>=A.dur){e.state='idle';e.t=0;e.cd=ri(def.cd[0],def.cd[1])*(def.boss&&e.hp<e.maxhp*.5?.6:1);e.vx=0}
       break}
     case'hurt':e.x+=e.vx;e.vx*=.8;if(e.t>=e.stun){e.state='idle';e.t=0;e.cd=ri(10,40);e.next=null}break;
+    case'holding':{
+      const v=e.victim;
+      if(!v||v.state!=='held'||v.holder!==e){e.state='idle';e.t=0;e.cd=ri(20,50);e.victim=null;break}
+      e.face=v.x>=e.x?1:-1;   // glue to the victim (victim side owns timer/throw/escape)
+      e.x+=(v.x-e.face*16-e.x)*.5;e.y+=(v.y-e.y)*.5;
+      break}
     case'down':downLogic(e);break;
     case'getup':if(e.t>=28){e.state='idle';e.t=0;e.cd=ri(10,40);e.next=null}break;
     case'dead':if(e.t>60){e.rm=true;if(e.drop)items.push({k:e.drop,x:e.x,y:e.y,life:900})}break;
@@ -759,7 +796,7 @@ function update(){
   enemies=enemies.filter(e=>!e.rm);
   // separation
   for(let i=0;i<enemies.length;i++)for(let j=i+1;j<enemies.length;j++){const a=enemies[i],b=enemies[j];
-    if(a.z>0||b.z>0||a.state==='down'||b.state==='down'||a.state==='dead'||b.state==='dead')continue;
+    if(a.z>0||b.z>0||a.state==='down'||b.state==='down'||a.state==='dead'||b.state==='dead'||a.state==='holding'||b.state==='holding')continue;
     const dx=b.x-a.x,dy=b.y-a.y;if(Math.abs(dx)<30&&Math.abs(dy)<12){const s=dx>=0?1:-1;a.x-=s*.8;b.x+=s*.8;a.y-=dy>=0?.4:-.4;b.y+=dy>=0?.4:-.4}}
   // items
   for(const it of items){it.life--;if(Math.hypot(it.x-P.x,(it.y-P.y)*1.6)<28&&P.state!=='dead'){
@@ -815,6 +852,7 @@ function drawHUD(){
   if(lastTarget&&lastTargetT>0&&!lastTarget.def.boss){const t=lastTarget;txt(t.def.name,W-24,98,14,'#fff','right',3);bar(W-184,104,160,10,t.hp/t.maxhp,'#ff6a5a','#c4281c')}
   if(combo>=2){txt(combo+' HIT!',24,120,26+Math.min(10,combo),'#ffe14f','left',5)}
   }
+  if(P.state==='held'&&P.grab){txt('つかまった! 連打で脱出 [Z/X]',W/2,H-110,24,'#ff9a5a','center',5);bar(W/2-110,H-100,220,10,P.mash/P.grab.mash,'#9fe6ff','#3a8fff')}
   const boss=enemies.find(e=>e.def.boss&&e.hp>0);
   if(boss){txt(boss.def.name,W/2-220,H-40,useCompactHUD()?26:18,'#ffc247','left',4);bar(W/2-220,H-32,440,14,boss.hp/boss.maxhp,'#ff5a5a','#a01818')}
   if(goT>30&&Math.floor(goT/22)%2&&!waveActive&&!clearT){txt('GO',W-70,H/2-30,44,'#ffe14f','right',6);g.fillStyle='#ffe14f';g.strokeStyle='#120c1c';g.lineWidth=5;g.beginPath();g.moveTo(W-60,H/2-62);g.lineTo(W-26,H/2-44);g.lineTo(W-60,H/2-26);g.closePath();g.stroke();g.fill()}

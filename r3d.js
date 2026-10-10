@@ -261,6 +261,8 @@ function chooseAnim(rig,e){
       return{n:'Idle_Loop',loop:1,proc:A.anim,wu};
     }
     case'hurt':return{n:e.t%2<1&&e.hurtAlt?'Hit_Head':'Hit_Chest',time:clamp(e.t/(e.stun||16),0,1)*dur('Hit_Chest')};
+    case'held':return{n:'Hit_Chest',time:(e.t%12)/12*dur('Hit_Chest')};
+    case'holding':return{n:'Idle_Loop',loop:1};
     case'down':case'dead':return{n:'Hit_Knockback',time:Math.min(dur('Hit_Knockback'),e.t/60)};
     case'getup':return{n:'LayToIdle',time:clamp(e.t/28,0,1)*dur('LayToIdle')};
   }
