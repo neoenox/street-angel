@@ -79,4 +79,4 @@ python -m unittest discover -s tests -p "test_*.py"
 [キャラクターの変更・画像・確認結果](docs/character-review/README.md)を参照。保存してある旧3D素材は現在のゲームでは不要。配布するときはHTMLと読み込まれるスクリプト・画像を同じフォルダ構成で配信する。
 
 ## ダメージボイス
-葵の被弾時だけ、指定された `shozyo2-u.mp3` を再生。敵の声はなし。Mで音声もミュートできる。[素材・再生成・確認結果](docs/damage-voice.md)を参照。
+葵の被弾時だけ、指定された `shozyo2-u.mp3`・`syozyo3-u.mp3`・`syozyo3-ku.mp3` からランダムに再生。敵の声はなし。Mで音声もミュートできる。[素材・再生成・確認結果](docs/damage-voice.md)を参照。
