@@ -1,20 +1,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ストリートエンジェル 葵</title>
-<!-- three.js r128 is vendored (vendor/) so the game runs offline; CDN kept as fallback if a vendor file is missing -->
-<script src="vendor/three.min.js"></script>
-<script>if(!window.THREE)document.write(unescape('%3Cscript src=%22https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js%22%3E%3C/script%3E'))</script>
-<script src="vendor/GLTFLoader.js"></script>
-<script src="vendor/SkeletonUtils.js"></script>
-<script src="r3d.js"></script>
+<!-- All fighters use local 2D sheets. -->
+<script src="visual-style.js"></script>
+<script src="damage-voice.js?v=3"></script>
+<script src="character-motion.js?v=2"></script>
 <script src="assets/aoi_walk4.js"></script>
-<script src="assets/aoi_atk.js"></script>
+<script src="assets/characters/aoi_attack_v2.js"></script>
+<script src="assets/characters/thug_combat_v2.js"></script>
+<script src="assets/characters/yankee_combat_v2.js"></script>
+<script src="assets/characters/boss_motion_v2.js"></script>
+<script src="assets/characters/boss_combat_v2.js"></script>
+
 <script src="assets/aoi_jump.js"></script>
 <script src="assets/aoi_hit.js"></script>
 <script src="assets/thug_walk.js"></script>
-<script src="assets/thug_cmb.js"></script>
 <script src="assets/yk_walk.js"></script>
-<script src="assets/yk_cmb.js"></script>
 <script src="assets/br_walk.js"></script>
 <script src="assets/br_cmb.js"></script>
 <style>
@@ -28,11 +29,25 @@
   --accent2:#ffc247;
   color-scheme:dark;
 }
-html,body{height:100%}
+html{min-height:100%}
 body{background:var(--bg);color:var(--fg);margin:0;padding-inline:16px;padding-block:12px;box-sizing:border-box;
-  font-family:"Yu Gothic UI","Hiragino Sans","Meiryo",sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
-#wrap{width:min(100%,calc((100vh - 70px)*16/9));min-width:0}
-canvas{display:block;width:100%;aspect-ratio:16/9;background:#000;border:2px solid var(--panel);border-radius:4px;image-rendering:auto}
+  min-height:100svh;font-family:"Yu Gothic UI","Hiragino Sans","Meiryo",sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+#wrap{width:min(100%,calc((100svh - 90px)*16/9));min-width:0}
+canvas{display:block;box-sizing:border-box;width:100%;aspect-ratio:16/9;background:#000;border:2px solid var(--panel);border-radius:4px;image-rendering:auto}
+canvas:focus-visible,button:focus-visible{outline:2px solid var(--accent2);outline-offset:3px}
+#orientation-hint{display:none;margin:0;color:#d5c8d8;font-size:14px;line-height:1.7;text-align:center}
+#orientation-hint strong{display:block;color:var(--fg);font-size:18px}
+#compact-hud{display:none;width:100%;max-width:560px;box-sizing:border-box;background:var(--panel);border:1px solid #443047;padding:10px 12px;gap:8px;font-size:14px}
+#compact-hud[hidden]{display:none}
+.hud-row{display:flex;align-items:center;gap:8px}.hud-row label{min-width:2em;color:#d7cde6}
+.hud-row meter{flex:1;min-width:40px;height:14px;accent-color:var(--accent2)}
+.hud-row meter::-webkit-meter-bar{background:#30263c;border:0;border-radius:3px}
+.hud-row meter::-webkit-meter-optimum-value{background:#ffc247}
+#compact-sp::-webkit-meter-optimum-value{background:#75bfff}
+.hud-row meter::-moz-meter-bar{background:#ffc247}
+#compact-sp::-moz-meter-bar{background:#75bfff}
+.hud-row output{min-width:3em;text-align:right;font-variant-numeric:tabular-nums}
+#compact-sp{accent-color:#75bfff}.hud-meta{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:#d7cde6}
 #help{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;font-size:13px;color:var(--muted);margin:0;padding:0;list-style:none}
 #tp{display:none;width:min(100%,640px);justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;user-select:none;-webkit-user-select:none;touch-action:none}
 #tp .dpad{display:grid;grid-template-columns:repeat(3,64px);grid-template-rows:repeat(2,64px);gap:6px}
@@ -46,8 +61,35 @@ canvas{display:block;width:100%;aspect-ratio:16/9;background:#000;border:2px sol
 @media (pointer:coarse){#tp{display:flex}#help{display:none}#wrap{width:min(100%,calc((100vh - 250px)*16/9))}}
 @media (pointer:coarse) and (max-width:520px){#tp .dpad{grid-template-columns:repeat(3,50px);grid-template-rows:repeat(2,50px)}#tp .acts{grid-template-columns:repeat(3,58px)}#tp button{font-size:12px;min-height:48px}}
 #help b{color:var(--accent2);font-weight:700;background:var(--panel);padding:1px 7px;border-radius:3px;margin-right:4px;font-family:ui-monospace,Consolas,monospace}
+@media(max-width:600px){
+  body{padding:18px 12px;justify-content:flex-start;gap:12px}
+  #wrap{width:100%}#orientation-hint{display:block}#compact-hud:not([hidden]){display:grid}
+  #help{font-size:13px;gap:9px 12px;line-height:1.8}
+}
+@media(pointer:coarse) and (max-width:370px){
+  #tp{flex-wrap:nowrap;gap:12px}
+  #tp .dpad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px);gap:4px}
+  #tp .acts{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px);gap:4px}
+  #tp button{font-size:11px;min-height:44px}
+  #tp [data-k=Space]{font-size:10px}
+}
+@media(pointer:coarse) and (orientation:landscape) and (max-height:520px){
+  body{padding:6px 10px;gap:6px;justify-content:center}
+  #wrap{width:min(100%,calc((100svh - 124px)*16/9))}
+  #orientation-hint,#compact-hud:not([hidden]){display:none}
+  #tp{flex-wrap:nowrap;width:min(100%,640px);gap:16px}
+  #tp .dpad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,44px);gap:4px}
+  #tp .acts{grid-template-columns:repeat(3,66px);grid-template-rows:repeat(2,44px);gap:4px}
+  #tp button{font-size:12px;min-height:44px}
+}
 </style>
-<div id="wrap"><canvas id="c" width="960" height="540" tabindex="0"></canvas></div>
+<p id="orientation-hint"><strong>ストリートエンジェル 葵</strong>横向きにすると、キャラと攻撃が大きく見えます。</p>
+<div id="compact-hud" aria-label="葵の状態" hidden>
+  <div class="hud-meta"><span id="compact-stage">STAGE 1</span><span id="compact-lives">残機 3</span><span id="compact-score">0 pts</span></div>
+  <div class="hud-row"><label for="compact-hp">体力</label><meter id="compact-hp" min="0" max="100" value="100"></meter><output id="compact-hp-text">100</output></div>
+  <div class="hud-row"><label for="compact-sp">必殺</label><meter id="compact-sp" min="0" max="100" value="0"></meter><output id="compact-sp-text">0%</output></div>
+</div>
+<div id="wrap"><canvas id="c" width="960" height="540" tabindex="0" aria-label="ストリートエンジェル 葵のゲーム画面"></canvas></div>
 <ul id="help">
 <li><b>←↑↓→ / WASD</b>移動</li><li><b>Z / J</b>パンチ(3連)</li><li><b>X / K</b>キック</li>
 <li><b>Space</b>ジャンプ(+Z/Xで飛び蹴り)</li><li><b>C / L</b>必殺(ゲージ50%)</li><li><b>P</b>ポーズ</li><li><b>M</b>音 ON/OFF</li><li><b>ゲームパッド</b>X パンチ / B キック / A ジャンプ / Y 必殺 / Start ポーズ</li>
@@ -60,6 +102,17 @@ canvas{display:block;width:100%;aspect-ratio:16/9;background:#000;border:2px sol
 (()=>{
 const cv=document.getElementById('c'),g=cv.getContext('2d');
 const W=960,H=540,Y0=384,Y1=506,GR=0.55;
+const smallScreen=matchMedia('(max-width:600px)'),shortTouch=matchMedia('(pointer:coarse) and (orientation:landscape) and (max-height:520px)');
+const compactHUD=document.getElementById('compact-hud');
+const compactUI=Object.fromEntries(['stage','lives','score','hp','hp-text','sp','sp-text'].map(k=>[k,document.getElementById('compact-'+k)]));
+function useCompactHUD(){return smallScreen.matches&&!shortTouch.matches}
+function updateCompactHUD(){
+  compactHUD.hidden=mode==='title';
+  if(!useCompactHUD()||mode==='title')return;
+  const values={stage:ST.name,lives:'残機 '+P.lives,score:score+' pts','hp-text':String(Math.ceil(P.hp)),'sp-text':P.meter>=50?'使用可':Math.floor(P.meter)+'%'};
+  for(const [k,value] of Object.entries(values))if(compactUI[k].textContent!==value)compactUI[k].textContent=value;
+  compactUI.hp.value=P.hp;compactUI.hp.max=P.maxhp;compactUI.sp.value=P.meter;
+}
 const FONT='"Yu Gothic UI","Hiragino Sans","Meiryo",sans-serif';
 const rand=(a,b)=>a+Math.random()*(b-a),ri=(a,b)=>Math.floor(rand(a,b+1)),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t;
 const pick=a=>a[Math.floor(Math.random()*a.length)];
@@ -76,7 +129,8 @@ const dn=(...k)=>k.some(c=>keys[c]),hit=(...k)=>k.some(c=>press[c]);
 
 /* ---------- audio ---------- */
 let AC=null,muted=false;
-function audioInit(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume()}
+const damageVoice=new AoiDamageVoice(()=>AC,()=>muted);
+function audioInit(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();if(AC)damageVoice.warmup()}
 function tone(f0,f1,d,type='square',v=.06){if(!AC||muted)return;const t=AC.currentTime,o=AC.createOscillator(),gn=AC.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t+d);gn.gain.setValueAtTime(v,t);gn.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(gn);gn.connect(AC.destination);o.start(t);o.stop(t+d)}
 function noise(d,v=.1){if(!AC||muted)return;const n=Math.floor(AC.sampleRate*d),b=AC.createBuffer(1,n,AC.sampleRate),a=b.getChannelData(0);for(let i=0;i<n;i++)a[i]=(Math.random()*2-1)*(1-i/n);const s=AC.createBufferSource(),gn=AC.createGain();gn.gain.value=v;s.buffer=b;s.connect(gn);gn.connect(AC.destination);s.start()}
 const sfx={swing:()=>tone(700,250,.07,'sawtooth',.03),punch:()=>{noise(.07,.12);tone(190,70,.09,'square',.08)},heavy:()=>{noise(.16,.2);tone(120,40,.2,'square',.12)},
@@ -198,7 +252,7 @@ let combo=0,comboT=0,lastTarget=null,lastTargetT=0,goT=0,idc=0,flashT=0;
 
 function mkFighter(o){return Object.assign({x:0,y:450,z:0,vx:0,vy:0,vz:0,face:1,state:'idle',t:0,at:0,wp:0,inv:0,flash:0,lt:0,buf:'',atk:null,hitSet:new Set(),scale:1},o)}
 function mkPlayer(){return mkFighter({kind:'player',x:90,y:450,hp:100,maxhp:100,sty:STY.aoi,styKey:'aoi',meter:0,lives:3,chain:'p1',comboT:0,jvx:0})}
-function mkEnemy(type,x,y){const d=ET[type];return mkFighter({kind:'enemy',type,def:d,id:++idc,x,y,face:x<0?1:-1,hp:d.hp,maxhp:d.hp,sty:STY[d.sty],styKey:d.sty,scale:d.scale,cd:ri(20,60),side:Math.random()<.5?-1:1,
+function mkEnemy(type,x,y){const d=ET[type],id=++idc;return mkFighter({kind:'enemy',type,def:d,id,variant:id%3,at:id*17,wp:(id*1.7)%8,x,y,face:x<0?1:-1,hp:d.hp,maxhp:d.hp,sty:STY[d.sty],styKey:d.sty,scale:d.scale,cd:ri(20,60),side:Math.random()<.5?-1:1,
   hold:rand(d.hold[0],d.hold[1]),poise:d.poise||0,entered:false,next:null,drop:null})}
 
 /* ---------- background prerender ---------- */
@@ -233,38 +287,78 @@ function buildBG(st){
       if(th==='hideout'){
         const t=RI(0,3),bw=RI(150,260);
         c.fillStyle='#2b1a1d';c.fillRect(x,70,bw,262);
-        c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=1;for(let by=70;by<332;by+=18){c.beginPath();c.moveTo(x,by);c.lineTo(x+bw,by);c.stroke();for(let bx=x+(by/18%2?0:20);bx<x+bw;bx+=40){c.beginPath();c.moveTo(bx,by);c.lineTo(bx,by+18);c.stroke()}}
+        const masonry=c.createLinearGradient(x,70,x+bw,332);masonry.addColorStop(0,'rgba(158,104,83,.1)');masonry.addColorStop(1,'rgba(8,6,12,.3)');c.fillStyle=masonry;c.fillRect(x,70,bw,262);
+        c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=1;for(let by=70;by<332;by+=18){c.beginPath();c.moveTo(x,by);c.lineTo(x+bw,by);c.stroke();for(let bx=x+(Math.floor((by-70)/18)%2?0:20);bx<x+bw;bx+=40){c.beginPath();c.moveTo(bx,by);c.lineTo(bx,by+18);c.stroke()}}
         if(t===0){c.fillStyle='#17090c';c.fillRect(x+30,110,bw-60,130);c.fillStyle='#d6402f';c.font='bold 54px '+FONT;c.fillText('黒蛇会',x+bw/2,175)}
-        if(t===1){c.fillStyle='#4a3a2a';for(let k=0;k<3;k++){c.fillRect(x+16+k*48,262-k*0,42,56);c.strokeStyle='#2a1c10';c.strokeRect(x+16+k*48,262,42,56)}c.fillStyle='#3a2a1c';c.fillRect(x+36,206,46,56);c.strokeRect(x+36,206,46,56)}
+        if(t===1){
+          for(const [cx,cy,cw,ch] of [[x+16,262,42,56],[x+64,262,42,56],[x+112,262,42,56],[x+36,206,46,56]]){
+            c.fillStyle='#4a3a2a';c.fillRect(cx,cy,cw,ch);c.fillStyle='#2d251f';c.fillRect(cx+cw-6,cy,6,ch);c.fillStyle='#68513a';c.fillRect(cx,cy,cw,4);
+            c.strokeStyle='#271e18';c.lineWidth=2;c.strokeRect(cx,cy,cw,ch);for(let sl=14;sl<ch;sl+=14){c.beginPath();c.moveTo(cx,cy+sl);c.lineTo(cx+cw,cy+sl);c.stroke()}
+            c.strokeStyle='#806349';c.lineWidth=3;c.beginPath();c.moveTo(cx+4,cy+ch-5);c.lineTo(cx+cw-7,cy+7);c.stroke();
+          }
+        }
         if(t===2){c.strokeStyle='#6b6070';c.lineWidth=8;c.beginPath();c.moveTo(x+20,70);c.lineTo(x+20,332);c.moveTo(x+60,70);c.lineTo(x+60,332);c.stroke();c.fillStyle='#ffcf7a';c.beginPath();c.moveTo(x+bw/2-18,70);c.lineTo(x+bw/2+18,70);c.lineTo(x+bw/2+30,102);c.lineTo(x+bw/2-30,102);c.fill();c.globalAlpha=.12;c.beginPath();c.moveTo(x+bw/2-22,102);c.lineTo(x+bw/2+22,102);c.lineTo(x+bw/2+90,332);c.lineTo(x+bw/2-90,332);c.fill();c.globalAlpha=1}
         if(t===3){c.fillStyle='#17090c';c.fillRect(x+bw/2-44,172,88,160);c.strokeStyle='#d6402f';c.lineWidth=3;c.beginPath();c.moveTo(x+bw/2-30,196);c.bezierCurveTo(x+bw/2+10,170,x+bw/2+30,230,x+bw/2-6,250);c.stroke()}
+        c.fillStyle='#17131b';c.fillRect(x+bw-7,70,7,262);c.fillStyle='#55444a';c.fillRect(x+bw-6,70,2,262);
+        for(let bolt=88;bolt<332;bolt+=52){c.fillStyle='#88716d';c.fillRect(x+bw-5,bolt,2,2)}
+        c.fillStyle='#17141a';c.fillRect(x,324,bw,8);
         x+=bw;continue;
       }
       const sw=RI(170,260),sh=RI(150,210),top=332-sh,fac=th==='dusk'?PK(['#7a4a5e','#5f4a78','#8a5a4a','#4e5f7a']):PK(['#1d1a3d','#241a42','#17203a']);
       c.fillStyle=fac;c.fillRect(x,top,sw,sh);
-      c.fillStyle='rgba(0,0,0,.18)';c.fillRect(x,top,sw,8);
-      for(let wx=x+16;wx<x+sw-30;wx+=44){c.fillStyle=r()<.55?(th==='dusk'?'#ffd98a':PK(['#ffe28a','#7fe9ff'])):'#1a1830';c.fillRect(wx,top+18,28,34)}
+      const wall=c.createLinearGradient(x,top,x+sw,332);wall.addColorStop(0,'rgba(233,182,159,.12)');wall.addColorStop(1,'rgba(12,12,30,.4)');c.fillStyle=wall;c.fillRect(x,top,sw,sh);
+      c.fillStyle='#322b3e';c.fillRect(x-2,top-3,sw+4,6);c.fillStyle='rgba(0,0,0,.28)';c.fillRect(x,top+3,sw,7);
+      c.strokeStyle='rgba(23,18,32,.18)';c.lineWidth=1;for(let by=top+12;by<332;by+=14){c.beginPath();c.moveTo(x,by);c.lineTo(x+sw,by);c.stroke()}
+      for(let wx=x+16;wx<x+sw-30;wx+=44){
+        c.fillStyle='#272331';c.fillRect(wx-3,top+15,34,40);
+        c.fillStyle=r()<.55?(th==='dusk'?'#b79b76':PK(['#c6b284','#729da8'])):'#27263b';c.fillRect(wx,top+18,28,34);
+        c.fillStyle='rgba(19,18,32,.45)';c.fillRect(wx+13,top+18,2,34);c.fillRect(wx,top+32,28,2);
+        c.fillStyle='#8d7b7e';c.fillRect(wx-4,top+52,36,3);
+      }
       const dy=332-84;
       c.fillStyle=th==='dusk'?'#2c2236':'#0c0b1c';c.fillRect(x+10,dy,sw-20,84);
-      c.fillStyle=th==='dusk'?'#ffe0a8':'#2b3f6a';c.globalAlpha=.55;c.fillRect(x+20,dy+10,sw-80,52);c.globalAlpha=1;
-      const ac=PK(['#d6402f','#2f7de1','#e8b23a','#2fa86b']);
-      for(let s=0;s<sw;s+=20){c.fillStyle=(s/20)%2?'#f4efe6':ac;c.fillRect(x+s,dy-26,Math.min(20,sw-s),24)}
+      const glass=c.createLinearGradient(0,dy,0,332);glass.addColorStop(0,th==='dusk'?'#8e7b70':'#344358');glass.addColorStop(1,'#34313f');
+      c.fillStyle=glass;c.fillRect(x+20,dy+10,sw-80,62);
+      c.strokeStyle='#252330';c.lineWidth=3;c.strokeRect(x+20,dy+10,sw-80,62);c.beginPath();c.moveTo(x+sw/2-20,dy+10);c.lineTo(x+sw/2-20,dy+72);c.stroke();
+      c.fillStyle='rgba(235,214,190,.12)';c.beginPath();c.moveTo(x+26,dy+14);c.lineTo(x+60,dy+14);c.lineTo(x+36,dy+67);c.lineTo(x+26,dy+67);c.fill();
+      c.fillStyle='#49434e';c.fillRect(x+sw-53,dy+8,35,74);c.strokeStyle='#302c37';c.lineWidth=1;
+      for(let sy=dy+11;sy<330;sy+=5){c.beginPath();c.moveTo(x+sw-52,sy);c.lineTo(x+sw-19,sy);c.stroke()}
+      c.fillStyle='#b1a08a';c.fillRect(x+sw-39,316,8,2);
+      const ac=PK(['#8e5352','#506680','#a08a59','#536f66']);
+      for(let s=0;s<sw;s+=20){c.fillStyle=(s/20)%2?'#b4a89b':ac;c.fillRect(x+s,dy-26,Math.min(20,sw-s),24)}
+      c.fillStyle='rgba(12,12,24,.28)';c.fillRect(x,dy-8,sw,6);c.fillRect(x+10,dy,sw-20,7);
       const sg=PK(SIGNS),sx=x+sw/2,sy=top+sh-125;
       if(th==='night'){const nc=PK(['#ff4fb0','#4fe8ff','#ffe14f','#7dff6a']);c.shadowColor=nc;c.shadowBlur=16;c.fillStyle='#0a0916';c.fillRect(sx-46,sy-14,92,28);c.fillStyle=nc;c.font='bold 20px '+FONT;c.fillText(sg,sx,sy);c.shadowBlur=0}
-      else{c.fillStyle='#f4efe6';c.fillRect(sx-46,sy-14,92,28);c.fillStyle='#2a1c2e';c.font='bold 19px '+FONT;c.fillText(sg,sx,sy)}
+      else{c.fillStyle='#302937';c.fillRect(sx-49,sy-16,98,33);c.fillStyle='#c3b29d';c.fillRect(sx-46,sy-14,92,28);c.fillStyle='#40313a';c.font='bold 19px '+FONT;c.fillText(sg,sx,sy)}
+      // Small props stay behind the curb, leaving the combat lane unobstructed.
+      c.fillStyle='#8a8380';c.fillRect(x+sw-45,top+65,29,20);c.strokeStyle='#4e4c55';c.lineWidth=1;
+      for(let v=0;v<4;v++){c.beginPath();c.moveTo(x+sw-41,top+69+v*4);c.lineTo(x+sw-20,top+69+v*4);c.stroke()}
+      c.fillStyle='#45414c';c.fillRect(x+sw-40,top+85,3,dy-top-65);
+      if(r()<.55){
+        c.fillStyle='#2b2937';c.fillRect(x+23,302,27,30);c.strokeStyle='#8e8175';c.strokeRect(x+25,304,23,26);
+        c.fillStyle='#c1aa8b';c.font='bold 9px '+FONT;c.fillText('営業中',x+36,313);c.fillRect(x+29,320,14,1);c.fillRect(x+32,324,9,1);
+      }else{
+        c.strokeStyle='#353440';c.lineWidth=2;for(const bx of [x+28,x+65]){c.beginPath();c.arc(bx,322,11,0,7);c.stroke()}
+        c.strokeStyle='#7c7378';c.beginPath();c.moveTo(x+28,322);c.lineTo(x+39,307);c.lineTo(x+52,322);c.closePath();c.lineTo(x+58,302);c.lineTo(x+65,322);c.moveTo(x+54,302);c.lineTo(x+62,302);c.moveTo(x+36,305);c.lineTo(x+44,305);c.stroke();
+      }
       x+=sw+RI(0,8);
     }
   });
   L.gnd=mkLayer(st.len+W,(c,w)=>{
     if(th==='hideout'){c.fillStyle='#34262a';c.fillRect(0,330,w,210);c.strokeStyle='rgba(0,0,0,.35)';c.lineWidth=2;
       for(let x=0;x<w;x+=90){c.beginPath();c.moveTo(x,360);c.lineTo(x-40,540);c.stroke()}for(let y=360;y<540;y+=44){c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke()}
-      c.fillStyle='rgba(214,64,47,.25)';c.fillRect(0,330,w,4);return}
+      c.fillStyle='rgba(214,64,47,.25)';c.fillRect(0,330,w,4);
+      c.fillStyle='rgba(170,134,119,.12)';for(let i=0;i<w/30;i++)c.fillRect(R(0,w),R(380,535),R(2,6),1);
+      return}
     c.fillStyle=th==='dusk'?'#8c7a8a':'#2c2c4a';c.fillRect(0,330,w,44);
     c.fillStyle=th==='dusk'?'#a89aa6':'#3c3c60';c.fillRect(0,372,w,6);
     c.fillStyle=th==='dusk'?'#3b3444':'#14142a';c.fillRect(0,378,w,162);
     c.strokeStyle='rgba(0,0,0,.18)';c.lineWidth=1;for(let x=0;x<w;x+=64){c.beginPath();c.moveTo(x,332);c.lineTo(x,372);c.stroke()}
     c.fillStyle='rgba(230,220,160,.55)';for(let x=20;x<w;x+=130)c.fillRect(x,455,64,5);
-    c.fillStyle='rgba(0,0,0,.25)';for(let i=0;i<w/260;i++){c.beginPath();c.ellipse(R(0,w),R(400,520),R(8,22),R(2,5),0,0,7);c.fill()}
+    c.strokeStyle='rgba(14,14,26,.3)';c.lineWidth=1;
+    for(let i=0;i<w/200;i++){const cx=R(0,w),cy=R(398,528);c.beginPath();c.moveTo(cx,cy);c.lineTo(cx+12,cy-4);c.lineTo(cx+17,cy+2);c.lineTo(cx+32,cy-1);c.moveTo(cx+17,cy+2);c.lineTo(cx+21,cy+8);c.stroke()}
+    for(let x=90;x<w;x+=370){c.fillStyle='#242330';c.fillRect(x,380,38,9);c.strokeStyle='#5a515e';c.strokeRect(x,380,38,9);for(let v=4;v<36;v+=5)c.fillRect(x+v,381,2,7)}
+    const asphalt=c.createLinearGradient(0,378,0,540);asphalt.addColorStop(0,'rgba(17,16,29,.18)');asphalt.addColorStop(1,'rgba(17,16,29,0)');c.fillStyle=asphalt;c.fillRect(0,378,w,162);
     if(th==='night'){c.fillStyle='rgba(120,200,255,.07)';for(let i=0;i<w/300;i++){c.beginPath();c.ellipse(R(0,w),R(420,520),R(40,90),R(5,10),0,0,7);c.fill()}}
   });
   return L;
@@ -377,22 +471,20 @@ function drawPerson(e){
   arm(4,P.af);
   g.restore();
   g.filter='none';
-  // windup '!' is drawn centrally by warn() for every character in draw3D
+  // windup '!' is drawn centrally by warn() for every character in drawCharacters
 }
 function warn(e){if(e.state==='windup'&&Math.floor(e.t/3)%2){txt('!',e.x-cam,e.y-e.z-e.scale*172,26*e.scale**.5,'#ff3d3d','center',4)}}
 /* 2D sprite player (ChatGPT sprite sheet). Actions without drawn frames reuse the stance with a tilt and lunge until their sheets exist. */
 const SPR={ready:false,walkImg:new Image(),atkImg:new Image(),hitImg:new Image(),jumpImg:new Image()};
-let sprLoaded=0;const sprOk=()=>{if(++sprLoaded===4)SPR.ready=!!(window.SPR_WALK4&&window.SPR_ATK&&window.SPR_HIT&&window.SPR_JUMP)};
-SPR.walkImg.onload=sprOk;SPR.atkImg.onload=sprOk;SPR.hitImg.onload=sprOk;SPR.jumpImg.onload=sprOk;SPR.jumpImg.src='assets/aoi_jump.png';SPR.hitImg.src='assets/aoi_hit.png';SPR.walkImg.src='assets/aoi_walk4.png';SPR.atkImg.src='assets/aoi_atk.png';
-const ATK_ROW={punchF:0,punchB:4,upper:8,kick:12};
+let sprLoaded=0;const sprOk=()=>{if(++sprLoaded===4)SPR.ready=!!(window.SPR_WALK4&&window.SPR_AOI_ATK_V2&&window.SPR_HIT&&window.SPR_JUMP)};
+SPR.walkImg.onload=sprOk;SPR.atkImg.onload=sprOk;SPR.hitImg.onload=sprOk;SPR.jumpImg.onload=sprOk;SPR.jumpImg.src='assets/aoi_jump.png';SPR.hitImg.src='assets/aoi_hit.png';SPR.walkImg.src='assets/aoi_walk4.png';SPR.atkImg.src='assets/characters/aoi_attack_v2.png';
 const JUMP_K=.94; // jump/special sheet: head read ~6% bigger than the attack guard
-const WALK_K=1.04; // combat-ready walk sheet: head measured ~6% smaller than the attack guard at the same body height
-const SHEET_K=.82; // attack/hit sheets were drawn with a ~25% bigger head than the walk sheet (crouched poses had been enlarged to the same body height); this brings the heads back in line
-const IDLE_SEQ=[3,3]; // static guard stance (frame 3): two-frame alternation looked like a twitch, so both entries intentionally point at the same frame // the guard stance from the attack sheet: same head size as walk / attack / hit sheets (the old idle sheet drew a ~25% smaller head)
-/* walk frames in the order the feet actually travel (contact -> passing -> contact), second half is the first played back */
-const WALK_SEQ=[0,1,2,3,4,6,8,9]; // low-step walk sheet: contact, down, push-off, passing; second step likewise. Near-duplicate frames left out so the feet do not skate
+const WALK_K=1.04; // Retain the smoother original walk and its head-size correction.
+const SHEET_K=.82; // Retained hit sheet needs its original head-size correction.
+const IDLE_SEQ=[3,3]; // One stable guard, with subtle foot-anchored breathing.
+const WALK_SEQ=[0,1,2,3,4,6,8,9]; // Restore the original eight-pose cycle; the four-pose replacement repeated the same leg.
 function drawSprite(e){
-  let F=window.SPR_ATK.frames,img=SPR.atkImg;const st=e.state,A=e.atk,t=e.t;
+  let F=window.SPR_AOI_ATK_V2.frames,img=SPR.atkImg;const st=e.state,A=e.atk,t=e.t;
   let i=0,dx=0,dy=0,rot=0,vf=e.face;
   const ex=A?(t<A.hs?t/Math.max(1,A.hs):t<=A.he?1:Math.max(0,1-(t-A.he)/Math.max(1,Math.min(A.dur,40)-A.he))):0;
   if(st==='idle'){if(e.landT>0){F=window.SPR_JUMP.frames;img=SPR.jumpImg;i=e.landK||0}else i=IDLE_SEQ[Math.floor(e.at/24)%2]}
@@ -400,15 +492,8 @@ function drawSprite(e){
   else if(st==='jump'){F=window.SPR_JUMP.frames;img=SPR.jumpImg;i=e.vz>3?1:e.vz>-2?2:3}
   else if(st==='jatk'){F=window.SPR_JUMP.frames;img=SPR.jumpImg;i=e.vz>4?4:e.z>22?5:6}
   else if(st==='attack'||st==='windup'){
-    const base=ATK_ROW[A.anim];
-    if(base!=null){
-      F=window.SPR_ATK.frames;img=SPR.atkImg;
-      const hs=A.hs,he=A.he;
-      let ph;
-      if(A.anim==='upper')ph=t<hs*.5?0:t<hs?1:t<=he?2:3;
-      else ph=t<hs?0:t<=hs+(he-hs)/2?1:t<=he?2:3;
-      i=base+ph;
-    }else if(A.anim==='spin'){F=window.SPR_JUMP.frames;img=SPR.jumpImg;i=t<A.hs?8:t<=A.he?9+(Math.floor((t-A.hs)/5)%2):11}
+    const pose=playerAttackFrame(A.anim,t,A.hs,A.he);
+    if(pose!=null){F=window.SPR_AOI_ATK_V2.frames;img=SPR.atkImg;i=pose;}else if(A.anim==='spin'){F=window.SPR_JUMP.frames;img=SPR.jumpImg;i=t<A.hs?8:t<=A.he?9+(Math.floor((t-A.hs)/5)%2):11}
     else{i=0;rot=.3*ex;dx=8*ex}
   }
   else if(st==='hurt'){F=window.SPR_HIT.frames;img=SPR.hitImg;const p=t/Math.max(1,e.stun||16);i=p<.4?0:p<.75?1:2}
@@ -418,66 +503,63 @@ function drawSprite(e){
     else i=(e.lt||0)<5?6:7;
   }
   else if(st==='getup'){F=window.SPR_HIT.frames;img=SPR.hitImg;const p=t/28;i=p<.18?8:p<.5?9:p<.8?10:11}
-  const f=F[i],s=.5*e.scale*(img===SPR.walkImg?WALK_K:img===SPR.jumpImg?JUMP_K:SHEET_K),lie=Math.min(1,Math.abs(rot)/1.5);
+  const f=F[i],s=.5*e.scale*(img===SPR.walkImg?WALK_K:img===SPR.jumpImg?JUMP_K:img===SPR.hitImg?SHEET_K:1),lie=Math.min(1,Math.abs(rot)/1.5);
   const px=(f.ax+(f.w/2-f.ax)*lie)*s;
   g.save();
   if(e.inv>0&&e.kind==='player'&&Math.floor(frame/3)%2)g.globalAlpha=.45;
   if(e.flash>0&&g.filter!==undefined)g.filter='brightness(1.9)';
-  g.translate(Math.round((e.x-cam+dx*vf)*2)/2,Math.round((e.y-e.z+dy-lie*f.w*s/2)*2)/2);g.scale(vf,1);g.rotate(rot);
+  g.translate(Math.round((e.x-cam+dx*vf)*2)/2,Math.round((e.y-e.z+dy-lie*f.w*s/2)*2)/2);g.scale(vf,characterBreath(e.styKey,e.at,st));g.rotate(rot);
   g.drawImage(img,f.x,f.y,f.w,f.h,-px,-(f.ay!=null?f.ay:f.h)*s,f.w*s,f.h*s);
   g.restore();g.filter='none';
 }
 /* 2D enemy sprites (ChatGPT sprite sheets). One generic drawer: each set says which sheet files, scale, walk frame order and speed. */
 const ESET={
-  thug:{k:1,img:{},ready:false,loaded:0,files:['thug_walk','thug_cmb'],data:['SPR_THUGW','SPR_THUGC'],walkSeq:[0,1,2,3,4,6,8,9],walkDiv:1.14},
-  yankee:{k:.88,img:{},ready:false,loaded:0,files:['yk_walk','yk_cmb'],data:['SPR_YKW','SPR_YKC'],walkSeq:[11,0,2,1,3,4,5,8,7,9],walkDiv:1.4},
+  thug:{k:1,img:{},ready:false,loaded:0,files:['thug_walk','characters/thug_combat_v2'],data:['SPR_THUGW','SPR_THUGC_V2'],walkSeq:[0,1,2,3,4,6,8,9],walkDiv:1.14},
+  yankee:{k:.88,img:{},ready:false,loaded:0,files:['yk_walk','characters/yankee_combat_v2'],data:['SPR_YKW','SPR_YKC_V2'],walkSeq:[11,0,2,1,3,4,5,8,7,9],walkDiv:1.4},
   brute:{k:1,img:{},ready:false,loaded:0,files:['br_walk','br_cmb'],data:['SPR_BRW','SPR_BRC'],walkSeq:[0,1,3,5,6,7,9],walkDiv:1.2},   // walk frame 11 is drawn mirrored in the source sheet, so it stays out of the cycle
+  boss:{k:1,img:{},ready:false,loaded:0,files:['characters/boss_motion_v2','characters/boss_combat_v2'],data:['SPR_BOSSM_V2','SPR_BOSSC_V2'],walkSeq:[0,1,2,3],walkDiv:1.8},
 };
-for(const key in ESET){const S=ESET[key];S.files.forEach((f,n)=>{const im=new Image();im.onload=()=>{if(++S.loaded===2)S.ready=S.data.every(d=>!!window[d])};im.src='assets/'+f+'.png';S.img[n]=im})}
+for(const key in ESET){const S=ESET[key];S.palettes={};S.files.forEach((f,n)=>{const im=new Image();im.onload=()=>{
+  if(key==='thug'||key==='yankee'){
+    S.palettes[n]=[im];
+    for(let variant=1;variant<3;variant++){
+      const sheet=document.createElement('canvas');sheet.width=im.naturalWidth;sheet.height=im.naturalHeight;
+      const ctx=sheet.getContext('2d');ctx.drawImage(im,0,0);
+      const pixels=ctx.getImageData(0,0,sheet.width,sheet.height);shiftClothingPixels(pixels.data,key,variant);ctx.putImageData(pixels,0,0);
+      S.palettes[n][variant]=sheet;
+    }
+  }
+  if(++S.loaded===2)S.ready=S.data.every(d=>!!window[d]);
+};im.src='assets/'+f+'.png';S.img[n]=im})}
 function blit(e,F,img,i,vf,k){
   const f=F[i],s=.5*e.scale*(k||1);
   g.save();
   if(e.flash>0&&g.filter!==undefined)g.filter='brightness(1.9)';
-  g.translate(Math.round((e.x-cam)*2)/2,Math.round((e.y-e.z)*2)/2);g.scale(vf,1);
+  g.translate(Math.round((e.x-cam)*2)/2,Math.round((e.y-e.z)*2)/2);g.scale(vf*(CHARACTER_PROFILES[e.styKey]?.width||1),characterBreath(e.styKey,e.at,e.state));
   g.drawImage(img,f.x,f.y,f.w,f.h,-f.ax*s,-(f.ay!=null?f.ay:f.h)*s,f.w*s,f.h*s);
   g.restore();g.filter='none';
 }
 /* combat sheet layout shared by thug and yankee: row1 idle/idle/flinch/stagger, row2 attack x4, row3 knockdown x4, row4 get up x4 */
 function drawEnemy(e){
-  const S=ESET[e.styKey],st=e.state,A=e.atk,t=e.t;
-  let F=window[S.data[1]].frames,img=S.img[1],i=0;
-  if(st==='idle')i=Math.floor(e.at/24)%2;
-  else if(st==='walk'){F=window[S.data[0]].frames;img=S.img[0];i=S.walkSeq[Math.floor(e.wp/S.walkDiv)%S.walkSeq.length]}
-  else if(st==='windup')i=4;
-  else if(st==='attack'){const hs=A.hs,he=A.he;i=t<hs?4:t<=hs+(he-hs)/2?5:t<=he?6:7}
-  else if(st==='hurt')i=t/Math.max(1,e.stun||16)<.5?2:3;
-  else if(st==='down'||st==='dead'){if(e.z>1.5)i=t<26?(e.vz>0&&t<14?8:9):10;else i=(e.lt||0)<5?10:11}
-  else if(st==='getup'){const p=t/28;i=p<.18?12:p<.5?13:p<.8?14:15}
-  blit(e,F,img,i,e.face,S.k);
+  const S=ESET[e.styKey],st=e.state;
+  const pose=enemyPose(e);let sheet=pose.sheet,i=pose.frame;
+  if(st==='walk'){sheet=0;i=S.walkSeq[Math.floor(e.wp/S.walkDiv)%S.walkSeq.length]}
+  const F=window[S.data[sheet]].frames,img=S.img[sheet],palettes=S.palettes[sheet];
+  blit(e,F,palettes?palettes[e.variant||0]:img,i,spriteFacing(e.styKey,sheet,i,e.face),S.k);
 }
 const hasSprite=e=>e.styKey==='aoi'?SPR.ready:ESET[e.styKey]?ESET[e.styKey].ready:false;
-const hasSpriteSet=e=>e.styKey==='aoi'||!!ESET[e.styKey];
 const loadT0=performance.now();
 const assetsReady=()=>SPR.ready&&Object.values(ESET).every(x=>x.ready);
 const mayStart=()=>assetsReady()||performance.now()-loadT0>20000;   // a missing file must not lock the game
-/* every character back to front: sprites are drawn directly, the remaining 3D mannequins in batches between them.
-   Sprite characters whose sheets are still loading (e.g. after the mayStart() timeout) fall back to the
-   procedural drawPerson so nobody turns invisible. */
-function draw3D(list){
-  const sorted=list.slice().sort((x,y)=>x.y-y.y);
-  const o={g,cam,dt:(freeze>0||paused)?0:1/60,frame};
-  const use3D=!!(window.R3D&&R3D.ok);
-  if(use3D){R3D.setTheme(ST.theme);R3D.prune(sorted.filter(e=>!hasSpriteSet(e)))}
-  let batch=[];
-  const flush=()=>{if(!batch.length)return;if(use3D)R3D.draw(batch,o);else batch.forEach(drawPerson);batch=[]};
-  for(const e of sorted){
-    if(hasSprite(e)){flush();e.styKey==='aoi'?drawSprite(e):drawEnemy(e)}
-    else if(hasSpriteSet(e)){flush();drawPerson(e)}
-    else batch.push(e);
+/* Every fighter uses the same 2D presentation. Missing sheets retain the procedural fallback. */
+function drawCharacters(list){
+  for(const e of list.slice().sort((x,y)=>x.y-y.y)){
+    if(hasSprite(e))e.styKey==='aoi'?drawSprite(e):drawEnemy(e);
+    else drawPerson(e);
   }
-  flush();
   list.forEach(warn);
 }
+
 function shadow(e){const k=clamp(1-e.z/160,.3,1);g.fillStyle='rgba(0,0,0,'+.38*k+')';g.beginPath();g.ellipse(e.x-cam,e.y+2,(e.state==='down'||e.state==='dead'?48:28)*e.scale*k,8*e.scale,0,0,7);g.fill()}
 function txt(s,x,y,sz,col,al='left',st=0,wt='bold'){g.font=wt+' '+sz+'px '+FONT;g.textAlign=al;g.textBaseline='alphabetic';if(st){g.lineWidth=st;g.strokeStyle='#120c1c';g.lineJoin='round';g.strokeText(s,x,y)}g.fillStyle=col;g.fillText(s,x,y)}
 
@@ -510,7 +592,7 @@ function damage(t,a,A){
     if(t.hp<=0){t.hp=0;score+=t.def.score;freeze=12;shake=10;sfx.ko();t.drop=t.def.boss?null:(t.type==='brute'||Math.random()<.18)?pick(['rice','rice','milk']):null;
       if(t.def.boss){freeze=40;shake=20;for(let i=0;i<30;i++)fx.push({k:'dot',x:t.x,y:t.y,z:t.z+40,vx:rand(-6,6),vz:rand(2,9),life:rand(20,40),col:pick(['#fff','#ffd95a','#ff3d6e'])})}}
   }else{
-    a.hitSet.add(t);t.inv=0;combo=0;sfx.hurt();t.meter=Math.min(100,t.meter+4);t.hurtN=(t.hurtN||0)+1;t.hurtT=0;
+    a.hitSet.add(t);t.inv=0;combo=0;sfx.hurt();damageVoice.play(t.kind);t.meter=Math.min(100,t.meter+4);t.hurtN=(t.hurtN||0)+1;t.hurtT=0;
     if(t.hurtN>=3){down=true;t.hurtN=0;t.hurtT=null}
     if(t.hp<=0){t.hp=0}
   }
@@ -570,9 +652,9 @@ function updPlayer(p){
       else strike(p,ATK.jkick,enemies);
       if(p.z<=0){p.landK=p.state==='jatk'?7:0;p.landT=6;p.z=0;p.vz=0;p.state='idle';p.t=0;p.vx=0;sfx.land();for(let i=0;i<4;i++)fx.push({k:'dust',x:p.x,y:p.y,z:2,vx:rand(-2,2),vz:rand(0,1),life:16})}
       break}
-    case'hurt':p.x+=p.vx;p.vx*=.8;if(p.t>=p.stun){p.state='idle';p.t=0;p.inv=36}break;
+    case'hurt':p.x+=p.vx;p.vx*=.8;if(p.t>=p.stun){p.state='idle';p.t=0}break;
     case'down':downLogic(p);break;
-    case'getup':if(p.t>=28){p.state='idle';p.t=0;p.inv=Math.max(p.inv,70)}break;
+    case'getup':if(p.t>=28){p.state='idle';p.t=0}break;
     case'dead':
       if(p.t>50){p.lives--;
         if(p.lives<=0){mode='gameover';sfx.ko()}
@@ -633,6 +715,7 @@ function updEnemy(e){
 
 /* ---------- flow ---------- */
 function loadStage(i){
+  damageVoice.stop();
   stageIdx=i;ST=STAGES[i];BG=buildBG(ST);cam=0;limit=0;waveIdx=-1;waveActive=false;queue=[];enemies=[];items=[];fx=[];clearT=0;goT=0;
   P.x=80;P.y=450;P.state='idle';P.t=0;P.z=0;P.vz=0;P.vx=0;P.inv=60;
   banner={t:0,main:ST.name,sub:ST.title};
@@ -661,10 +744,10 @@ function updWaves(){
 }
 function update(){
   frame++;
-  if(hit('KeyM')){muted=!muted;if(muted)stopMusic()}
+  if(hit('KeyM')){muted=!muted;if(muted){stopMusic();damageVoice.stop()}}
   if(mode==='title'){if(hit('Enter','KeyZ','KeyJ','Space')&&mayStart())startGame();return}
   if(mode==='gameover'||mode==='win'){if(hit('Enter'))mode='title';return}
-  if(hit('KeyP','Escape')){paused=!paused}
+  if(hit('KeyP','Escape')){paused=!paused;if(paused)damageVoice.stop()}
   if(paused)return;
   if(banner){banner.t++;if(banner.t>150)banner=null}
   if(freeze>0){freeze--;return}
@@ -713,6 +796,11 @@ function drawFx(){
 function bar(x,y,w,h,v,col1,col2,bg='#120c1c'){g.fillStyle=bg;g.fillRect(x-2,y-2,w+4,h+4);g.fillStyle='#3a2a44';g.fillRect(x,y,w,h);const gr=g.createLinearGradient(x,y,x,y+h);gr.addColorStop(0,col1);gr.addColorStop(1,col2);g.fillStyle=gr;g.fillRect(x,y,w*clamp(v,0,1),h)}
 const PORT=new Image();PORT.src='assets/portrait.png';
 function drawHUD(){
+  if(useCompactHUD()){
+    // Status stays readable in HTML; reserve the small canvas for combat.
+    if(lastTarget&&lastTargetT>0){txt(lastTarget.def.name,W-24,30,24,'#fff','right',4);bar(W-224,40,200,12,lastTarget.hp/lastTarget.maxhp,'#ff6a5a','#c4281c')}
+    if(combo>=2)txt(combo+' HIT!',24,42,32,'#ffe14f','left',5);
+  }else{
   // portrait (concept art crop, falls back to a flat circle while loading)
   g.fillStyle='#120c1c';g.beginPath();g.arc(44,44,32,0,7);g.fill();g.save();g.beginPath();g.arc(44,44,29,0,7);g.clip();
   if(PORT.complete&&PORT.naturalWidth)g.drawImage(PORT,10,10,68,68);else{g.fillStyle='#ff9ac0';g.fillRect(10,10,70,70)}
@@ -725,9 +813,10 @@ function drawHUD(){
   txt('SCORE',W-24,28,12,'#a89cb8','right',3);txt(String(score).padStart(7,'0'),W-24,52,28,'#fff','right',5);
   txt(ST.name,W-24,74,13,'#ffc247','right',3);
   if(lastTarget&&lastTargetT>0&&!lastTarget.def.boss){const t=lastTarget;txt(t.def.name,W-24,98,14,'#fff','right',3);bar(W-184,104,160,10,t.hp/t.maxhp,'#ff6a5a','#c4281c')}
-  const boss=enemies.find(e=>e.def.boss&&e.hp>0);
-  if(boss){txt(boss.def.name,W/2-220,H-40,18,'#ffc247','left',4);bar(W/2-220,H-32,440,14,boss.hp/boss.maxhp,'#ff5a5a','#a01818')}
   if(combo>=2){txt(combo+' HIT!',24,120,26+Math.min(10,combo),'#ffe14f','left',5)}
+  }
+  const boss=enemies.find(e=>e.def.boss&&e.hp>0);
+  if(boss){txt(boss.def.name,W/2-220,H-40,useCompactHUD()?26:18,'#ffc247','left',4);bar(W/2-220,H-32,440,14,boss.hp/boss.maxhp,'#ff5a5a','#a01818')}
   if(goT>30&&Math.floor(goT/22)%2&&!waveActive&&!clearT){txt('GO',W-70,H/2-30,44,'#ffe14f','right',6);g.fillStyle='#ffe14f';g.strokeStyle='#120c1c';g.lineWidth=5;g.beginPath();g.moveTo(W-60,H/2-62);g.lineTo(W-26,H/2-44);g.lineTo(W-60,H/2-26);g.closePath();g.stroke();g.fill()}
 }
 function drawBanner(){
@@ -739,6 +828,7 @@ function drawBanner(){
   txt(banner.sub,W/2,272,22,'#fff','center',5);g.restore();
 }
 function render(){
+  updateCompactHUD();
   if(cv.width!==W*2){cv.width=W*2;cv.height=H*2}
   g.setTransform(2,0,0,2,0,0);g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';
   g.save();
@@ -748,7 +838,7 @@ function render(){
   const list=[P,...enemies].sort((a,b)=>a.y-b.y);
   for(const it of items)drawItem(it);
   for(const e of list)shadow(e);
-  draw3D(list);
+  drawCharacters(list);
   drawFx();
   g.restore();
   drawHUD();drawBanner();
@@ -766,7 +856,7 @@ function drawTitle(){
   BG=titleBG;ST=STAGES[0];cam=(frame*.6)%1200;drawBG();
   g.fillStyle='rgba(10,6,20,.55)';g.fillRect(0,0,W,H);
   titleP.at=frame;titleP.state='idle';titleP.x=cam+250;shadow(titleP);
-  if(!titleT)titleT=mkFighter({kind:'enemy',sty:STY.thug,styKey:'thug',x:0,y:476,face:-1,def:ET.thug});titleT.x=cam+700;titleT.at=frame+9;shadow(titleT);draw3D([titleP,titleT]);
+  if(!titleT)titleT=mkFighter({kind:'enemy',sty:STY.thug,styKey:'thug',x:0,y:476,face:-1,def:ET.thug});titleT.x=cam+700;titleT.at=frame+9;shadow(titleT);drawCharacters([titleP,titleT]);
   const y=Math.sin(frame*.05)*3;
   txt('ストリートエンジェル',W/2,150+y,64,'#fff','center',10);
   txt('葵',W/2,226+y,66,'#ff3d6e','center',10);
@@ -781,13 +871,12 @@ let last=performance.now(),acc=0;
 function loop(now){
   acc+=Math.min(100,now-last);last=now;
   pollPad();
-  if(!r3dStarted&&assetsReady()){r3dStarted=true;window.R3D&&R3D.init(W,H)}
   while(acc>=1000/60){update();press={};acc-=1000/60}
   musicUpdate();render();requestAnimationFrame(loop);
 }
 /* Debug hooks are only exposed with ?debug (e.g. street-angel.html?debug) so production has no cheat/backdoor surface. */
-if(/[?&]debug\b/.test(location.search))window.__game=()=>({mode,P,enemies,cam,ST,score,startGame,loadStage,dbg:{SPR,ESET,assetsReady,mayStart,r3d:()=>r3dStarted},pollPad,keys:()=>keys,musicTest:()=>{const _AC=AC,_MG=MG,_nb=noiseBuf,_mus=mus;try{AC=new OfflineAudioContext(1,44100*3,44100);MG=null;noiseBuf=null;mus={name:'dusk',th:MUS.dusk,step:0,next:.05};scheduleMusic();const a=mus.step;mus={name:'boss',th:MUS.boss,step:0,next:.05};scheduleMusic();return[a,mus.step]}finally{AC=_AC;MG=_MG;noiseBuf=_nb;mus=_mus}},step:n=>{for(let i=0;i<n;i++){update();press={}}render()}});
-let r3dStarted=false;
+if(/[?&]debug\b/.test(location.search))window.__game=()=>({mode,P,enemies,cam,ST,score,startGame,loadStage,dbg:{SPR,ESET,assetsReady,mayStart,damageVoice,r3d:()=>false},pollPad,keys:()=>keys,musicTest:()=>{const _AC=AC,_MG=MG,_nb=noiseBuf,_mus=mus;try{AC=new OfflineAudioContext(1,44100*3,44100);MG=null;noiseBuf=null;mus={name:'dusk',th:MUS.dusk,step:0,next:.05};scheduleMusic();const a=mus.step;mus={name:'boss',th:MUS.boss,step:0,next:.05};scheduleMusic();return[a,mus.step]}finally{AC=_AC;MG=_MG;noiseBuf=_nb;mus=_mus}},step:n=>{for(let i=0;i<n;i++){update();press={}}render()}});
+
 requestAnimationFrame(loop);
 })();
 </script>

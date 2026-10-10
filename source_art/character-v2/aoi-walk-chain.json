@@ -1,0 +1,9 @@
+{
+  "tool": "built-in image_gen",
+  "source": "aoi-walk-intermediate.png",
+  "references": [
+    "source_art/02_aoi_design_sheet_3view.webp",
+    "source_art/character-v2/aoi-gait-guide.png"
+  ],
+  "prompt": "Create exactly FOUR complete anime game sprites in ONE HORIZONTAL ROW, 4 equal cells. Image 1 is ONLY character identity/style: Aoi schoolgirl martial artist, black high ponytail, white/navy sailor blouse red scarf, red gloves, navy skirt over modest dark safety shorts, navy socks, white sneakers. Image 2 is a mandatory SKELETON POSE GUIDE for the four legs/feet positions. Follow each of its four lower-body poses exactly and in order. Red in the GUIDE denotes near LEFT leg and blue denotes far RIGHT leg; FINAL ART must use natural skin and NAVY socks, no red/blue guide colors. The FAR right leg/sock/shoe is shaded darker to identify it. Sprite1 LEFT near leg forward right far leg behind. Sprite2 near left support under hip, FAR RIGHT leg lifted slightly passing through. Sprite3 FAR RIGHT leg forward, NEAR LEFT leg BEHIND: reverse the leg overlap from sprite1. Sprite4 FAR RIGHT support under hip, NEAR LEFT leg lifted slightly passing. Real WALKING, NO fixed wide fighting stance and NO identical leg poses. Fists held in guard above waist, torso upright facing RIGHT, ponytail reacts. Exactly same character size and head anatomy all four, stable ground baseline, fixed side-view camera. Athletic respectful nonsexual. Pure flat #00FF00 green background, large clear gutters, no shadow/glow/grid/labels/guide marks/text. Full body from hair to soles. Trace the skeleton's contact/passing alternation accurately; guide head is schematic so use identity reference for head and torso."
+}

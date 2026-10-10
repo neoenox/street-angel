@@ -12,5 +12,5 @@ Thumbs.db
 # Local dev server / temp work outside the workspace
 # NOTE: _work/, source_art/, assets/unused/, assets/orig/ are dev-only reference
 # material. They are tracked in git but are NOT loaded by street-angel.html at
-# runtime (only street-angel.html, r3d.js, vendor/, assets/*.png|*.js|*.b64.txt
-# and assets/portrait.png are needed to play).
+# runtime. Game runtime uses street-angel.html, visual-style.js,
+# character-motion.js and the referenced assets/*.js|*.png / assets/characters/.

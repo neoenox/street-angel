@@ -1,0 +1,21 @@
+{
+  "source": "User-provided local file",
+  "processing": "Copied byte-for-byte, no transcoding or trimming",
+  "files": [
+    {
+      "file": "aoi-hurt.mp3",
+      "sourceFile": "shozyo2-u.mp3",
+      "sha256": "993c276a6ec41bbe47cd244a856bcdfe34710e3f9bfdb92f3c0e6511ca4aa0af"
+    },
+    {
+      "file": "syozyo3-u.mp3",
+      "sourceFile": "syozyo3-u.mp3",
+      "sha256": "6a526a703f9216d4d1ae75edb6a6df4c09e32c25ec2f92faeb0f5baecac641e3"
+    },
+    {
+      "file": "syozyo3-ku.mp3",
+      "sourceFile": "syozyo3-ku.mp3",
+      "sha256": "b0c65d00634d86f39b489299ec08f6d243a606ffc857eb4ccb6cbbd1728092e9"
+    }
+  ]
+}
