@@ -12,6 +12,13 @@ test('enemy AI grabs on its first close-range update without entering windup',()
  ctx.updEnemy(e);assert.equal(e.state,'holding');assert.equal(p.state,'restrained');assert.equal(p.t,0);assert.equal(R.attack.wind,0);assert.equal(R.attack.hs,0);
 });
 function pair(){return [{hp:36,state:'attack',x:240,y:450},{hp:100,state:'idle',x:200,y:450,z:0,inv:0,vx:3,vz:0,t:0}]}
+test('captor stays behind the player, facing the same direction on either side',()=>{
+ for(const type of ['thug','yankee','brute'])for(const face of [-1,1]){
+  const [e,p]=pair();Object.assign(e,{type,face});assert.equal(R.capture(e,p),true);
+  assert.equal(p.face,face);assert.ok((p.x-e.x)*face>0);assert.equal(e.y,p.y);
+  p.x+=10;R.align(e,p);assert.ok((p.x-e.x)*face>0);
+ }
+});
 test('capture holds in place without damage, throwing, or invulnerability',()=>{
  const [e,p]=pair();assert.equal(R.capture(e,p),true);assert.equal(p.state,'restrained');assert.equal(e.state,'holding');assert.equal(p.hp,100);assert.equal(p.x,200);assert.equal(p.vx,0);
  p.t=180;R.tick(p,false);assert.equal(p.state,'idle');assert.equal(p.inv,0);assert.equal(p.z,0);assert.equal(e.state,'idle');assert.equal(R.capture(e,p),false);

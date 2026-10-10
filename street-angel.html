@@ -5,11 +5,11 @@
 <script src="visual-style.js?v=2"></script>
 <script src="damage-voice.js?v=3"></script>
 <script src="character-motion.js?v=4"></script>
-<script src="enemy-restraint.js?v=3"></script>
-<script src="assets/characters/aoi_restraint_v1.js"></script>
-<script src="assets/characters/thug_restraint_v1.js"></script>
-<script src="assets/characters/yankee_restraint_v1.js"></script>
-<script src="assets/characters/brute_restraint_v1.js"></script>
+<script src="enemy-restraint.js?v=4"></script>
+<script src="assets/characters/aoi_restraint_v2.js"></script>
+<script src="assets/characters/thug_restraint_v2.js"></script>
+<script src="assets/characters/yankee_restraint_v2.js"></script>
+<script src="assets/characters/brute_restraint_v2.js"></script>
 <script src="assets/aoi_walk4.js"></script>
 <script src="assets/characters/aoi_attack_v2.js"></script>
 <script src="assets/characters/thug_combat_v2.js"></script>
@@ -21,8 +21,8 @@
 <script src="assets/aoi_hit.js"></script>
 <script src="assets/thug_walk.js"></script>
 <script src="assets/yk_walk.js"></script>
-<script src="assets/br_walk.js"></script>
-<script src="assets/br_cmb.js"></script>
+<script src="assets/br_walk.js?v=2"></script>
+<script src="assets/br_cmb.js?v=2"></script>
 <style>
 /* Layout: one 16:9 canvas centred on a dark stage, controls strip underneath */
 :root{
@@ -567,7 +567,7 @@ for(const kind of ['aoi','thug','yankee','brute']){
       shiftClothingPixels(pixels.data,kind,variant);ctx.putImageData(pixels,0,0);entry.palettes.push(c);
     }
   };
-  entry.img.src='assets/characters/'+kind+'_restraint_v1.png';RESTRAINT_SPRITES[kind]=entry;
+  entry.img.src='assets/characters/'+kind+'_restraint_v2.png';RESTRAINT_SPRITES[kind]=entry;
 }
 function drawRestraint(e){
   const i=restraintFrame(e),S=RESTRAINT_SPRITES[e.styKey];
@@ -579,7 +579,8 @@ const assetsReady=()=>SPR.ready&&Object.values(ESET).every(x=>x.ready);
 const mayStart=()=>assetsReady()||performance.now()-loadT0>20000;   // a missing file must not lock the game
 /* Every fighter uses the same 2D presentation. Missing sheets retain the procedural fallback. */
 function drawCharacters(list){
-  for(const e of list.slice().sort((x,y)=>x.y-y.y)){
+  for(const e of list.slice().sort((x,y)=>x.heldPlayer===y?-1:y.heldPlayer===x?1:x.y-y.y)){
+    if(drawRestraint(e))continue;
     if(hasSprite(e))e.styKey==='aoi'?drawSprite(e):drawEnemy(e);
     else drawPerson(e);
   }
@@ -744,7 +745,7 @@ function updEnemy(e){
       break}
     case'holding':{
       if(e.heldPlayer!==p||p.heldBy!==e||p.state!=='restrained'){if(e.heldPlayer)EnemyRestraint.release(e.heldPlayer);e.state='idle';e.cd=90;break}
-      e.x=p.x-e.face*(e.type==='brute'?75:58);e.y=p.y;e.vx=0;break}
+      EnemyRestraint.align(e,p);e.vx=0;break}
     case'hurt':e.x+=e.vx;e.vx*=.8;if(e.t>=e.stun){e.state='idle';e.t=0;e.cd=ri(10,40);e.next=null}break;
     case'down':downLogic(e);break;
     case'getup':if(e.t>=28){e.state='idle';e.t=0;e.cd=ri(10,40);e.next=null}break;

@@ -1,30 +1,38 @@
 [
   {
     "kind": "aoi",
-    "sourceSha256": "1967763f794f1787ae3d96b9ebf1f210914846566b7944ba64575f18463dce5b",
-    "atlasSha256": "5673d15df33bfb8c97e663203cd1db6d147e08ff41e66aae85a2f1a384a4dd13",
+    "output": "aoi_restraint_v2.png",
+    "referenceHeight": 264,
+    "sourceSha256": "085046992daf51d44c2cd886f8115e5163dbe6952b521aa28345666b2f3fbcca",
+    "atlasSha256": "5dc213acd0a7c1406ee56b372813717946e8aee1dd323aa6aab8a4a557af8173",
     "frameCount": 4,
-    "scale": 0.9962264150943396
+    "scale": 1.1379310344827587
   },
   {
     "kind": "thug",
-    "sourceSha256": "1967763f794f1787ae3d96b9ebf1f210914846566b7944ba64575f18463dce5b",
-    "atlasSha256": "49fcdcbf4598fd2c559fdf84cf2321baf3827681fdd4a2a7140964ab0410d311",
+    "output": "thug_restraint_v2.png",
+    "referenceHeight": 300,
+    "sourceSha256": "085046992daf51d44c2cd886f8115e5163dbe6952b521aa28345666b2f3fbcca",
+    "atlasSha256": "01fe776b79c1da816ce4817f9b7467d3d5ab825a4750e314a651b331bb712b11",
     "frameCount": 4,
-    "scale": 0.9295774647887324
+    "scale": 1.1904761904761905
   },
   {
     "kind": "yankee",
-    "sourceSha256": "1967763f794f1787ae3d96b9ebf1f210914846566b7944ba64575f18463dce5b",
-    "atlasSha256": "cb7b5e4c71e3d00d69b4abbd26b379d011c11cf9e0c39c69831af01407d759b3",
+    "output": "yankee_restraint_v2.png",
+    "referenceHeight": 300,
+    "sourceSha256": "085046992daf51d44c2cd886f8115e5163dbe6952b521aa28345666b2f3fbcca",
+    "atlasSha256": "6e47872197133ea9ee34c99d4a333932258ec007036d679df8817ee42fd5a685",
     "frameCount": 4,
-    "scale": 1.1070110701107012
+    "scale": 1.2195121951219512
   },
   {
     "kind": "brute",
-    "sourceSha256": "1967763f794f1787ae3d96b9ebf1f210914846566b7944ba64575f18463dce5b",
-    "atlasSha256": "72137dd01fb6b4373ffa941e06c91d16989fbdecf6abacbd02d46a41deb0daa9",
+    "output": "brute_restraint_v2.png",
+    "referenceHeight": 331,
+    "sourceSha256": "085046992daf51d44c2cd886f8115e5163dbe6952b521aa28345666b2f3fbcca",
+    "atlasSha256": "6055be1b240dbbd8f5f8b6fd4ac10a1b611e4be268181473e5d47f3d7c75666e",
     "frameCount": 4,
-    "scale": 0.9361702127659575
+    "scale": 1.497737556561086
   }
 ]
