@@ -608,6 +608,7 @@ function strike(a,A,targets){
     if(Math.abs(t.z-a.z)>58)continue;
     a.hitSet.add(t);
     if(A.n==='restrain'){EnemyRestraint.capture(a,t);continue}
+    if(a.type==='thug'&&A.n==='jab'&&t.kind==='player'&&EnemyRestraint.capture(a,t))continue;
     damage(t,a,A);
   }
 }
@@ -722,7 +723,9 @@ function updEnemy(e){
       if(!e.entered){moved=steer(e,p.x,p.y,def.spd*1.3);if(e.x>cam+30&&e.x<cam+W-30)e.entered=true}
       else if(p.state!=='dead'){
         if(e.next?.n==='restrain'&&!EnemyRestraint.isBehind(e,p))e.next=null;
-        if(e.cd<=0&&!e.next)e.next=!def.boss&&EnemyRestraint.isBehind(e,p)&&!p.heldBy&&!(p.restraintCooldown>0)&&Math.random()<.25?EnemyRestraint.attack:pick(def.atks);
+        const canGrab=!def.boss&&EnemyRestraint.isBehind(e,p)&&!p.heldBy&&!(p.restraintCooldown>0);
+        if(e.cd<=0&&!e.next)e.next=canGrab&&(e.type==='thug'||Math.random()<.25)?EnemyRestraint.attack:pick(def.atks);
+        if(canGrab&&e.type==='thug'&&e.next?.n==='jab')e.next=EnemyRestraint.attack;
         if(e.next&&tokens()<ST.tok&&(p.state!=='down'||Math.random()<.02)){
           const A=e.next,tx=p.x-(dx>=0?1:-1)*A.range*.8;
           if(Math.abs(dx)<A.range&&Math.abs(p.y-e.y)<Math.min(16,A.dt*.6)){

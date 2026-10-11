@@ -13,6 +13,19 @@ test('enemy AI grabs on its first close-range update without entering windup',()
  R.release(p);p.restraintCooldown=0;p.face=1;e.x=235;e.state='idle';e.cd=0;e.next=R.attack;
  e.def.atks=[{n:'jab',wind:18,range:60,dt:22}];ctx.updEnemy(e);
  assert.equal(p.state,'idle');assert.equal(e.atk.n,'jab');assert.equal(e.state,'windup');
+ // A front-selected punch is replaced once the thug gets behind Aoi.
+ for(const face of [-1,1])for(const next of [null,e.def.atks[0]]){
+  p.face=face;p.restraintCooldown=0;e.x=p.x-face*35;e.state='idle';e.cd=0;e.next=next;
+  ctx.updEnemy(e);assert.equal(e.state,'holding');assert.equal(p.state,'restrained');
+  R.release(p);
+ }
+ // During the recapture cooldown the ordinary punch remains available.
+ p.face=1;e.x=p.x-35;e.state='idle';e.cd=0;e.next=null;
+ ctx.updEnemy(e);assert.equal(e.atk.n,'jab');assert.equal(e.state,'windup');
+ // A punch already in progress also becomes a grab when it lands from behind.
+ p.restraintCooldown=0;e.t=5;e.face=1;e.hitSet=new Set();e.state='attack';
+ ctx.strike(e,{n:'jab',hs:5,he:11,reach:70,dt:22},[p]);
+ assert.equal(e.state,'holding');assert.equal(p.state,'restrained');assert.equal(p.hp,100);
 });
 function pair(){return [{hp:36,state:'attack',x:235,y:450,face:-1},{hp:100,state:'idle',x:200,y:450,face:-1,z:0,inv:0,vx:3,vz:0,t:0}]}
 test('captor stays behind the player, facing the same direction on either side',()=>{
