@@ -674,7 +674,8 @@ function damage(t,a,A){
   }
   if(held&&(t.hp>0||t.defeated)){t.vx=0;t.vz=0;t.hurtN=0;t.hurtT=null;return}
   if(t.kind==='player'&&t.defeated){
-    t.state='down';t.t=0;t.lt=8;t.vx=dir*clamp((A.kb||4)*.7,2,5);t.vz=A.down?4.2:3.2;
+    const hitDir=a.face===1||a.face===-1?a.face:dir;
+    t.state='down';t.t=0;t.lt=8;t.vx=hitDir*clamp((A.kb||4)*.7,2,5);t.vz=A.down?4.2:3.2;
     t.atk=null;t.hurtN=0;t.hurtT=null;return;
   }
   if(held)EnemyRestraint.release(t);

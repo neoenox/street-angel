@@ -56,6 +56,12 @@ test('attacks hit defeated Aoi on the ground once each with bounded knockback wi
  e.hitSet=new Set();ctx.strike(e,a,[p]);assert.equal(sparks,2);assert.equal(voices,2);
  assert.equal(p.hp,0);assert.equal(p.state,'down');assert.equal(p.x,480);assert.equal(p.z,0);assert.equal(p.vz,4.2);assert.equal(p.vx,5);
  e.hitSet=new Set();ctx.strike(e,a,[{...p,defeated:false,hp:100}]);assert.equal(sparks,2);
+ // A close-range hit can overlap the attacker's origin: use attack facing,
+ // rather than reversing knockback when the target crosses that origin.
+ for(const face of [-1,1])for(const overlap of [0,5]){
+  e.face=face;e.x=p.x+face*overlap;e.hitSet=new Set();
+  ctx.strike(e,a,[p]);assert.equal(p.vx,face*5);assert.equal(p.hp,0);
+ }
 });
 
 test('defeated knockback moves through physics and settles on the ground without recovery',()=>{
