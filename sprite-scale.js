@@ -23,6 +23,9 @@ const SPRITE_SCALES={
   'characters/boss_motion_v2':.84,
   'characters/boss_combat_v2':1,
   'characters/mount_v1':.82,
+  'characters/yankee_hold_v1':1,
+  'characters/brute_hold_v1':1,
+  'characters/boss_hold_v1':1,
 };
 function spriteScale(asset){return SPRITE_SCALES[asset]??1}
 if(typeof module!=='undefined')module.exports={spriteScale,SPRITE_SCALES};

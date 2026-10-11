@@ -1,0 +1,44 @@
+[
+  {
+    "kind": "yankee",
+    "source": "yankee-collar-v1-source.png",
+    "sourceSize": [
+      1448,
+      1086
+    ],
+    "sourceSha256": "c348909fcb7f49175796598a8da66c40777e9820e316cf38afeb90a670a4797d",
+    "output": "yankee_hold_v1.png",
+    "atlasSha256": "7546c4433fce7ce3a7feabe5019388c3b4a9389123fcb7c06e4a76b4d4f4e19d",
+    "scale": 0.2878787878787879,
+    "aoiHeight": 263.9848484848485,
+    "anchor": 87.23
+  },
+  {
+    "kind": "boss",
+    "source": "boss-armlock-v1-source.png",
+    "sourceSize": [
+      1222,
+      1287
+    ],
+    "sourceSha256": "48648f3f86d10b82b745522317d9711bb4f51b75925fdbdf7580149c8fc22c6e",
+    "output": "boss_hold_v1.png",
+    "atlasSha256": "1476960f1512858ddea02d50398d17a48dab1ebed713fd1c220e15062ed66131",
+    "scale": 0.25421010425020046,
+    "aoiHeight": 252.17642341619887,
+    "anchor": 185.83
+  },
+  {
+    "kind": "brute",
+    "source": "brute-bearhug-v1-source.png",
+    "sourceSize": [
+      1358,
+      1159
+    ],
+    "sourceSha256": "ac5f8c5dc82c6409130b9789668b12bab0b7db8d8d11a52f1676ca9d160fdaa8",
+    "output": "brute_hold_v1.png",
+    "atlasSha256": "51e01e3529e439b233fd5107f5edb2c6bf6e360e7d1da425f924c1c06012a825",
+    "scale": 0.32051282051282054,
+    "aoiHeight": 264.10256410256414,
+    "anchor": 177.88
+  }
+]

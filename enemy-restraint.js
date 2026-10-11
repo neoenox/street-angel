@@ -1,20 +1,31 @@
 const EnemyRestraint=(()=>{
   const attack={n:'restrain',wind:0,dur:20,hs:0,he:6,reach:44,dt:16,range:42,anim:'punchF',lunge:0};
   function isBehind(e,p){return (e.x-p.x)*p.face<-8}
+  function style(e){return ({yankee:'collar',brute:'bearhug',boss:'armlock'})[e.type]||'rearWrist'}
+  function canGrab(e,p){
+    const side=(e.x-p.x)*p.face;
+    return (style(e)==='collar'?side>8:side<-8)&&!(e.hp<=0)&&
+      !(p.hp<=0&&!p.defeated)&&!(p.inv>0)&&!(p.z>0)&&!(p.restraintCooldown>0)&&!p.heldBy&&
+      (['idle','walk','attack','hurt'].includes(p.state)||(p.defeated&&p.state==='down'));
+  }
   function capture(e,p){
-    if(!isBehind(e,p)||Math.abs(e.x-p.x)>attack.reach||Math.abs(e.y-p.y)>attack.dt||(p.hp<=0&&!p.defeated)||p.inv>0||p.z>0||p.restraintCooldown>0||p.heldBy||!(['idle','walk','attack','hurt'].includes(p.state)||(p.defeated&&p.state==='down')))return false;
+    if(!canGrab(e,p)||Math.abs(e.x-p.x)>attack.reach||Math.abs(e.y-p.y)>attack.dt)return false;
     e.face=p.face;p.heldBy=e;e.heldPlayer=p;p.state='restrained';p.t=0;p.escape=0;p.atk=null;p.buf='';p.vx=p.vz=0;
     p.assistUsed=false;
     e.state='holding';e.t=0;e.vx=0;e.next=null;align(e,p);return true;
   }
-  function align(e,p){e.x=p.x-e.face*(e.type==='brute'?46:38);e.y=p.y}
+  function align(e,p){
+    const front=style(e)==='collar';e.face=front?-p.face:p.face;
+    e.x=p.x+p.face*(front?70:e.type==='brute'?-32:-38);e.y=p.y;
+  }
   function release(p){
     endAssist(p);
     const e=p.heldBy;if(!e)return;
     p.heldBy=null;e.heldPlayer=null;p.restraintCooldown=300;
-    if(p.state==='restrained'){p.state='idle';p.t=0;p.vx=0;p.restraintExit=12}
+    const exit=style(e)==='rearWrist'?12:0;
+    if(p.state==='restrained'){p.state='idle';p.t=0;p.vx=0;p.restraintExit=exit}
     if(p.defeated){p.state='down';p.t=0;p.lt=8;p.z=p.vx=p.vz=0;p.restraintExit=0}
-    if(e.state==='holding'){e.state='idle';e.t=0;e.cd=90;e.restraintExit=12}
+    if(e.state==='holding'){e.state='idle';e.t=0;e.cd=90;e.restraintExit=exit}
   }
   function tick(p,pressed){
     const e=p.heldBy;
@@ -27,12 +38,15 @@ const EnemyRestraint=(()=>{
   const assistHits=assistTiming.hits;
   const bellyHit={n:'bellyHit',dmg:6,kb:0,stun:0,hitStop:10,heavy:true};
   function canAssist(e,p){
-    return !e.def?.boss&&e!==p.heldBy&&!p.assistUsed&&!p.assistedBy&&p.state==='restrained'&&(p.hp>0||p.defeated)&&p.heldBy?.state==='holding';
+    return !e.def?.boss&&e!==p.heldBy&&!p.assistUsed&&!p.assistedBy&&p.state==='restrained'&&(p.hp>0||p.defeated)&&p.heldBy?.state==='holding'&&style(p.heldBy)!=='collar';
   }
-  function assistDistance(e){return (e.type==='brute'?72:84)*(e.scale||1)}
-  function alignAssist(e,p){e.face=-p.face;e.x=p.x+p.face*assistDistance(e);e.y=p.y;e.vx=0}
+  function assistDistance(e,p){
+    const paired=p?.heldBy&&['bearhug','armlock'].includes(style(p.heldBy));
+    return (paired?50:e.type==='brute'?72:84)*(e.scale||1);
+  }
+  function alignAssist(e,p){e.face=-p.face;e.x=p.x+p.face*assistDistance(e,p);e.y=p.y;e.vx=0}
   function startAssist(e,p){
-    if(!canAssist(e,p)||e.hp<=0||e.z>0||(e.x-p.x)*p.face<=8||Math.abs(e.x-p.x-p.face*assistDistance(e))>14||Math.abs(e.y-p.y)>16)return false;
+    if(!canAssist(e,p)||e.hp<=0||e.z>0||(e.x-p.x)*p.face<=8||Math.abs(e.x-p.x-p.face*assistDistance(e,p))>14||Math.abs(e.y-p.y)>16)return false;
     p.assistedBy=e;p.assistUsed=true;e.assistPlayer=p;e.state='assisting';e.t=0;e.assistHit=0;e.atk=null;e.next=null;e.hitSet=new Set();alignAssist(e,p);return true;
   }
   function endAssist(p){
@@ -56,6 +70,6 @@ const EnemyRestraint=(()=>{
       }else endAssist(p);
     }
   }
-  return {attack,capture,release,tick,align,isBehind,canAssist,startAssist,endAssist,tickAssist,alignAssist,assistDistance,assistHits};
+  return {attack,capture,release,tick,align,isBehind,style,canGrab,canAssist,startAssist,endAssist,tickAssist,alignAssist,assistDistance,assistHits};
 })();
 if(typeof module!=='undefined')module.exports=EnemyRestraint;

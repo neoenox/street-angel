@@ -5,8 +5,12 @@
 <script src="visual-style.js?v=2"></script>
 <script src="damage-voice.js?v=3"></script>
 <script src="character-motion.js?v=9"></script>
-<script src="sprite-scale.js?v=1"></script>
-<script src="enemy-restraint.js?v=9"></script>
+<script src="sprite-scale.js?v=2"></script>
+<script src="enemy-restraint.js?v=10"></script>
+<script src="assets/characters/yankee_hold_v1.js"></script>
+<script src="assets/characters/brute_hold_v1.js"></script>
+<script src="assets/characters/boss_hold_v1.js"></script>
+<script src="restraint-pairs.js"></script>
 <script src="enemy-flanking.js?v=1"></script>
 <script src="enemy-mount.js?v=1"></script>
 <script src="assets/characters/mount_v1.js?v=4"></script>
@@ -592,7 +596,19 @@ for(const kind of ['aoi','thug','yankee','brute']){
   };
   entry.img.src='assets/characters/'+kind+'_restraint_'+(kind==='aoi'?'v3':'v2')+'.png'+(kind==='yankee'?'?v=2':'');RESTRAINT_SPRITES[kind]=entry;
 }
+const HOLD_PAIRS=loadRestraintPairs();
+function drawUniqueRestraint(e,headOnly=false){
+  const p=e.state==='holding'?e.heldPlayer:e.state==='restrained'?e:null;
+  const holder=p?.heldBy,S=HOLD_PAIRS[holder?.type];
+  if(!S||!S.frames||!S.img.complete||!S.img.naturalWidth)return false;
+  // Player draws the whole pair once; no second head pass over the helper.
+  if(e!==p||headOnly)return true;
+  g.save();g.translate(restraintSway(p)*(p.scale||1),0);
+  blit({...p,flash:0},S.frames,S.palette||S.img,0,p.face,spriteScale('characters/'+holder.type+'_hold_v1'));
+  g.restore();return true;
+}
 function drawRestraint(e,headOnly=false){
+  if(drawUniqueRestraint(e,headOnly))return true;
   const assist=assistFrame(e),i=assist!=null?assist:restraintFrame(e),S=assist!=null?ASSIST_SPRITES[e.styKey]:RESTRAINT_SPRITES[e.styKey];
   if(i==null||!S?.frames||!S.img.complete||!S.img.naturalWidth)return false;
   // Tiny regular tremors suggest struggling without tilting the whole fighter.
@@ -637,7 +653,7 @@ function drawMount(e){
   }
   return true;
 }
-const assetsReady=()=>SPR.ready&&Object.values(ESET).every(x=>x.ready)&&!!MOUNT_SPRITE.frames&&MOUNT_SPRITE.img.complete&&MOUNT_SPRITE.img.naturalWidth>0;
+const assetsReady=()=>SPR.ready&&Object.values(ESET).every(x=>x.ready)&&Object.values(HOLD_PAIRS).every(x=>x.frames&&x.img.complete&&x.img.naturalWidth>0)&&!!MOUNT_SPRITE.frames&&MOUNT_SPRITE.img.complete&&MOUNT_SPRITE.img.naturalWidth>0;
 const mayStart=()=>assetsReady()||performance.now()-loadT0>20000;   // a missing file must not lock the game
 /* Every fighter uses the same 2D presentation. Missing sheets retain the procedural fallback. */
 function drawCharacters(list){
@@ -820,13 +836,13 @@ function updEnemy(e){
         if(e.type==='thug'&&e.cd<=0&&tokens()<ST.tok&&Math.abs(dx)<170&&Math.abs(p.y-e.y)<18&&(p.state==='down'||(!e.next&&!EnemyRestraint.isBehind(e,p)&&Math.random()<.22))&&EnemyMount.start(e,p))break;
         if(EnemyRestraint.canAssist(e,p)&&e.cd<=0&&tokens()<ST.tok){
           e.next=null;
-          const tx=p.x+p.face*EnemyRestraint.assistDistance(e);
+          const tx=p.x+p.face*EnemyRestraint.assistDistance(e,p);
           if(!EnemyRestraint.startAssist(e,p))moved=steer(e,tx,p.y,def.spd);
           if(e.state!=='assisting')e.state=moved?'walk':'idle';
           break;
         }
-        if(e.next?.n==='restrain'&&(!EnemyRestraint.isBehind(e,p)||p.heldBy||p.restraintCooldown>0))e.next=null;
-        const canGrab=!def.boss&&EnemyRestraint.isBehind(e,p)&&!p.heldBy&&!(p.restraintCooldown>0)&&(!p.defeated||p.z<=0);
+        if(e.next?.n==='restrain'&&!EnemyRestraint.canGrab(e,p))e.next=null;
+        const canGrab=EnemyRestraint.canGrab(e,p);
         if(e.cd<=0&&!e.next)e.next=canGrab&&(e.type==='thug'||Math.random()<.25)?EnemyRestraint.attack:pick(def.atks);
         if(canGrab&&e.type==='thug'&&e.next?.n==='jab')e.next=EnemyRestraint.attack;
         if(e.next&&tokens()<ST.tok&&(p.defeated||p.state!=='down'||Math.random()<.02)){

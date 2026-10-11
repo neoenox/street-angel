@@ -54,7 +54,7 @@ test('real damage preserves restraint, timer and escape progress until lethal da
  ctx.damage(p,a,{dmg:100});assert.equal(p.hp,0);assert.equal(p.heldBy,null);assert.equal(e.heldPlayer,null);assert.equal(p.state,'down');
 });
 test('captor stays behind the player, facing the same direction on either side',()=>{
- for(const type of ['thug','yankee','brute'])for(const face of [-1,1]){
+ for(const type of ['thug','brute','boss'])for(const face of [-1,1]){
   const [e,p]=pair();p.face=face;Object.assign(e,{type,face,x:p.x-face*35});assert.equal(R.capture(e,p),true);
   assert.equal(p.face,face);assert.ok((p.x-e.x)*face>0);assert.equal(e.y,p.y);
   p.x+=10;R.align(e,p);assert.ok((p.x-e.x)*face>0);
