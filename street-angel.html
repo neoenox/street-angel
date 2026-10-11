@@ -640,11 +640,11 @@ function damage(t,a,A){
   const dir=t.x>=a.x?1:-1;
   if(a.kind==='enemy'&&a.def.boss&&a.hp<a.maxhp*.5)A=Object.assign({},A,{dmg:A.dmg*1.25});
   t.hp-=A.dmg;t.flash=5;
-  const big=!!A.down||t.hp<=0;
+  const big=!!A.down||(t.hp<=0&&!t.defeated);
   freeze=Math.max(freeze,A.hitStop||(big?7:3));spark(A.n==='bellyHit'?t.x+t.face*12:(a.x+t.x)/2,t.y,t.z+(A.n==='bellyHit'?65:85),big);
   if(A.n==='bellyHit')shake=Math.max(shake,3);
   (big||A.heavy?sfx.heavy:sfx.punch)();
-  let down=A.down||t.hp<=0,stun=true;
+  let down=A.down||(t.hp<=0&&!t.defeated),stun=true;
   if(a.kind==='player'){
     combo++;comboT=80;a.meter=Math.min(100,a.meter+(A.multi?1.5:5));score+=A.dmg*5;lastTarget=t;lastTargetT=240;
     if(t.def&&t.def.heavy&&t.hp>0){t.poise-=A.dmg*(A.down?2:1);if(t.poise<=0){t.poise=t.def.poise}else{down=false;stun=false}}
@@ -670,20 +670,21 @@ function physics(e){
 function downLogic(e){
   physics(e);
   if(e.z===0&&e.vz===0){e.lt++;
-    if(e.lt>(e.hp<=0?34:46)){
-      if(e.hp<=0){e.state='dead';e.t=0}else{e.state='getup';e.t=0}
+    if(e.lt>(e.hp<=0&&!e.defeated?34:46)){
+      if(e.hp<=0&&!e.defeated){e.state='dead';e.t=0}else{e.state='getup';e.t=0}
     }}
 }
 function startAtk(e,A){e.state='attack';e.atk=A;e.t=0;e.hitSet=new Set();sfx.swing()}
 
 /* ---------- player ---------- */
 function updPlayer(p){
+  const dnP=(...k)=>!p.defeated&&dn(...k),hitP=(...k)=>!p.defeated&&hit(...k);
   p.t++;p.at++;if(p.inv>0)p.inv--;if(p.flash>0)p.flash--;if(p.landT>0)p.landT--;
   if(p.restraintExit>0)p.restraintExit--;
   if(p.restraintCooldown>0)p.restraintCooldown--;
   if(p.hurtT!=null){p.hurtT++;if(p.hurtT>120){p.hurtN=0;p.hurtT=null}}   // juggle count expires after ~2s without a hit
-  const ax=(dn('ArrowRight','KeyD')?1:0)-(dn('ArrowLeft','KeyA')?1:0),ay=(dn('ArrowDown','KeyS')?1:0)-(dn('ArrowUp','KeyW')?1:0);
-  const atkP=hit('KeyZ','KeyJ'),kickP=hit('KeyX','KeyK'),jumpP=hit('Space'),spP=hit('KeyC','KeyL');
+  const ax=(dnP('ArrowRight','KeyD')?1:0)-(dnP('ArrowLeft','KeyA')?1:0),ay=(dnP('ArrowDown','KeyS')?1:0)-(dnP('ArrowUp','KeyW')?1:0);
+  const atkP=hitP('KeyZ','KeyJ'),kickP=hitP('KeyX','KeyK'),jumpP=hitP('Space'),spP=hitP('KeyC','KeyL');
   switch(p.state){
     case'restrained':EnemyRestraint.tick(p,atkP||kickP||jumpP||spP);break;
     case'idle':case'walk':{
@@ -721,7 +722,7 @@ function updPlayer(p){
     case'getup':if(p.t>=28){p.state='idle';p.t=0}break;
     case'dead':
       if(p.t>50){p.lives--;
-        if(p.lives<=0){mode='gameover';sfx.ko()}
+        if(p.lives<=0){enterGameOver()}
         else{p.hp=p.maxhp;p.state='getup';p.t=0;p.inv=160;p.z=0;p.vz=0;p.x=clamp(p.x,cam+60,cam+W-60)}}
       break;
   }
@@ -757,8 +758,8 @@ function updEnemy(e){
           if(e.state!=='assisting')e.state=moved?'walk':'idle';
           break;
         }
-        if(e.next?.n==='restrain'&&(!EnemyRestraint.isBehind(e,p)||p.heldBy||p.restraintCooldown>0))e.next=null;
-        const canGrab=!def.boss&&EnemyRestraint.isBehind(e,p)&&!p.heldBy&&!(p.restraintCooldown>0);
+        if(e.next?.n==='restrain'&&(p.defeated||!EnemyRestraint.isBehind(e,p)||p.heldBy||p.restraintCooldown>0))e.next=null;
+        const canGrab=!p.defeated&&!def.boss&&EnemyRestraint.isBehind(e,p)&&!p.heldBy&&!(p.restraintCooldown>0);
         if(e.cd<=0&&!e.next)e.next=canGrab&&(e.type==='thug'||Math.random()<.25)?EnemyRestraint.attack:pick(def.atks);
         if(canGrab&&e.type==='thug'&&e.next?.n==='jab')e.next=EnemyRestraint.attack;
         if(e.next&&tokens()<ST.tok&&(p.state!=='down'||Math.random()<.02)){
@@ -801,6 +802,15 @@ function updEnemy(e){
 }
 
 /* ---------- flow ---------- */
+function enterGameOver(){
+  EnemyRestraint.release(P);
+  mode='gameover';P.defeated=true;P.hp=0;P.lives=0;P.inv=0;
+  P.state='getup';P.t=0;P.lt=0;P.z=0;P.vx=0;P.vz=0;P.atk=null;P.buf='';
+  P.x=clamp(P.x,cam+60,cam+W-60);
+  banner=null;clearT=0;goT=0;freeze=0;combo=0;comboT=0;
+  if(!enemies.some(e=>e.hp>0))enemies.push(mkEnemy('thug',P.x+100,P.y));
+  sfx.ko();
+}
 function loadStage(i){
   if(P?.heldBy)EnemyRestraint.release(P);
   damageVoice.stop();
@@ -834,7 +844,8 @@ function update(){
   frame++;
   if(hit('KeyM')){muted=!muted;if(muted){stopMusic();damageVoice.stop()}}
   if(mode==='title'){if(hit('Enter','KeyZ','KeyJ','Space')&&mayStart())startGame();return}
-  if(mode==='gameover'||mode==='win'){if(hit('Enter'))mode='title';return}
+  if(mode==='win'){if(hit('Enter'))mode='title';return}
+  if(mode==='gameover'&&hit('Enter')){damageVoice.stop();mode='title';paused=false;return}
   if(hit('KeyP','Escape')){paused=!paused;if(paused)damageVoice.stop()}
   if(paused)return;
   if(banner){banner.t++;if(banner.t>150)banner=null}
@@ -853,13 +864,14 @@ function update(){
     if(a.z>0||b.z>0||a.state==='holding'||b.state==='holding'||a.state==='assisting'||b.state==='assisting'||a.state==='down'||b.state==='down'||a.state==='dead'||b.state==='dead')continue;
     const dx=b.x-a.x,dy=b.y-a.y;if(Math.abs(dx)<30&&Math.abs(dy)<12){const s=dx>=0?1:-1;a.x-=s*.8;b.x+=s*.8;a.y-=dy>=0?.4:-.4;b.y+=dy>=0?.4:-.4}}
   // items
-  for(const it of items){it.life--;if(Math.hypot(it.x-P.x,(it.y-P.y)*1.6)<28&&P.state!=='dead'){
+  for(const it of items){it.life--;if(mode!=='gameover'&&Math.hypot(it.x-P.x,(it.y-P.y)*1.6)<28&&P.state!=='dead'){
     if(it.k==='rice'){P.hp=Math.min(P.maxhp,P.hp+35)}else{P.hp=Math.min(P.maxhp,P.hp+15);P.meter=Math.min(100,P.meter+40)}
     it.life=0;sfx.pick();fx.push({k:'txt',x:P.x,y:P.y,z:90,vz:.8,life:50,s:it.k==='rice'?'HP +35':'HP +15 / SP +40',col:'#7dff9a'})}}
   items=items.filter(i=>i.life>0);
   // fx
   for(const f of fx){f.life--;if(f.k==='dot'||f.k==='dust'){f.x+=f.vx||0;f.z+=f.vz||0;if(f.k==='dot')f.vz-=.3;else f.vz*=.95}else if(f.k==='txt')f.z+=f.vz}
   fx=fx.filter(f=>f.life>0);
+  if(mode==='gameover')return;
   updWaves();
   if(goT>=0&&!waveActive&&waveIdx+1<ST.waves.length)goT++;
   if(clearT){clearT++;if(clearT===200){score+=P.hp*10}
@@ -942,7 +954,7 @@ function render(){
     txt(stageIdx+1<STAGES.length?'STAGE CLEAR!':'ALL CLEAR!!',W/2,225,56,'#ffc247','center',8);
     if(clearT>=100)txt('ボーナス  '+(P.hp*10)+' pts',W/2,275,24,'#fff','center',5);g.globalAlpha=1}
   if(paused){g.fillStyle='rgba(0,0,0,.6)';g.fillRect(0,0,W,H);txt('PAUSE',W/2,H/2,56,'#fff','center',8);txt('P で再開',W/2,H/2+40,20,'#a89cb8','center',4)}
-  if(mode==='gameover'){g.fillStyle='rgba(0,0,0,.72)';g.fillRect(0,0,W,H);txt('GAME OVER',W/2,230,72,'#ff3d6e','center',9);txt('SCORE  '+score,W/2,290,30,'#fff','center',5);if(Math.floor(frame/30)%2)txt('Enter でタイトルへ',W/2,350,22,'#ffc247','center',4)}
+  if(mode==='gameover'){txt('GAME OVER',W/2,126,36,'#ff3d6e','center',6);txt('攻撃を受け続けるモード  /  Enter でタイトルへ',W/2,152,17,'#ffc247','center',4)}
   if(mode==='win'){g.fillStyle='rgba(0,0,0,.72)';g.fillRect(0,0,W,H);txt('黒蛇会、壊滅!',W/2,200,60,'#ffc247','center',8);txt('街に平和が戻った。葵は夕日の中、静かに歩き出す。',W/2,254,20,'#fff','center',4);txt('FINAL SCORE  '+score,W/2,320,34,'#fff','center',5);if(Math.floor(frame/30)%2)txt('Enter でタイトルへ',W/2,380,22,'#ffc247','center',4)}
 }
 let titleBG=null,titleP=null,titleT=null;
