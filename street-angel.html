@@ -1053,8 +1053,12 @@ function drawTitle(){
   if(!titleBG){titleBG=buildBG(STAGES[0]);titleP=mkFighter({kind:'player',sty:STY.aoi,styKey:'aoi',x:300,y:470,face:1})}
   BG=titleBG;ST=STAGES[0];cam=(frame*.6)%1200;drawBG();
   g.fillStyle='rgba(10,6,20,.55)';g.fillRect(0,0,W,H);
-  titleP.at=frame;titleP.state='idle';titleP.x=cam+250;shadow(titleP);
-  if(!titleT)titleT=mkFighter({kind:'enemy',sty:STY.thug,styKey:'thug',x:0,y:476,face:-1,def:ET.thug});titleT.x=cam+700;titleT.at=frame+9;shadow(titleT);drawCharacters([titleP,titleT]);
+  titleP.at=frame;titleP.state='idle';titleP.x=cam+250;
+  if(!titleT)titleT=mkFighter({kind:'enemy',sty:STY.thug,styKey:'thug',x:0,y:476,face:-1,def:ET.thug});titleT.x=cam+700;titleT.at=frame+9;
+  // The title must never flash the legacy procedural model during image loading.
+  const fighters=[titleP,titleT].filter(hasSprite);
+  for(const fighter of fighters)shadow(fighter);
+  drawCharacters(fighters);
   const y=Math.sin(frame*.05)*3;
   txt('ストリートエンジェル',W/2,150+y,64,'#fff','center',10);
   txt('葵',W/2,226+y,66,'#ff3d6e','center',10);
