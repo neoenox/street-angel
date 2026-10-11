@@ -27,6 +27,7 @@ test('enemy AI grabs on its first close-range update without entering windup',()
  ctx.strike(e,{n:'jab',hs:5,he:11,reach:70,dt:22},[p]);
  assert.equal(e.state,'holding');assert.equal(p.state,'restrained');assert.equal(p.hp,100);
  // A queued or already-started grab by a second enemy becomes a real punch.
+ p.assistUsed=true; // Once a front combo has been used, other enemies use normal attacks.
  const jab={n:'jab',wind:18,dur:28,hs:5,he:11,reach:70,range:60,dt:22,dmg:6};
  for(const state of ['idle','windup','attack']){
   const other={...e,heldPlayer:null,def:{spd:1,atks:[jab]},x:p.x-35,face:1,state,cd:0,next:R.attack,atk:R.attack,t:0,hitSet:new Set()};

@@ -1,0 +1,42 @@
+[
+  {
+    "kind": "aoi",
+    "source": "assist-combo-source.png",
+    "output": "aoi_assist_v1.png",
+    "referenceHeight": 264,
+    "sourceSha256": "1a37e1c412e0a3fef93f386eadc9f9b1ec1546a3178a1da4e07577f67a69fb3a",
+    "atlasSha256": "edbb703ebc63249f9b1a3b6dfafba2ccf70b5840558d68525f3eefab6a7cd794",
+    "frameCount": 4,
+    "scale": 0.9328621908127208
+  },
+  {
+    "kind": "thug",
+    "source": "assist-combo-source.png",
+    "output": "thug_assist_v1.png",
+    "referenceHeight": 300,
+    "sourceSha256": "1a37e1c412e0a3fef93f386eadc9f9b1ec1546a3178a1da4e07577f67a69fb3a",
+    "atlasSha256": "b73c816b9ddc9d018b0597768cc7b20c42b522b7c43d0e7e150559d7e9cf3bb9",
+    "frameCount": 4,
+    "scale": 1.1152416356877324
+  },
+  {
+    "kind": "yankee",
+    "source": "assist-combo-source.png",
+    "output": "yankee_assist_v1.png",
+    "referenceHeight": 300,
+    "sourceSha256": "1a37e1c412e0a3fef93f386eadc9f9b1ec1546a3178a1da4e07577f67a69fb3a",
+    "atlasSha256": "865d2a859a56d3207f88cf5337020653d003f3172d39e2d2ef5bd1c32261e617",
+    "frameCount": 4,
+    "scale": 1.1811023622047243
+  },
+  {
+    "kind": "brute",
+    "source": "brute-assist-source.png",
+    "output": "brute_assist_v1.png",
+    "referenceHeight": 331,
+    "sourceSha256": "f0af4a193246bf646b3d81ab5f2165d9d6dea4d139028038a46876e6141cc38f",
+    "atlasSha256": "d42c565acadc55c90b40c1813a54ab0e8e941e3baa3a30cd231e594ac67eb571",
+    "frameCount": 4,
+    "scale": 0.6796714579055442
+  }
+]
