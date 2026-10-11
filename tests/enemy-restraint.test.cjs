@@ -33,10 +33,25 @@ test('enemy AI grabs on its first close-range update without entering windup',()
   ctx.updEnemy(other);assert.equal(other.atk.n,'jab');assert.equal(other.state,'windup');assert.equal(p.heldBy,e);
  }
  const other={...e,heldPlayer:null,type:'thug',x:p.x-35,face:1,state:'attack',t:5,hitSet:new Set()};
- ctx.damage=(target,attacker,attack)=>{R.release(target);target.hp-=attack.dmg};
- ctx.strike(other,jab,[p]);assert.equal(p.hp,94);assert.equal(p.heldBy,null);assert.equal(e.heldPlayer,null);
+ ctx.damage=(target,attacker,attack)=>{target.hp-=attack.dmg};
+ ctx.strike(other,jab,[p]);assert.equal(p.hp,94);assert.equal(p.heldBy,e);assert.equal(e.heldPlayer,p);
 });
 function pair(){return [{hp:36,state:'attack',x:235,y:450,face:-1},{hp:100,state:'idle',x:200,y:450,face:-1,z:0,inv:0,vx:3,vz:0,t:0}]}
+test('real damage preserves restraint, timer and escape progress until lethal damage',()=>{
+ const fs=require('node:fs'),vm=require('node:vm');
+ const html=fs.readFileSync(require('node:path').join(__dirname,'../street-angel.html'),'utf8');
+ const ctx=vm.createContext({EnemyRestraint:R,freeze:0,shake:0,combo:0,spark(){},sfx:{hurt(){},punch(){},heavy(){}},damageVoice:{play(){}}});
+ vm.runInContext(html.slice(html.indexOf('function damage(t,a,A){'),html.indexOf('function physics(e){')),ctx);
+ const [e,p]=pair();p.kind='player';p.meter=0;R.capture(e,p);p.t=80;p.escape=4;
+ const a={kind:'enemy',def:{},x:170,hitSet:new Set()};
+ for(const down of [false,true,false,true]){
+  ctx.damage(p,a,{dmg:6,down,kb:10,vz:8});
+  assert.equal(p.state,'restrained');assert.equal(p.heldBy,e);assert.equal(e.heldPlayer,p);
+  assert.equal(p.t,80);assert.equal(p.escape,4);assert.equal(p.face,-1);assert.equal(p.vx,0);assert.equal(p.vz,0);assert.equal(p.inv,0);
+ }
+ assert.equal(p.hp,76);R.tick(p,false);assert.equal(p.heldBy,e);
+ ctx.damage(p,a,{dmg:100});assert.equal(p.hp,0);assert.equal(p.heldBy,null);assert.equal(e.heldPlayer,null);assert.equal(p.state,'down');
+});
 test('captor stays behind the player, facing the same direction on either side',()=>{
  for(const type of ['thug','yankee','brute'])for(const face of [-1,1]){
   const [e,p]=pair();p.face=face;Object.assign(e,{type,face,x:p.x-face*35});assert.equal(R.capture(e,p),true);

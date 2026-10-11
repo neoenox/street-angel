@@ -614,7 +614,8 @@ function strike(a,A,targets){
 }
 function spark(x,y,z,big){fx.push({k:'spark',x,y,z,life:big?14:9,max:big?14:9,big});for(let i=0;i<(big?7:3);i++)fx.push({k:'dot',x,y,z,vx:rand(-3,3),vz:rand(1,5),life:rand(10,20),col:pick(['#fff','#ffd95a','#ff7a4a'])})}
 function damage(t,a,A){
-  if(t.heldBy)EnemyRestraint.release(t);
+  const held=t.kind==='player'&&t.state==='restrained'&&t.heldBy;
+  if(t.heldBy&&!held)EnemyRestraint.release(t);
   if(t.heldPlayer)EnemyRestraint.release(t.heldPlayer);
   const dir=t.x>=a.x?1:-1;
   if(a.kind==='enemy'&&a.def.boss&&a.hp<a.maxhp*.5)A=Object.assign({},A,{dmg:A.dmg*1.25});
@@ -633,6 +634,8 @@ function damage(t,a,A){
     if(t.hurtN>=3){down=true;t.hurtN=0;t.hurtT=null}
     if(t.hp<=0){t.hp=0}
   }
+  if(held&&t.hp>0){t.vx=0;t.vz=0;t.hurtN=0;t.hurtT=null;return}
+  if(held)EnemyRestraint.release(t);
   if(!stun){t.vx+=dir*.8;return}
   t.face=-dir;
   if(down){t.state='down';t.t=0;t.lt=0;t.vz=A.vz||5;t.vx=dir*(A.kb||5);t.atk=null;if(t.kind==='player'){t.inv=0;t.hurtN=0;t.hurtT=null}shake=Math.max(shake,6)}
