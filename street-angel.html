@@ -7,6 +7,8 @@
 <script src="character-motion.js?v=9"></script>
 <script src="enemy-restraint.js?v=9"></script>
 <script src="enemy-flanking.js?v=1"></script>
+<script src="enemy-mount.js?v=1"></script>
+<script src="assets/characters/mount_v1.js"></script>
 <script src="assets/characters/aoi_assist_v1.js"></script>
 <script src="assets/characters/thug_assist_v1.js?v=2"></script>
 <script src="assets/characters/yankee_assist_v1.js?v=2"></script>
@@ -607,17 +609,48 @@ function drawRestraint(e,headOnly=false){
   g.restore();return true;
 }
 const loadT0=performance.now();
-const assetsReady=()=>SPR.ready&&Object.values(ESET).every(x=>x.ready);
+const MOUNT_SPRITE={img:new Image(),frames:window.SPR_MOUNT?.frames};
+MOUNT_SPRITE.img.onload=()=>{
+  MOUNT_SPRITE.palettes=[];
+  for(let variant=0;variant<3;variant++){
+    const c=document.createElement('canvas');c.width=MOUNT_SPRITE.img.naturalWidth;c.height=MOUNT_SPRITE.img.naturalHeight;
+    const ctx=c.getContext('2d');ctx.drawImage(MOUNT_SPRITE.img,0,0);
+    // Swap only thug frames; Aoi's red gloves and tie keep their original colors.
+    for(const f of MOUNT_SPRITE.frames.slice(0,4)){
+      const patch=ctx.getImageData(f.x,f.y,f.paletteWidth,f.h);shiftClothingPixels(patch.data,'thug',variant);ctx.putImageData(patch,f.x,f.y);
+    }
+    MOUNT_SPRITE.palettes.push(c);
+  }
+};
+MOUNT_SPRITE.img.src='assets/characters/mount_v1.png';
+function drawMount(e){
+  if(!MOUNT_SPRITE.frames||!MOUNT_SPRITE.img.complete||!MOUNT_SPRITE.img.naturalWidth)return false;
+  if(e.state==='mounting')return true; // Its linked player draws the paired pose once.
+  const mounted=e.state==='mounted',a=mounted?e.mountedBy:e;
+  const i=EnemyMount.frame(a),S=MOUNT_SPRITE;
+  if(i==null||!S.frames||!S.img.complete||!S.img.naturalWidth)return false;
+  // The mount is a paired illustration: do not flash the attacker when Aoi is hit.
+  blit(mounted?{...e,flash:0}:e,S.frames,S.palettes?S.palettes[a.variant||0]:S.img,i,e.face,1);
+  // A readable floor cue grows throughout the charge, without hiding the pose.
+  if(e.state==='mountCharge'){
+    g.save();g.strokeStyle='#ffb43b';g.lineWidth=3;g.beginPath();
+    g.arc(e.x-cam,e.y,24,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(1,e.t/EnemyMount.timing.charge));g.stroke();g.restore();
+  }
+  return true;
+}
+const assetsReady=()=>SPR.ready&&Object.values(ESET).every(x=>x.ready)&&!!MOUNT_SPRITE.frames&&MOUNT_SPRITE.img.complete&&MOUNT_SPRITE.img.naturalWidth>0;
 const mayStart=()=>assetsReady()||performance.now()-loadT0>20000;   // a missing file must not lock the game
 /* Every fighter uses the same 2D presentation. Missing sheets retain the procedural fallback. */
 function drawCharacters(list){
   const roots=list.filter(e=>{
+    if(e.mountPlayer?.state==='mounted'&&list.includes(e.mountPlayer))return false;
     const p=e.heldPlayer||e.assistPlayer;
     return !(p?.state==='restrained'&&list.includes(p));
   }).sort((x,y)=>x.y-y.y);
   for(const root of roots){
-    const group=root.state==='restrained'?[root.heldBy,root,root.assistedBy].filter(e=>e&&list.includes(e)):[root];
+    const group=root.state==='mounted'?[root,root.mountedBy].filter(e=>e&&list.includes(e)):root.state==='restrained'?[root.heldBy,root,root.assistedBy].filter(e=>e&&list.includes(e)):[root];
     for(const e of group){
+      if(['mounted','mounting','mountCharge','mountTackle'].includes(e.state)&&drawMount(e))continue;
       if(drawRestraint(e))continue;
       if(hasSprite(e))e.styKey==='aoi'?drawSprite(e):drawEnemy(e);
       else drawPerson(e);
@@ -650,6 +683,9 @@ function strike(a,A,targets){
 }
 function spark(x,y,z,big){fx.push({k:'spark',x,y,z,life:big?14:9,max:big?14:9,big});for(let i=0;i<(big?7:3);i++)fx.push({k:'dot',x,y,z,vx:rand(-3,3),vz:rand(1,5),life:rand(10,20),col:pick(['#fff','#ffd95a','#ff7a4a'])})}
 function damage(t,a,A){
+  const mounted=t.kind==='player'&&t.state==='mounted'&&t.mountedBy;
+  if(t.mountPlayer)EnemyMount.release(t.mountPlayer);
+  if(t.mountedBy&&!mounted)EnemyMount.release(t);
   const held=t.kind==='player'&&t.state==='restrained'&&t.heldBy;
   if(t.heldBy&&!held)EnemyRestraint.release(t);
   if(t.heldPlayer)EnemyRestraint.release(t.heldPlayer);
@@ -658,7 +694,7 @@ function damage(t,a,A){
   if(a.kind==='enemy'&&a.def.boss&&a.hp<a.maxhp*.5)A=Object.assign({},A,{dmg:A.dmg*1.25});
   t.hp-=A.dmg;t.flash=5;
   const big=!!A.down||(t.hp<=0&&!t.defeated);
-  freeze=Math.max(freeze,A.hitStop||(big?7:3));spark(A.n==='bellyHit'?t.x+t.face*12:(a.x+t.x)/2,t.y,t.z+(t.defeated&&!held?18:A.n==='bellyHit'?65:85),big);
+  freeze=Math.max(freeze,A.hitStop||(big?7:3));spark(A.n==='mountPunch'?t.x+t.face*66:A.n==='bellyHit'?t.x+t.face*12:(a.x+t.x)/2,t.y,t.z+(mounted?22:t.defeated&&!held?18:A.n==='bellyHit'?65:85),big);
   if(A.n==='bellyHit')shake=Math.max(shake,3);
   (big||A.heavy?sfx.heavy:sfx.punch)();
   let down=A.down||(t.hp<=0&&!t.defeated),stun=true;
@@ -673,6 +709,8 @@ function damage(t,a,A){
     if(t.hp<=0){t.hp=0}
   }
   if(held&&(t.hp>0||t.defeated)){t.vx=0;t.vz=0;t.hurtN=0;t.hurtT=null;return}
+  if(mounted&&(t.hp>0||t.defeated)){t.vx=t.vz=0;t.hurtN=0;t.hurtT=null;return}
+  if(mounted)EnemyMount.release(t);
   if(t.kind==='player'&&t.defeated){
     const hitDir=a.face===1||a.face===-1?a.face:dir;
     t.state='down';t.t=0;t.lt=8;t.vx=hitDir*clamp((A.kb||4)*.7,2,5);t.vz=A.down?4.2:3.2;
@@ -693,6 +731,7 @@ function downLogic(e){
   physics(e);
   if(e.kind==='player'&&e.defeated){e.lt=Math.max(8,e.lt||0);return}
   if(e.z===0&&e.vz===0){e.lt++;
+    if(e.kind==='player'&&e.hp>0)return; // Normal Aoi gets up only on fresh input.
     if(e.lt>(e.hp<=0&&!e.defeated?34:46)){
       if(e.hp<=0&&!e.defeated){e.state='dead';e.t=0}else{e.state='getup';e.t=0}
     }}
@@ -705,10 +744,12 @@ function updPlayer(p){
   p.t++;p.at++;if(p.inv>0)p.inv--;if(p.flash>0)p.flash--;if(p.landT>0)p.landT--;
   if(p.restraintExit>0)p.restraintExit--;
   if(p.restraintCooldown>0)p.restraintCooldown--;
+  if(p.mountCooldown>0)p.mountCooldown--;
   if(p.hurtT!=null){p.hurtT++;if(p.hurtT>120){p.hurtN=0;p.hurtT=null}}   // juggle count expires after ~2s without a hit
   const ax=(dnP('ArrowRight','KeyD')?1:0)-(dnP('ArrowLeft','KeyA')?1:0),ay=(dnP('ArrowDown','KeyS')?1:0)-(dnP('ArrowUp','KeyW')?1:0);
   const atkP=hitP('KeyZ','KeyJ'),kickP=hitP('KeyX','KeyK'),jumpP=hitP('Space'),spP=hitP('KeyC','KeyL');
   switch(p.state){
+    case'mounted':EnemyMount.escape(p,atkP||kickP||jumpP||spP);break;
     case'restrained':EnemyRestraint.tick(p,atkP||kickP||jumpP||spP);break;
     case'idle':case'walk':{
       if(p.comboT>0)p.comboT--;
@@ -741,7 +782,7 @@ function updPlayer(p){
       if(p.z<=0){p.landK=p.state==='jatk'?7:0;p.landT=6;p.z=0;p.vz=0;p.state='idle';p.t=0;p.vx=0;sfx.land();for(let i=0;i<4;i++)fx.push({k:'dust',x:p.x,y:p.y,z:2,vx:rand(-2,2),vz:rand(0,1),life:16})}
       break}
     case'hurt':p.x+=p.vx;p.vx*=.8;if(p.t>=p.stun){p.state='idle';p.t=0}break;
-    case'down':downLogic(p);break;
+    case'down':downLogic(p);if(!p.defeated&&p.hp>0&&p.z===0&&p.vz===0&&hitP('ArrowRight','ArrowLeft','ArrowUp','ArrowDown','KeyA','KeyD','KeyW','KeyS','KeyZ','KeyJ','KeyX','KeyK','Space','KeyC','KeyL')){p.state='getup';p.t=0}break;
     case'getup':if(p.t>=28){p.state='idle';p.t=0}break;
     case'dead':
       if(p.t>50){p.lives--;
@@ -755,7 +796,7 @@ function updPlayer(p){
 }
 
 /* ---------- enemies ---------- */
-function tokens(){return enemies.filter(e=>e.hp>0&&(e.state==='windup'||e.state==='attack'||e.state==='holding'||e.state==='assisting')).length}
+function tokens(){return enemies.filter(e=>e.hp>0&&['windup','attack','holding','assisting','mountCharge','mountTackle','mounting'].includes(e.state)).length}
 /* returns true while the enemy is travelling; the caller maps it to walk/idle once, so the state no longer flaps every tick */
 function steer(e,tx,ty,spd){const dx=tx-e.x,dy=ty-e.y,d=Math.hypot(dx,dy);if(d>2){const m=Math.min(spd,d);e.x+=dx/d*m;e.y+=dy/d*m*.72;e.wp+=.11*spd;return true}return false}
 function updEnemy(e){
@@ -776,6 +817,7 @@ function updEnemy(e){
       else if(p.state!=='dead'){
         const flank=enemyFlankTarget(e,p,enemies,cam+14,Math.min(cam+W-14,ST.len-14),Y0,Y1);
         if(flank){e.next=null;moved=steer(e,flank.x,flank.y,def.spd);e.state=moved?'walk':'idle';break}
+        if(e.type==='thug'&&e.cd<=0&&tokens()<ST.tok&&Math.abs(dx)<170&&Math.abs(p.y-e.y)<18&&(p.state==='down'||(!e.next&&!EnemyRestraint.isBehind(e,p)&&Math.random()<.22))&&EnemyMount.start(e,p))break;
         if(EnemyRestraint.canAssist(e,p)&&e.cd<=0&&tokens()<ST.tok){
           e.next=null;
           const tx=p.x+p.face*EnemyRestraint.assistDistance(e);
@@ -814,6 +856,8 @@ function updEnemy(e){
       strike(e,A,[P]);
       if(e.state==='attack'&&e.t>=A.dur){e.state='idle';e.t=0;e.cd=ri(def.cd[0],def.cd[1])*(def.boss&&e.hp<e.maxhp*.5?.6:1);e.vx=0}
       break}
+    case'mountCharge':case'mountTackle':EnemyMount.approach(e,p);break;
+    case'mounting':EnemyMount.tick(e,p,damage);break;
     case'assisting':EnemyRestraint.tickAssist(e,p,damage);break;
     case'holding':{
       if(e.heldPlayer!==p||p.heldBy!==e||p.state!=='restrained'){if(e.heldPlayer)EnemyRestraint.release(e.heldPlayer);e.state='idle';e.cd=90;break}
@@ -829,6 +873,7 @@ function updEnemy(e){
 
 /* ---------- flow ---------- */
 function enterGameOver(){
+  if(P.mountedBy)EnemyMount.release(P);
   EnemyRestraint.release(P);
   mode='gameover';P.defeated=true;P.hp=0;P.lives=0;P.inv=0;
   P.state='down';P.t=0;P.lt=8;P.z=0;P.vx=0;P.vz=0;P.atk=null;P.buf='';
@@ -838,6 +883,7 @@ function enterGameOver(){
   sfx.ko();
 }
 function loadStage(i){
+  if(P?.mountedBy)EnemyMount.release(P);
   if(P?.heldBy)EnemyRestraint.release(P);
   damageVoice.stop();
   stageIdx=i;ST=STAGES[i];BG=buildBG(ST);cam=0;limit=0;waveIdx=-1;waveActive=false;queue=[];enemies=[];items=[];fx=[];clearT=0;goT=0;
@@ -876,6 +922,7 @@ function update(){
   if(paused)return;
   if(banner){banner.t++;if(banner.t>150)banner=null}
   if(freeze>0){
+    if(P.state==='mounted')EnemyMount.escape(P,!P.defeated&&hit('KeyZ','KeyJ','KeyX','KeyK','Space','KeyC','KeyL'));
     if(P.state==='restrained')EnemyRestraint.tick(P,!P.defeated&&hit('KeyZ','KeyJ','KeyX','KeyK','Space','KeyC','KeyL'));
     freeze--;return;
   }
@@ -887,7 +934,7 @@ function update(){
   enemies=enemies.filter(e=>!e.rm);
   // separation
   for(let i=0;i<enemies.length;i++)for(let j=i+1;j<enemies.length;j++){const a=enemies[i],b=enemies[j];
-    if(a.z>0||b.z>0||a.state==='holding'||b.state==='holding'||a.state==='assisting'||b.state==='assisting'||a.state==='down'||b.state==='down'||a.state==='dead'||b.state==='dead')continue;
+    if(a.z>0||b.z>0||a.state==='mounting'||b.state==='mounting'||a.state==='holding'||b.state==='holding'||a.state==='assisting'||b.state==='assisting'||a.state==='down'||b.state==='down'||a.state==='dead'||b.state==='dead')continue;
     const dx=b.x-a.x,dy=b.y-a.y;if(Math.abs(dx)<30&&Math.abs(dy)<12){const s=dx>=0?1:-1;a.x-=s*.8;b.x+=s*.8;a.y-=dy>=0?.4:-.4;b.y+=dy>=0?.4:-.4}}
   // items
   for(const it of items){it.life--;if(mode!=='gameover'&&Math.hypot(it.x-P.x,(it.y-P.y)*1.6)<28&&P.state!=='dead'){
@@ -925,6 +972,8 @@ function drawFx(){
 function bar(x,y,w,h,v,col1,col2,bg='#120c1c'){g.fillStyle=bg;g.fillRect(x-2,y-2,w+4,h+4);g.fillStyle='#3a2a44';g.fillRect(x,y,w,h);const gr=g.createLinearGradient(x,y,x,y+h);gr.addColorStop(0,col1);gr.addColorStop(1,col2);g.fillStyle=gr;g.fillRect(x,y,w*clamp(v,0,1),h)}
 const PORT=new Image();PORT.src='assets/portrait.png';
 function drawHUD(){
+  if(P.state==='mounted'&&!P.defeated){txt('攻撃 / ジャンプ連打で脱出',W/2,H-78,20,'#ffe14f','center',4);bar(W/2-80,H-62,160,8,(P.escape||0)/8,'#ffe14f','#ff8b4a')}
+  if(P.state==='down'&&P.hp>0&&!P.defeated)txt('ボタンを押して起き上がる',W/2,H-78,20,'#fff','center',4);
   if(P.state==='restrained'&&!P.defeated){
     txt('拘束中! 攻撃 / ジャンプ連打で脱出',W/2,H-78,20,'#ffe14f','center',4);
     bar(W/2-80,H-62,160,8,(P.escape||0)/8,'#ffe14f','#ff8b4a');

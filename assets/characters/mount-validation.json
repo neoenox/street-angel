@@ -1,0 +1,11 @@
+{
+  "sourceSha256": "ac1fe0a647ed692407217f1a4579199a76a4f1d519a4a51b59039907eac4874b",
+  "atlasSha256": "252d203ee87e6db7886d89aba6f6c7143e34d2510f43b92925065af1b7b1d27e",
+  "sourceSize": [
+    1536,
+    1024
+  ],
+  "frameCount": 6,
+  "scale": 0.7006369426751592,
+  "background": "chroma green removed using existing key_background pipeline"
+}
