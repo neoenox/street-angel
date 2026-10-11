@@ -20,6 +20,9 @@ def main():
  scales={key:float(value) for key,value in re.findall(r"^\s*'?([\w/]+)'?:([.\d]+),",(ROOT/'sprite-scale.js').read_text(),re.M)}
  for kind,sets in SETS.items():
   rows=[]
+  sets=list(sets)
+  if kind in ('yankee','brute','boss'):
+   sets.append(('characters/'+kind+'_hold_v1',1))
   for name,k in sets:
    path=ROOT/'assets'/name
    frames=json.loads(path.with_suffix('.js').read_text().split('=',1)[1].rstrip(';\n'))['frames']
@@ -29,9 +32,11 @@ def main():
   for row,(name,k,frames,atlas,offset) in enumerate(rows):
    for col,f in enumerate(frames[offset:offset+6]):
     actor_scale={'brute':1.12,'boss':1.28}.get(kind,1)
+    paired=name.endswith('_hold_v1')
+    if paired:actor_scale=1
     x=col*200+100;y=row*260+230;s=.5*(k if baseline else actor_scale*scales[name])
     width={'thug':.90,'yankee':.95,'boss':.94}.get(kind,1)
-    if name=='characters/mount_v1' and offset+col>=2:width=1
+    if paired or name=='characters/mount_v1' and offset+col>=2:width=1
     sprite=atlas.crop((f['x'],f['y'],f['x']+f['w'],f['y']+f['h']))
     sprite=sprite.resize((round(f['w']*s*width),round(f['h']*s)),Image.Resampling.LANCZOS)
     sheet.paste(sprite,(round(x-f['ax']*s*width),round(y-f['ay']*s)),sprite)

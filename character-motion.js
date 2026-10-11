@@ -56,6 +56,13 @@ function restraintSway(e){
   return Math.sin((e.t||0)*Math.PI/6)*.9*e.face;
 }
 const ASSIST_TIMING={hits:[30,78,126,174],impact:12,end:210};
+// A registered hold recoils as a unit so the grip and planted feet never separate.
+function restraintRecoil(e){
+  if(e.state!=='restrained'||!e.assistedBy)return 0;
+  const t=e.assistedBy.t||0;
+  const hit=ASSIST_TIMING.hits.find(hit=>t>=hit&&t<hit+ASSIST_TIMING.impact);
+  return hit==null?0:-e.face*3*(1-(t-hit)/ASSIST_TIMING.impact);
+}
 function assistFrame(e){
   const assistant=e.state==='assisting'?e:e.state==='restrained'?e.assistedBy:null;
   if(!assistant)return null;
@@ -65,4 +72,4 @@ function assistFrame(e){
   if(ASSIST_TIMING.hits.some(hit=>t>=hit+ASSIST_TIMING.impact&&t<hit+24)||t>=186)return 3;
   return 1;
 }
-if(typeof module!=='undefined')module.exports={enemyPose,playerAttackFrame,playerIdleFrame,restraintFrame,restraintSway,assistFrame,ASSIST_TIMING,CHARACTER_PROFILES,characterBreath,spriteFacing};
+if(typeof module!=='undefined')module.exports={enemyPose,playerAttackFrame,playerIdleFrame,restraintFrame,restraintSway,restraintRecoil,assistFrame,ASSIST_TIMING,CHARACTER_PROFILES,characterBreath,spriteFacing};

@@ -6,13 +6,14 @@ test('unique holds draw the registered pair once and never overwrite foreground 
  for(const type of ['yankee','brute','boss'])for(const face of [-1,1]){
   const p={styKey:'aoi',state:'restrained',face,scale:1,flash:8};
   const e={type,state:'holding',heldPlayer:p};p.heldBy=e;
-  const calls=[],img={complete:true,naturalWidth:400};
-  const ctx=vm.createContext({HOLD_PAIRS:{[type]:{frames:[{}],img}},restraintSway:()=>.5,spriteScale:()=>1,
-    g:{save(){},restore(){},translate(){}},blit:(...a)=>calls.push(a)});
+  const calls=[],translations=[],img={complete:true,naturalWidth:400};
+  const ctx=vm.createContext({HOLD_PAIRS:{[type]:{frames:[{}],img}},restraintSway:()=>.5,restraintRecoil:()=>-face*3,spriteScale:()=>1,
+    g:{save(){},restore(){},translate(...xy){translations.push(xy)}},blit:(...a)=>calls.push(a)});
   vm.runInContext(html.slice(html.indexOf('function drawUniqueRestraint('),html.indexOf('function drawRestraint(')),ctx);
   assert.equal(ctx.drawUniqueRestraint(e),true);assert.equal(calls.length,0);
   assert.equal(ctx.drawUniqueRestraint(p),true);assert.equal(calls.length,1);
   assert.equal(calls[0][0].flash,0);assert.equal(calls[0][4],face);
+  assert.deepEqual(translations,[[.5-face*3,0]]);
   assert.equal(ctx.drawUniqueRestraint(p,true),true);assert.equal(calls.length,1);
   p.state='idle';assert.equal(ctx.drawUniqueRestraint(p),false);
  }

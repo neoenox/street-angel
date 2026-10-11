@@ -4,7 +4,7 @@
 <!-- All fighters use local 2D sheets. -->
 <script src="visual-style.js?v=2"></script>
 <script src="damage-voice.js?v=3"></script>
-<script src="character-motion.js?v=9"></script>
+<script src="character-motion.js?v=10"></script>
 <script src="sprite-scale.js?v=3"></script>
 <script src="enemy-restraint.js?v=11"></script>
 <script src="assets/characters/yankee_hold_v1.js"></script>
@@ -603,7 +603,7 @@ function drawUniqueRestraint(e,headOnly=false){
   if(!S||!S.frames||!S.img.complete||!S.img.naturalWidth)return false;
   // Player draws the whole pair once; no second head pass over the helper.
   if(e!==p||headOnly)return true;
-  g.save();g.translate(restraintSway(p)*(p.scale||1),0);
+  g.save();g.translate((restraintSway(p)+restraintRecoil(p))*(p.scale||1),0);
   blit({...p,flash:0},S.frames,S.palette||S.img,0,p.face,spriteScale('characters/'+holder.type+'_hold_v1'));
   g.restore();return true;
 }
