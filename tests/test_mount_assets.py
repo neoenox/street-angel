@@ -11,7 +11,9 @@ class MountAssetsTests(unittest.TestCase):
         atlas=root/'assets/characters/mount_v1.png'
         report=json.loads((atlas.parent/'mount-validation.json').read_text())
         self.assertEqual(report['sourceSha256'],hashlib.sha256(source.read_bytes()).hexdigest())
-        self.assertEqual(report['armSourceSha256'],hashlib.sha256((source.parent/'mount-no-guard-v3-source.png').read_bytes()).hexdigest())
+        self.assertEqual(report['armSourceSha256'],hashlib.sha256((source.parent/'mount-recoil-v4-source.png').read_bytes()).hexdigest())
+        self.assertEqual(report['registrationSourceSha256'],hashlib.sha256((source.parent/'mount-no-guard-v3-source.png').read_bytes()).hexdigest())
+        self.assertAlmostEqual(report['pairScale'],0.5971107544141252)
         self.assertEqual(report['atlasSha256'],hashlib.sha256(atlas.read_bytes()).hexdigest())
         im=Image.open(atlas)
         self.assertEqual(im.mode,'RGBA');self.assertEqual(im.getextrema()[3],(0,255))
@@ -25,3 +27,9 @@ class MountAssetsTests(unittest.TestCase):
             self.assertTrue(0<=f['paletteWidth']<=f['w'])
         self.assertEqual(frames[4]['paletteWidth'],0)
         self.assertEqual(frames[5]['paletteWidth'],0)
+        # Cropped head/hand motion must not move the pair's world anchor.
+        with Image.open(source.parent/'mount-recoil-v4-source.png') as paired_source:
+            cell_width=paired_source.width/2
+        anchors=[f['ax']+(f['sourceBounds'][0]-i*cell_width)*report['pairScale']*report['scale']
+                 for i,f in enumerate(frames[2:4])]
+        self.assertAlmostEqual(anchors[0],anchors[1],delta=.02)

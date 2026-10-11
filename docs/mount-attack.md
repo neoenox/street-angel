@@ -25,6 +25,7 @@
 - [採用素材](../source_art/character-v2/mount-source.png)、[生成プロンプト](../source_art/character-v2/mount-provenance.json)。
 - 馬乗りの構え・打撃は[腕の対応を修正した2枚](../source_art/character-v2/mount-arms-v2-source.png)へ置き換え。[修正プロンプト](../source_art/character-v2/mount-arms-v2-provenance.json)。肩・黒いバンド・拳を追って同じ腕であることを確認する。
 - 最終採用は[ガードを外した2枚](../source_art/character-v2/mount-no-guard-v3-source.png)。[編集プロンプト](../source_art/character-v2/mount-no-guard-v3-provenance.json)。元画像と同じキャンバス・体格を維持し、ゲーム画面で左右と服色を確認。
+- 現在の採用画像は[手の置き方・怯え・頭の反りを修正した2枚](../source_art/character-v2/mount-recoil-v4-source.png)。[編集プロンプト](../source_art/character-v2/mount-recoil-v4-provenance.json)。準備中は眉と口元で怖がり、打撃時は目を閉じて頭が後ろへ反る。手首と前腕を自然につなぐ。倍率は前の画像を基準に固定し、切り抜き幅が変わっても体の基準位置がずれないようにする。
 - `tools/pack_mount_sheet.py` で既存のクロマキー処理・一律倍率を使って6ポーズをパック。拡大率・元画像とアトラスのハッシュは `assets/characters/mount-validation.json` に記録。
 
 ## 確認
@@ -34,7 +35,7 @@ Node 56件・Python 10件、合計66件が通過。新しい回帰テストで�
 別のローカル検証ブラウザーで、ダウンからAIが実際にタックルして馬乗りになり、4発でHP100→76、終了後ダウンへ戻ることを確認。実キー8回で脱出し、ダウン中のZ入力で起き上がることも確認。ゲームオーバー移行後もマウント成立。ブラウザーエラーなし。CIは未設定。
 
 ![タメ](character-review/mount-charge.jpg)
-![手前のバンド付き腕を振り上げ、葵はガードなし](character-review/mount-prep-v3.jpg)
-![同じ手前の腕で顔へ直接打撃](character-review/mount-hit-v3.jpg)
-![左右反転と服色](character-review/mount-hit-left-v3.jpg)
+![振り上げた拳を怖がる葵、自然な手の置き方](character-review/mount-prep-v4.jpg)
+![同じ手前の腕で打撃、頭が後ろへ反る](character-review/mount-hit-v4.jpg)
+![左右反転と服色](character-review/mount-hit-left-v4.jpg)
 ![ゲームオーバー後](character-review/mount-gameover.jpg)

@@ -9,7 +9,7 @@
 <script src="enemy-restraint.js?v=9"></script>
 <script src="enemy-flanking.js?v=1"></script>
 <script src="enemy-mount.js?v=1"></script>
-<script src="assets/characters/mount_v1.js?v=3"></script>
+<script src="assets/characters/mount_v1.js?v=4"></script>
 <script src="assets/characters/aoi_assist_v1.js"></script>
 <script src="assets/characters/thug_assist_v1.js?v=2"></script>
 <script src="assets/characters/yankee_assist_v1.js?v=2"></script>
@@ -621,7 +621,7 @@ MOUNT_SPRITE.img.onload=()=>{
     MOUNT_SPRITE.palettes.push(c);
   }
 };
-MOUNT_SPRITE.img.src='assets/characters/mount_v1.png?v=3';
+MOUNT_SPRITE.img.src='assets/characters/mount_v1.png?v=4';
 function drawMount(e){
   if(!MOUNT_SPRITE.frames||!MOUNT_SPRITE.img.complete||!MOUNT_SPRITE.img.naturalWidth)return false;
   if(e.state==='mounting')return true; // Its linked player draws the paired pose once.
