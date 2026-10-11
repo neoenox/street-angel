@@ -16,7 +16,8 @@ test('front support grabs in both directions, lands exactly four six-damage hits
   const hits=[];
   for(let t=1;t<=230;t++){front.t=t;R.tickAssist(front,p,(p,e,a)=>{hits.push(t);p.hp-=a.dmg});}
   assert.deepEqual(hits,[30,78,126,174]);assert.equal(p.hp,76);assert.equal(p.assistedBy,null);assert.equal(front.assistPlayer,null);
-  assert.equal(front.state,'idle');assert.equal(p.heldBy,rear);assert.equal(R.startAssist(front,p),false);
+  assert.equal(front.state,'idle');assert.equal(p.heldBy,null);assert.equal(rear.heldPlayer,null);assert.equal(rear.state,'idle');
+  assert.equal(p.state,'down');assert.equal(p.vz,0);assert.equal(p.vx,0);assert.equal(p.inv,0);assert.equal(R.startAssist(front,p),false);
  }
 });
 test('only one eligible front helper joins; no rear/airborne/boss/distant capture',()=>{
@@ -39,11 +40,14 @@ test('escape and rear interruption clean up both links; front interruption ends 
   front.t=78;R.tickAssist(front,p,hit);assert.equal(hits,1);
   assert.equal(p.assistedBy,null);assert.equal(front.assistPlayer,null);
   assert.equal(!!p.heldBy,mode==='front');
+  assert.notEqual(p.state,'down');
  }
 });
 test('timeout does not truncate an accepted combo; escape still works immediately',()=>{
  const {p,front}=scene();R.startAssist(front,p);p.t=180;R.tick(p,false);assert.equal(p.assistedBy,front);
- front.t=210;R.tickAssist(front,p,()=>{});R.tick(p,false);assert.equal(p.heldBy,null);
+ for(const t of R.assistHits){front.t=t;R.tickAssist(front,p,()=>{});assert.equal(p.state,'restrained')}
+ front.t=209;R.tickAssist(front,p,()=>{});assert.equal(p.state,'restrained');
+ front.t=210;R.tickAssist(front,p,()=>{});R.tick(p,false);assert.equal(p.heldBy,null);assert.equal(p.state,'down');
 });
 test('hit pose matches all four damage windows for Aoi and the helper',()=>{
  const {p,front}=scene();R.startAssist(front,p);

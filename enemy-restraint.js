@@ -46,7 +46,14 @@ const EnemyRestraint=(()=>{
     if(e.assistHit<4&&e.t>=assistHits[e.assistHit]){
       e.assistHit++;e.hitSet=new Set();hit(p,e,bellyHit);
     }
-    if(p.assistedBy===e&&e.t>=assistTiming.end)endAssist(p);
+    if(p.assistedBy===e&&e.t>=assistTiming.end){
+      if(e.assistHit===4){
+        release(p);
+        // Collapse in place after the completed combo; this is not a throw.
+        p.state='down';p.t=0;p.lt=0;p.z=0;p.vx=0;p.vz=0;
+        p.atk=null;p.restraintExit=0;p.inv=0;p.hurtN=0;p.hurtT=null;
+      }else endAssist(p);
+    }
   }
   return {attack,capture,release,tick,align,isBehind,canAssist,startAssist,endAssist,tickAssist,alignAssist,assistDistance,assistHits};
 })();
