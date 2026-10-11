@@ -7,8 +7,8 @@
 <script src="character-motion.js?v=9"></script>
 <script src="enemy-restraint.js?v=7"></script>
 <script src="assets/characters/aoi_assist_v1.js"></script>
-<script src="assets/characters/thug_assist_v1.js"></script>
-<script src="assets/characters/yankee_assist_v1.js"></script>
+<script src="assets/characters/thug_assist_v1.js?v=2"></script>
+<script src="assets/characters/yankee_assist_v1.js?v=2"></script>
 <script src="assets/characters/brute_assist_v1.js"></script>
 <script src="assets/characters/aoi_restraint_v3.js"></script>
 <script src="assets/characters/thug_restraint_v2.js"></script>
@@ -541,12 +541,12 @@ for(const key in ESET){const S=ESET[key];S.palettes={};S.files.forEach((f,n)=>{c
   }
   if(++S.loaded===2)S.ready=S.data.every(d=>!!window[d]);
 };im.src='assets/'+f+'.png'+(key==='yankee'?'?v=2':'');S.img[n]=im})}
-function blit(e,F,img,i,vf,k,region){
+function blit(e,F,img,i,vf,k,headOnly=false){
   const f=F[i],s=.5*e.scale*(k||1);
   g.save();
   if(e.flash>0&&g.filter!==undefined)g.filter='brightness(1.9)';
   g.translate(Math.round((e.x-cam)*2)/2,Math.round((e.y-e.z)*2)/2);g.scale(vf*(CHARACTER_PROFILES[e.styKey]?.width||1),characterBreath(e.styKey,e.at,e.state));
-  if(region){g.beginPath();g.rect((region[0]-f.ax)*s,(region[1]-f.ay)*s,region[2]*s,region[3]*s);g.clip()}
+  if(headOnly){g.beginPath();g.rect(-f.ax*s,-f.ay*s,f.w*s,94*s);g.clip()}
   g.drawImage(img,f.x,f.y,f.w,f.h,-f.ax*s,-(f.ay!=null?f.ay:f.h)*s,f.w*s,f.h*s);
   g.restore();g.filter='none';
 }
@@ -572,7 +572,7 @@ for(const kind of ['aoi','thug','yankee','brute']){
       shiftClothingPixels(pixels.data,kind,variant);ctx.putImageData(pixels,0,0);assist.palettes.push(c);
     }
   };
-  assist.img.src='assets/characters/'+kind+'_assist_v1.png';ASSIST_SPRITES[kind]=assist;
+  assist.img.src='assets/characters/'+kind+'_assist_v1.png?v=2';ASSIST_SPRITES[kind]=assist;
   const entry={img:new Image(),frames:window['SPR_'+kind.toUpperCase()+'_RESTRAINT']?.frames};
   entry.img.onload=()=>{
     if(kind!=='yankee'&&kind!=='thug')return;
@@ -585,16 +585,14 @@ for(const kind of ['aoi','thug','yankee','brute']){
   };
   entry.img.src='assets/characters/'+kind+'_restraint_'+(kind==='aoi'?'v3':'v2')+'.png'+(kind==='yankee'?'?v=2':'');RESTRAINT_SPRITES[kind]=entry;
 }
-function drawRestraint(e,handsOnly=false){
+function drawRestraint(e,headOnly=false){
   const assist=assistFrame(e),i=assist!=null?assist:restraintFrame(e),S=assist!=null?ASSIST_SPRITES[e.styKey]:RESTRAINT_SPRITES[e.styKey];
   if(i==null||!S?.frames||!S.img.complete||!S.img.naturalWidth)return false;
   // Tiny regular tremors suggest struggling without tilting the whole fighter.
   const sway=restraintSway(e);
   g.save();
   if(sway)g.translate(sway*e.scale,0);
-  // The rear wrists stay visible above overlapping enemy hands, in either facing.
-  const hands=handsOnly?(assist===2?[39,81,38,40]:[44,95,43,42]):null;
-  blit(e,S.frames,S.palettes?S.palettes[e.variant||0]:S.img,i,e.face,e.styKey==='yankee'?.88:1,hands);
+  blit(e,S.frames,S.palettes?S.palettes[e.variant||0]:S.img,i,e.face,e.styKey==='yankee'?.88:1,headOnly);
   g.restore();return true;
 }
 const loadT0=performance.now();
@@ -608,7 +606,8 @@ function drawCharacters(list){
     if(hasSprite(e))e.styKey==='aoi'?drawSprite(e):drawEnemy(e);
     else drawPerson(e);
   }
-  for(const e of list)if(e.styKey==='aoi'&&e.state==='restrained')drawRestraint(e,true);
+  // The supporting arm passes behind Aoi's head, leaving her face unobscured.
+  for(const e of list)if(e.styKey==='aoi'&&e.state==='restrained'&&e.assistedBy)drawRestraint(e,true);
   list.forEach(warn);
 }
 

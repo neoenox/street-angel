@@ -28,10 +28,15 @@ Node36件・Python9件が成功。正面からのみの追加拘束、1体制限
 ![デカブツの低いパンチ](character-review/assist-brute.jpg)
 ![専用素材の比較](character-review/assist-lineup.jpg)
 
-## 手元の重なり修正
+## 顔に重なる押さえ手の修正
 
-葵の後ろ手（赤いグローブと手首）を敵より手前に重ねて描き直し、敵の手で消えないようにした。画像そのものは変更せず、現在のポーズ・向き・基準点・もがきに一致する範囲だけ再描画する。左右と通常の後ろ手拘束、腹への被弾姿勢で確認した。
+正面の敵が伸ばす押さえ手が葵の顔に被っていた。チンピラとヤンキーの4ポーズずつの押さえ腕を下げ、さらに敵の押さえ腕が葵の頭の後ろを通る描画にした。前かがみの被弾姿勢も顔を見せる。前回の手首を手前に描く処理は撤去した。重い打撃の間隔と合計ダメージは維持。
 
-![右向き](character-review/assist-hands-heavy-right.jpg)
-![左向き](character-review/assist-hands-heavy-left.jpg)
-![後ろ手](character-review/rear-hands-visible.jpg)
+内蔵ImageGenで既存原本を編集し、チンピラ・ヤンキーの行だけ採用。葵・デカブツの素材は既存のまま。原本は [assist-shoulder-source.png](../source_art/character-v2/assist-shoulder-source.png)、正確な編集指示は [assist-shoulder-provenance.json](../source_art/character-v2/assist-shoulder-provenance.json)。実行時は既存の `thug_assist_v1.png` と `yankee_assist_v1.png` を更新し、画像とフレーム情報にキャッシュ更新番号を付けた。
+
+実ブラウザーでヤンキーの左右・チンピラ・デカブツの被弾姿勢を確認。Node36件・Python9件が通過。
+
+![ヤンキー右向き](character-review/assist-face-clear-right.jpg)
+![ヤンキー左向き](character-review/assist-face-clear-left.jpg)
+![チンピラ](character-review/assist-face-clear-thug.jpg)
+![デカブツ](character-review/assist-face-clear-brute.jpg)

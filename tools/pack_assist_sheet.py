@@ -13,8 +13,14 @@ def main():
     poses=extract_poses(Image.open(source),4,4,'red')
     report=[]
     for row,(kind,height) in enumerate([('aoi',264),('thug',300),('yankee',300),('brute',331)]):
-        character_source=ROOT/'source_art/character-v2/brute-assist-source.png' if kind=='brute' else source
-        character_poses=extract_poses(Image.open(character_source),4,1,'red') if kind=='brute' else poses[row*4:row*4+4]
+        character_source=source
+        character_poses=poses[row*4:row*4+4]
+        if kind=='brute':
+            character_source=ROOT/'source_art/character-v2/brute-assist-source.png'
+            character_poses=extract_poses(Image.open(character_source),4,1,'red')
+        elif kind in ('thug','yankee'):
+            character_source=ROOT/'source_art/character-v2/assist-shoulder-source.png'
+            character_poses=extract_poses(Image.open(character_source),4,4,'red')[row*4:row*4+4]
         group=[]
         for im,_,bounds in character_poses:
             ys,xs=np.where(np.array(im)[...,3]>100)

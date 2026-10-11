@@ -11,21 +11,21 @@
   },
   {
     "kind": "thug",
-    "source": "assist-combo-source.png",
+    "source": "assist-shoulder-source.png",
     "output": "thug_assist_v1.png",
     "referenceHeight": 300,
-    "sourceSha256": "1a37e1c412e0a3fef93f386eadc9f9b1ec1546a3178a1da4e07577f67a69fb3a",
-    "atlasSha256": "b73c816b9ddc9d018b0597768cc7b20c42b522b7c43d0e7e150559d7e9cf3bb9",
+    "sourceSha256": "80cc069a813b8a885fd2d02b17b7829c3d35070215073ce4d254ffe24dac5b20",
+    "atlasSha256": "ef049679391f43ac8877b521d93de778bbce52e5fa822f86c75cdde5b867d98f",
     "frameCount": 4,
-    "scale": 1.1152416356877324
+    "scale": 1.1029411764705883
   },
   {
     "kind": "yankee",
-    "source": "assist-combo-source.png",
+    "source": "assist-shoulder-source.png",
     "output": "yankee_assist_v1.png",
     "referenceHeight": 300,
-    "sourceSha256": "1a37e1c412e0a3fef93f386eadc9f9b1ec1546a3178a1da4e07577f67a69fb3a",
-    "atlasSha256": "865d2a859a56d3207f88cf5337020653d003f3172d39e2d2ef5bd1c32261e617",
+    "sourceSha256": "80cc069a813b8a885fd2d02b17b7829c3d35070215073ce4d254ffe24dac5b20",
+    "atlasSha256": "cef4f9a550b9a8664af1002b6bba1891301ea4763be9a891997417448b5b0ec7",
     "frameCount": 4,
     "scale": 1.1811023622047243
   },
