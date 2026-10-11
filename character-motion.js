@@ -50,5 +50,9 @@ function restraintFrame(e){
   }
   return null;
 }
-function restraintSway(){return 0}
+// Five small side-to-side tremors per second; visual only, no rotation or scaling.
+function restraintSway(e){
+  if(e.styKey!=='aoi'||e.state!=='restrained')return 0;
+  return Math.sin((e.t||0)*Math.PI/6)*.9*e.face;
+}
 if(typeof module!=='undefined')module.exports={enemyPose,playerAttackFrame,playerIdleFrame,restraintFrame,restraintSway,CHARACTER_PROFILES,characterBreath,spriteFacing};

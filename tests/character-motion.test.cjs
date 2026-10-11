@@ -14,16 +14,18 @@ test('restraint keeps a single grip pose without replacing other reactions',()=>
  assert.equal(restraintFrame({state:'idle',restraintExit:0}),null);
 });
 
-test('restraint stays still throughout capture and release',()=>{
+test('restraint tremor repeats regularly, mirrors and stops on release',()=>{
  for(let t=0;t<=180;t++){
   const p={styKey:'aoi',state:'restrained',t,face:1};
-  assert.equal(restraintSway(p),0);
-  assert.equal(restraintSway({...p,face:-1}),0);
+  assert.ok(Math.abs(restraintSway(p))<=.9);
+  assert.ok(Math.abs(restraintSway({...p,t:t+12})-restraintSway(p))<1e-12);
+  assert.equal(restraintSway({...p,face:-1}),-restraintSway(p));
   assert.equal(restraintSway({...p,state:'idle'}),0);
   assert.equal(restraintSway({...p,styKey:'thug',state:'holding'}),0);
   assert.equal(restraintFrame(p),1);
  }
  assert.equal(restraintSway({styKey:'aoi',state:'restrained',t:0,face:1}),0);
+ assert.equal(restraintSway({styKey:'aoi',state:'restrained',t:3,face:1}),.9);
 });
 
 test('every character holds one static idle frame at all times',()=>{

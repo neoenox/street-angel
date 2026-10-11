@@ -4,7 +4,7 @@
 <!-- All fighters use local 2D sheets. -->
 <script src="visual-style.js?v=2"></script>
 <script src="damage-voice.js?v=3"></script>
-<script src="character-motion.js?v=6"></script>
+<script src="character-motion.js?v=7"></script>
 <script src="enemy-restraint.js?v=5"></script>
 <script src="assets/characters/aoi_restraint_v3.js"></script>
 <script src="assets/characters/thug_restraint_v2.js"></script>
@@ -572,10 +572,10 @@ for(const kind of ['aoi','thug','yankee','brute']){
 function drawRestraint(e){
   const i=restraintFrame(e),S=RESTRAINT_SPRITES[e.styKey];
   if(i==null||!S?.frames||!S.img.complete||!S.img.naturalWidth)return false;
-  // Rotate gently around the held wrists, leaving the enemy's grip stable.
+  // Tiny regular tremors suggest struggling without tilting the whole fighter.
   const sway=restraintSway(e);
   g.save();
-  if(sway){const x=e.x-cam-20*e.face*e.scale,y=e.y-e.z-60*e.scale;g.translate(x,y);g.rotate(sway);g.translate(-x,-y)}
+  if(sway)g.translate(sway*e.scale,0);
   blit(e,S.frames,S.palettes?S.palettes[e.variant||0]:S.img,i,e.face,e.styKey==='yankee'?.88:1);
   g.restore();return true;
 }
