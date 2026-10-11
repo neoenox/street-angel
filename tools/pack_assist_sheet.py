@@ -15,7 +15,13 @@ def main():
     for row,(kind,height) in enumerate([('aoi',264),('thug',300),('yankee',300),('brute',331)]):
         character_source=source
         character_poses=poses[row*4:row*4+4]
-        if kind=='brute':
+        if kind=='aoi':
+            character_source=ROOT/'source_art/character-v2/aoi-assist-grounded-v2-source.png'
+            impact=extract_poses(Image.open(character_source),4,1,'red')[2]
+            held=extract_poses(Image.open(ROOT/'source_art/character-v2/aoi-restraint-rear-v3-source.png'),4,1,'red')[1]
+            # Reuse the exact rear-hold stance between hits; only the torso reacts.
+            character_poses=[held,held,impact,held]
+        elif kind=='brute':
             character_source=ROOT/'source_art/character-v2/brute-assist-source.png'
             character_poses=extract_poses(Image.open(character_source),4,1,'red')
         elif kind in ('thug','yankee'):
@@ -33,6 +39,9 @@ def main():
         report.append({'kind':kind,'source':character_source.name,'output':out.name,'referenceHeight':height,
                        'sourceSha256':hashlib.sha256(character_source.read_bytes()).hexdigest(),
                        'atlasSha256':hashlib.sha256(out.read_bytes()).hexdigest(),'frameCount':4,'scale':scale})
+        if kind=='aoi':
+            report[-1]['heldSource']='aoi-restraint-rear-v3-source.png'
+            report[-1]['heldSourceSha256']=hashlib.sha256((character_source.parent/report[-1]['heldSource']).read_bytes()).hexdigest()
         print(kind,atlas.size)
     (ROOT/'assets/characters/assist-validation.json').write_text(json.dumps(report,indent=2)+'\n')
 

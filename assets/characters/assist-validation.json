@@ -1,13 +1,15 @@
 [
   {
     "kind": "aoi",
-    "source": "assist-combo-source.png",
+    "source": "aoi-assist-grounded-v2-source.png",
     "output": "aoi_assist_v1.png",
     "referenceHeight": 264,
-    "sourceSha256": "1a37e1c412e0a3fef93f386eadc9f9b1ec1546a3178a1da4e07577f67a69fb3a",
-    "atlasSha256": "edbb703ebc63249f9b1a3b6dfafba2ccf70b5840558d68525f3eefab6a7cd794",
+    "sourceSha256": "7d5c456aabf8e7dab6e787fc1b98abfe577d85ebc09aef299da55a19b209f53c",
+    "atlasSha256": "87869d5cb88b3ba1c32a7e23c9f35341e6a375e61026bbfdd33280306cfec57e",
     "frameCount": 4,
-    "scale": 0.9328621908127208
+    "scale": 0.4067796610169492,
+    "heldSource": "aoi-restraint-rear-v3-source.png",
+    "heldSourceSha256": "980758f0ea89db89713b34f4a9762a6e826d3ee85b1382d061fa2dc1b69afc19"
   },
   {
     "kind": "thug",

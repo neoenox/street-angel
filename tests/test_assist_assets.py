@@ -19,6 +19,14 @@ class AssistAssetsTests(unittest.TestCase):
             self.assertEqual(im.getextrema()[3][0],0)
             frames=json.loads(path.with_suffix('.js').read_text().split('=',1)[1].rstrip(';\n'))['frames']
             self.assertEqual(len(frames),4)
+            if report['kind']=='aoi':
+                held=root/'source_art/character-v2'/report['heldSource']
+                self.assertEqual(hashlib.sha256(held.read_bytes()).hexdigest(),report['heldSourceSha256'])
+                crops=[im.crop((f['x'],0,f['x']+f['w'],f['h'])) for f in frames]
+                self.assertEqual(crops[0].tobytes(),crops[1].tobytes())
+                self.assertEqual(crops[0].tobytes(),crops[3].tobytes())
+                # A small head dip is allowed; the old deep crouch lost >7% height.
+                self.assertGreaterEqual(frames[2]['h'],frames[1]['h']*.94)
             for f in frames:
                 self.assertLessEqual(f['x']+f['w'],im.width)
                 self.assertLessEqual(f['h'],im.height)

@@ -7,7 +7,7 @@ const SPRITE_SCALES={
   aoi_jump:.90,
   aoi_hit:.82,
   'characters/aoi_restraint_v3':1,
-  'characters/aoi_assist_v1':.88,
+  'characters/aoi_assist_v1':1,
   thug_walk:1,
   'characters/thug_combat_v2':1,
   'characters/thug_restraint_v2':1,

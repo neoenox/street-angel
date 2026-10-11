@@ -42,7 +42,8 @@ const EnemyRestraint=(()=>{
   }
   function assistDistance(e,p){
     const paired=p?.heldBy&&['bearhug','armlock'].includes(style(p.heldBy));
-    return (paired?50:e.type==='brute'?72:84)*(e.scale||1);
+    const rearWrist=p?.heldBy&&style(p.heldBy)==='rearWrist';
+    return (paired?50:rearWrist?(e.type==='brute'?60:64):e.type==='brute'?72:84)*(e.scale||1);
   }
   function alignAssist(e,p){e.face=-p.face;e.x=p.x+p.face*assistDistance(e,p);e.y=p.y;e.vx=0}
   function startAssist(e,p){

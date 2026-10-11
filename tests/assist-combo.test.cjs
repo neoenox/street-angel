@@ -6,7 +6,7 @@ function scene(face=1,type='thug'){
  const p={kind:'player',x:300,y:440,z:0,face,hp:100,inv:0,state:'idle',t:0};
  const rear={x:300-face*35,y:440,z:0,hp:40,state:'attack',type:'thug'};
  assert.equal(R.capture(rear,p),true);
- const front={x:300+face*R.assistDistance({type}),y:440,z:0,hp:40,state:'idle',type,def:{}};
+ const front={x:300+face*R.assistDistance({type},p),y:440,z:0,hp:40,state:'idle',type,def:{}};
  return {p,rear,front};
 }
 test('front support grabs in both directions, lands exactly four six-damage hits and leaves',()=>{
@@ -21,7 +21,7 @@ test('front support grabs in both directions, lands exactly four six-damage hits
  }
 });
 test('only one eligible front helper joins; no rear/airborne/boss/distant capture',()=>{
- for(const change of [{x:265},{x:360},{y:460},{z:2},{hp:0},{def:{boss:true}}]){
+ for(const change of [{x:265},{x:340},{y:460},{z:2},{hp:0},{def:{boss:true}}]){
   const {p,front}=scene();Object.assign(front,change);assert.equal(R.startAssist(front,p),false);
  }
  const {p,rear,front}=scene();assert.equal(R.startAssist(rear,p),false);R.startAssist(front,p);

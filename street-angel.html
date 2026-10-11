@@ -5,8 +5,8 @@
 <script src="visual-style.js?v=2"></script>
 <script src="damage-voice.js?v=3"></script>
 <script src="character-motion.js?v=9"></script>
-<script src="sprite-scale.js?v=2"></script>
-<script src="enemy-restraint.js?v=10"></script>
+<script src="sprite-scale.js?v=3"></script>
+<script src="enemy-restraint.js?v=11"></script>
 <script src="assets/characters/yankee_hold_v1.js"></script>
 <script src="assets/characters/brute_hold_v1.js"></script>
 <script src="assets/characters/boss_hold_v1.js"></script>
@@ -14,7 +14,7 @@
 <script src="enemy-flanking.js?v=1"></script>
 <script src="enemy-mount.js?v=1"></script>
 <script src="assets/characters/mount_v1.js?v=4"></script>
-<script src="assets/characters/aoi_assist_v1.js"></script>
+<script src="assets/characters/aoi_assist_v1.js?v=3"></script>
 <script src="assets/characters/thug_assist_v1.js?v=2"></script>
 <script src="assets/characters/yankee_assist_v1.js?v=2"></script>
 <script src="assets/characters/brute_assist_v1.js"></script>
@@ -583,7 +583,7 @@ for(const kind of ['aoi','thug','yankee','brute']){
       shiftClothingPixels(pixels.data,kind,variant);ctx.putImageData(pixels,0,0);assist.palettes.push(c);
     }
   };
-  assist.img.src='assets/characters/'+kind+'_assist_v1.png?v=2';ASSIST_SPRITES[kind]=assist;
+  assist.img.src='assets/characters/'+kind+'_assist_v1.png?v=3';ASSIST_SPRITES[kind]=assist;
   const entry={img:new Image(),frames:window['SPR_'+kind.toUpperCase()+'_RESTRAINT']?.frames,asset:'characters/'+kind+'_restraint_'+(kind==='aoi'?'v3':'v2')};
   entry.img.onload=()=>{
     if(kind!=='yankee'&&kind!=='thug')return;
