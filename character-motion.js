@@ -50,9 +50,5 @@ function restraintFrame(e){
   }
   return null;
 }
-function restraintSway(e){
-  if(e.styKey!=='aoi'||e.state!=='restrained')return 0;
-  const t=e.t||0;
-  return Math.sin(t*.19)*.025*Math.min(t/8,1)*e.face;
-}
+function restraintSway(){return 0}
 if(typeof module!=='undefined')module.exports={enemyPose,playerAttackFrame,playerIdleFrame,restraintFrame,restraintSway,CHARACTER_PROFILES,characterBreath,spriteFacing};

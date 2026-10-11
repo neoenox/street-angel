@@ -26,6 +26,15 @@ test('enemy AI grabs on its first close-range update without entering windup',()
  p.restraintCooldown=0;e.t=5;e.face=1;e.hitSet=new Set();e.state='attack';
  ctx.strike(e,{n:'jab',hs:5,he:11,reach:70,dt:22},[p]);
  assert.equal(e.state,'holding');assert.equal(p.state,'restrained');assert.equal(p.hp,100);
+ // A queued or already-started grab by a second enemy becomes a real punch.
+ const jab={n:'jab',wind:18,dur:28,hs:5,he:11,reach:70,range:60,dt:22,dmg:6};
+ for(const state of ['idle','windup','attack']){
+  const other={...e,heldPlayer:null,def:{spd:1,atks:[jab]},x:p.x-35,face:1,state,cd:0,next:R.attack,atk:R.attack,t:0,hitSet:new Set()};
+  ctx.updEnemy(other);assert.equal(other.atk.n,'jab');assert.equal(other.state,'windup');assert.equal(p.heldBy,e);
+ }
+ const other={...e,heldPlayer:null,type:'thug',x:p.x-35,face:1,state:'attack',t:5,hitSet:new Set()};
+ ctx.damage=(target,attacker,attack)=>{R.release(target);target.hp-=attack.dmg};
+ ctx.strike(other,jab,[p]);assert.equal(p.hp,94);assert.equal(p.heldBy,null);assert.equal(e.heldPlayer,null);
 });
 function pair(){return [{hp:36,state:'attack',x:235,y:450,face:-1},{hp:100,state:'idle',x:200,y:450,face:-1,z:0,inv:0,vx:3,vz:0,t:0}]}
 test('captor stays behind the player, facing the same direction on either side',()=>{
