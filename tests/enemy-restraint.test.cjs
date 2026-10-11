@@ -6,7 +6,7 @@ test('enemy AI grabs on its first close-range update without entering windup',()
  const html=fs.readFileSync(require('node:path').join(__dirname,'../street-angel.html'),'utf8');
  const [e,p]=pair();Object.assign(e,{kind:'enemy',type:'thug',face:-1,x:235,y:450,z:0,t:0,at:0,flash:0,entered:true,cd:0,next:R.attack,def:{spd:1,atks:[]}});
  Object.assign(p,{kind:'player'});e.state='idle';
- const ctx=vm.createContext({P:p,EnemyRestraint:R,ST:{tok:2,len:3000},cam:0,W:960,Y0:400,Y1:500,tokens:()=>0,
+ const ctx=vm.createContext({P:p,EnemyRestraint:R,enemyFlankTarget:require('../enemy-flanking.js').enemyFlankTarget,enemies:[e],ST:{tok:2,len:3000},cam:0,W:960,Y0:400,Y1:500,tokens:()=>0,
  clamp:(v,a,b)=>Math.max(a,Math.min(v,b)),pick:a=>a[0],sfx:{warn(){}},damage(){throw Error('grabs must not damage')}});
  vm.runInContext(html.slice(html.indexOf('function strike(a,A,targets){'),html.indexOf('function spark('))+html.slice(html.indexOf('function steer('),html.indexOf('/* ---------- flow ---------- */')),ctx);
  ctx.updEnemy(e);assert.equal(e.state,'holding');assert.equal(p.state,'restrained');assert.equal(p.t,0);assert.equal(R.attack.wind,0);assert.equal(R.attack.hs,0);

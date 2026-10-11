@@ -6,6 +6,7 @@
 <script src="damage-voice.js?v=3"></script>
 <script src="character-motion.js?v=9"></script>
 <script src="enemy-restraint.js?v=8"></script>
+<script src="enemy-flanking.js?v=1"></script>
 <script src="assets/characters/aoi_assist_v1.js"></script>
 <script src="assets/characters/thug_assist_v1.js?v=2"></script>
 <script src="assets/characters/yankee_assist_v1.js?v=2"></script>
@@ -619,7 +620,7 @@ function strike(a,A,targets){
   if(a.t<A.hs||a.t>A.he)return;
   for(const t of targets){
     if(a.hitSet.has(t)||(t.hp<=0&&t.kind==='enemy'))continue;
-    if(t.state==='down'||t.state==='dead'||t.state==='getup')continue;
+    if((t.state==='down'&&!(t.kind==='player'&&t.defeated))||t.state==='dead'||t.state==='getup')continue;
     if(t.kind==='player'&&t.inv>0)continue;
     let dx=(t.x-a.x)*a.face;if(A.both)dx=Math.abs(t.x-a.x);
     if(dx<-10||dx>A.reach)continue;
@@ -641,7 +642,7 @@ function damage(t,a,A){
   if(a.kind==='enemy'&&a.def.boss&&a.hp<a.maxhp*.5)A=Object.assign({},A,{dmg:A.dmg*1.25});
   t.hp-=A.dmg;t.flash=5;
   const big=!!A.down||(t.hp<=0&&!t.defeated);
-  freeze=Math.max(freeze,A.hitStop||(big?7:3));spark(A.n==='bellyHit'?t.x+t.face*12:(a.x+t.x)/2,t.y,t.z+(A.n==='bellyHit'?65:85),big);
+  freeze=Math.max(freeze,A.hitStop||(big?7:3));spark(A.n==='bellyHit'?t.x+t.face*12:(a.x+t.x)/2,t.y,t.z+(t.defeated?18:A.n==='bellyHit'?65:85),big);
   if(A.n==='bellyHit')shake=Math.max(shake,3);
   (big||A.heavy?sfx.heavy:sfx.punch)();
   let down=A.down||(t.hp<=0&&!t.defeated),stun=true;
@@ -655,6 +656,7 @@ function damage(t,a,A){
     if(t.hurtN>=3){down=true;t.hurtN=0;t.hurtT=null}
     if(t.hp<=0){t.hp=0}
   }
+  if(t.kind==='player'&&t.defeated){t.state='down';t.z=t.vx=t.vz=0;t.lt=Math.max(8,t.lt||0);t.atk=null;return}
   if(held&&t.hp>0){t.vx=0;t.vz=0;t.hurtN=0;t.hurtT=null;return}
   if(held)EnemyRestraint.release(t);
   if(!stun){t.vx+=dir*.8;return}
@@ -668,6 +670,7 @@ function physics(e){
   else{e.x+=e.vx;e.vx*=.78;if(Math.abs(e.vx)<.05)e.vx=0}
 }
 function downLogic(e){
+  if(e.kind==='player'&&e.defeated){e.z=e.vx=e.vz=0;return}
   physics(e);
   if(e.z===0&&e.vz===0){e.lt++;
     if(e.lt>(e.hp<=0&&!e.defeated?34:46)){
@@ -751,6 +754,8 @@ function updEnemy(e){
       let moved=false;
       if(!e.entered){moved=steer(e,p.x,p.y,def.spd*1.3);if(e.x>cam+30&&e.x<cam+W-30)e.entered=true}
       else if(p.state!=='dead'){
+        const flank=enemyFlankTarget(e,p,enemies,cam+14,Math.min(cam+W-14,ST.len-14),Y0,Y1);
+        if(flank){e.next=null;moved=steer(e,flank.x,flank.y,def.spd);e.state=moved?'walk':'idle';break}
         if(EnemyRestraint.canAssist(e,p)&&e.cd<=0&&tokens()<ST.tok){
           e.next=null;
           const tx=p.x+p.face*EnemyRestraint.assistDistance(e);
@@ -762,7 +767,7 @@ function updEnemy(e){
         const canGrab=!p.defeated&&!def.boss&&EnemyRestraint.isBehind(e,p)&&!p.heldBy&&!(p.restraintCooldown>0);
         if(e.cd<=0&&!e.next)e.next=canGrab&&(e.type==='thug'||Math.random()<.25)?EnemyRestraint.attack:pick(def.atks);
         if(canGrab&&e.type==='thug'&&e.next?.n==='jab')e.next=EnemyRestraint.attack;
-        if(e.next&&tokens()<ST.tok&&(p.state!=='down'||Math.random()<.02)){
+        if(e.next&&tokens()<ST.tok&&(p.defeated||p.state!=='down'||Math.random()<.02)){
           const A=e.next,tx=p.x-(dx>=0?1:-1)*A.range*.8;
           if(Math.abs(dx)<A.range&&Math.abs(p.y-e.y)<Math.min(16,A.dt*.6)){
             e.atk=A;e.state=A.wind>0?'windup':'attack';e.t=0;e.hitSet=new Set();e.next=null;
@@ -771,7 +776,8 @@ function updEnemy(e){
           }
           else moved=steer(e,tx,p.y,def.spd);
         }else{
-          const hx=p.x+e.side*e.hold,hy=p.y+Math.sin(e.at*.03+e.id)*38;
+          const flanking=e.flankUntil>e.at&&!p.defeated;
+          const hx=flanking?p.x-p.face*68:p.x+e.side*e.hold,hy=flanking?p.y:p.y+Math.sin(e.at*.03+e.id)*38;
           if(Math.abs(hx-e.x)>14||Math.abs(hy-e.y)>10)moved=steer(e,hx,clamp(hy,Y0,Y1),def.spd*.8);
         }
       }
@@ -805,7 +811,7 @@ function updEnemy(e){
 function enterGameOver(){
   EnemyRestraint.release(P);
   mode='gameover';P.defeated=true;P.hp=0;P.lives=0;P.inv=0;
-  P.state='getup';P.t=0;P.lt=0;P.z=0;P.vx=0;P.vz=0;P.atk=null;P.buf='';
+  P.state='down';P.t=0;P.lt=8;P.z=0;P.vx=0;P.vz=0;P.atk=null;P.buf='';
   P.x=clamp(P.x,cam+60,cam+W-60);
   banner=null;clearT=0;goT=0;freeze=0;combo=0;comboT=0;
   if(!enemies.some(e=>e.hp>0))enemies.push(mkEnemy('thug',P.x+100,P.y));

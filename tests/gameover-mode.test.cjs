@@ -17,11 +17,11 @@ test('game over keeps combat running but freezes pickups and stage progression; 
  assert.equal(playerTicks,1);
 });
 
-test('defeated Aoi recovers from a down at zero HP while normal death stays unchanged',()=>{
+test('defeated Aoi stays down at zero HP while normal death stays unchanged',()=>{
  const ctx=vm.createContext({physics:()=>{}});
  vm.runInContext(html.slice(html.indexOf('function downLogic('),html.indexOf('function startAtk(')),ctx);
  const p={kind:'player',hp:0,defeated:true,state:'down',z:0,vz:0,lt:46,t:20};
- ctx.downLogic(p);assert.equal(p.state,'getup');assert.equal(p.hp,0);
+ ctx.downLogic(p);assert.equal(p.state,'down');assert.equal(p.hp,0);
  const normal={kind:'player',hp:0,state:'down',z:0,vz:0,lt:34,t:20};
  ctx.downLogic(normal);assert.equal(normal.state,'dead');
  const enemy={kind:'enemy',hp:0,state:'down',z:0,vz:0,lt:34,t:20};
@@ -38,8 +38,22 @@ test('entry clears terminal state, supplies an enemy if needed, and disables com
  vm.runInContext(html.slice(html.indexOf('function enterGameOver(){'),html.indexOf('function loadStage(')),ctx);
  ctx.enterGameOver();assert.equal(ctx.mode,'gameover');assert.equal(p.defeated,true);
  assert.equal(released,1);assert.equal(ctx.enemies.length,1);assert.equal(ctx.freeze,0);assert.equal(ctx.clearT,0);
- assert.equal(p.state,'getup');assert.equal(p.hp,0);assert.equal(p.lives,0);assert.equal(p.inv,0);
+ assert.equal(p.state,'down');assert.equal(p.hp,0);assert.equal(p.lives,0);assert.equal(p.inv,0);
  vm.runInContext(html.slice(html.indexOf('function updPlayer('),html.indexOf('/* ---------- enemies ---------- */')),ctx);
  p.state='idle';p.meter=100;ctx.updPlayer(p);
  assert.equal(p.state,'idle');assert.equal(p.x,480);assert.equal(p.y,440);assert.equal(p.meter,100);
+});
+
+test('attacks hit defeated Aoi on the ground once each without moving or standing her up',()=>{
+ let sparks=0,voices=0;
+ const ctx=vm.createContext({freeze:0,shake:0,combo:0,EnemyRestraint:{},
+  spark:(x,y,z)=>{sparks++;assert.equal(z,18)},sfx:{punch(){},heavy(){},hurt(){}},damageVoice:{play:()=>voices++}});
+ vm.runInContext(html.slice(html.indexOf('function strike('),html.indexOf('function spark('))+html.slice(html.indexOf('function damage('),html.indexOf('function physics(')),ctx);
+ const p={kind:'player',hp:0,defeated:true,state:'down',x:480,y:440,z:0,inv:0,meter:0,lt:8};
+ const e={kind:'enemy',def:{},t:5,x:440,y:440,z:0,face:1,hitSet:new Set()};
+ const a={n:'punch',hs:5,he:10,reach:70,dt:24,dmg:8,down:true,kb:10,vz:9};
+ ctx.strike(e,a,[p]);ctx.strike(e,a,[p]);assert.equal(sparks,1);
+ e.hitSet=new Set();ctx.strike(e,a,[p]);assert.equal(sparks,2);assert.equal(voices,2);
+ assert.equal(p.hp,0);assert.equal(p.state,'down');assert.equal(p.x,480);assert.equal(p.z,0);assert.equal(p.vz,0);assert.equal(p.vx,0);
+ e.hitSet=new Set();ctx.strike(e,a,[{...p,defeated:false,hp:100}]);assert.equal(sparks,2);
 });
