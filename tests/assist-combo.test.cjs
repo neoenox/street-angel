@@ -14,8 +14,8 @@ test('front support grabs in both directions, lands exactly four six-damage hits
   const {p,rear,front}=scene(face,type);assert.equal(R.startAssist(front,p),true);
   assert.equal(front.face,-face);assert.equal(p.heldBy,rear);assert.equal(p.assistedBy,front);
   const hits=[];
-  for(let t=1;t<=110;t++){front.t=t;R.tickAssist(front,p,(p,e,a)=>{hits.push(t);p.hp-=a.dmg});}
-  assert.deepEqual(hits,[18,36,54,72]);assert.equal(p.hp,76);assert.equal(p.assistedBy,null);assert.equal(front.assistPlayer,null);
+  for(let t=1;t<=230;t++){front.t=t;R.tickAssist(front,p,(p,e,a)=>{hits.push(t);p.hp-=a.dmg});}
+  assert.deepEqual(hits,[30,78,126,174]);assert.equal(p.hp,76);assert.equal(p.assistedBy,null);assert.equal(front.assistPlayer,null);
   assert.equal(front.state,'idle');assert.equal(p.heldBy,rear);assert.equal(R.startAssist(front,p),false);
  }
 });
@@ -28,7 +28,7 @@ test('only one eligible front helper joins; no rear/airborne/boss/distant captur
 });
 test('escape and rear interruption clean up both links; front interruption ends only its combo',()=>{
  for(const mode of ['escape','rear','front','death','stage']){
-  const {p,rear,front}=scene();R.startAssist(front,p);front.t=18;
+  const {p,rear,front}=scene();R.startAssist(front,p);front.t=30;
   let hits=0;const hit=()=>hits++;
   R.tickAssist(front,p,hit);assert.equal(hits,1);
   if(mode==='escape'){p.escape=7;R.tick(p,true)}
@@ -36,21 +36,21 @@ test('escape and rear interruption clean up both links; front interruption ends 
   if(mode==='front'){front.state='hurt';R.tickAssist(front,p,hit)}
   if(mode==='death'){p.hp=0;R.tick(p,false)}
   if(mode==='stage')R.release(p);
-  front.t=36;R.tickAssist(front,p,hit);assert.equal(hits,1);
+  front.t=78;R.tickAssist(front,p,hit);assert.equal(hits,1);
   assert.equal(p.assistedBy,null);assert.equal(front.assistPlayer,null);
   assert.equal(!!p.heldBy,mode==='front');
  }
 });
 test('timeout does not truncate an accepted combo; escape still works immediately',()=>{
  const {p,front}=scene();R.startAssist(front,p);p.t=180;R.tick(p,false);assert.equal(p.assistedBy,front);
- front.t=90;R.tickAssist(front,p,()=>{});R.tick(p,false);assert.equal(p.heldBy,null);
+ front.t=210;R.tickAssist(front,p,()=>{});R.tick(p,false);assert.equal(p.heldBy,null);
 });
 test('hit pose matches all four damage windows for Aoi and the helper',()=>{
  const {p,front}=scene();R.startAssist(front,p);
  for(const hit of R.assistHits){
   front.t=hit-1;assert.equal(assistFrame(front),1);assert.equal(assistFrame(p),1);
   front.t=hit;assert.equal(assistFrame(front),2);assert.equal(assistFrame(p),2);
-  front.t=hit+6;assert.notEqual(assistFrame(front),2);
+  front.t=hit+12;assert.notEqual(assistFrame(front),2);
  }
  R.endAssist(p);assert.equal(assistFrame(front),null);assert.equal(assistFrame(p),null);
 });
@@ -63,4 +63,16 @@ test('escape inputs during actual hit-stop still release both captors',()=>{
  for(let i=0;i<8;i++)ctx.update();
  assert.equal(p.heldBy,null);assert.equal(p.assistedBy,null);assert.equal(rear.heldPlayer,null);assert.equal(front.assistPlayer,null);
  assert.equal(p.state,'idle');assert.equal(ctx.freeze,0);
+});
+test('each body punch uses heavy feedback without knockdown or breaking the rear hold',()=>{
+ const fs=require('node:fs'),vm=require('node:vm');
+ const html=fs.readFileSync(require('node:path').join(__dirname,'../street-angel.html'),'utf8');
+ const {p,rear,front}=scene();p.meter=0;p.vz=0;front.kind='enemy';R.startAssist(front,p);
+ let heavy=0,punch=0;
+ const ctx=vm.createContext({EnemyRestraint:R,freeze:0,shake:0,combo:0,
+  spark:()=>{},sfx:{heavy:()=>heavy++,punch:()=>punch++,hurt:()=>{}},damageVoice:{play:()=>{}}});
+ vm.runInContext(html.slice(html.indexOf('function damage('),html.indexOf('function physics(')),ctx);
+ front.t=30;R.tickAssist(front,p,ctx.damage);
+ assert.equal(p.hp,94);assert.equal(p.state,'restrained');assert.equal(p.heldBy,rear);
+ assert.equal(ctx.freeze,10);assert.equal(ctx.shake,3);assert.equal(heavy,1);assert.equal(punch,0);
 });

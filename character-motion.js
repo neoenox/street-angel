@@ -55,12 +55,14 @@ function restraintSway(e){
   if(e.styKey!=='aoi'||e.state!=='restrained')return 0;
   return Math.sin((e.t||0)*Math.PI/6)*.9*e.face;
 }
+const ASSIST_TIMING={hits:[30,78,126,174],impact:12,end:210};
 function assistFrame(e){
   const assistant=e.state==='assisting'?e:e.state==='restrained'?e.assistedBy:null;
   if(!assistant)return null;
   const t=assistant.t||0;
-  if(t<10)return 0;
-  if([18,36,54,72].some(hit=>t>=hit&&t<hit+6))return 2;
-  return t>=78?3:1;
+  if(t<18)return 0;
+  if(ASSIST_TIMING.hits.some(hit=>t>=hit&&t<hit+ASSIST_TIMING.impact))return 2;
+  if(ASSIST_TIMING.hits.some(hit=>t>=hit+ASSIST_TIMING.impact&&t<hit+24)||t>=186)return 3;
+  return 1;
 }
-if(typeof module!=='undefined')module.exports={enemyPose,playerAttackFrame,playerIdleFrame,restraintFrame,restraintSway,assistFrame,CHARACTER_PROFILES,characterBreath,spriteFacing};
+if(typeof module!=='undefined')module.exports={enemyPose,playerAttackFrame,playerIdleFrame,restraintFrame,restraintSway,assistFrame,ASSIST_TIMING,CHARACTER_PROFILES,characterBreath,spriteFacing};

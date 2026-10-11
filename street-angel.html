@@ -4,8 +4,8 @@
 <!-- All fighters use local 2D sheets. -->
 <script src="visual-style.js?v=2"></script>
 <script src="damage-voice.js?v=3"></script>
-<script src="character-motion.js?v=8"></script>
-<script src="enemy-restraint.js?v=6"></script>
+<script src="character-motion.js?v=9"></script>
+<script src="enemy-restraint.js?v=7"></script>
 <script src="assets/characters/aoi_assist_v1.js"></script>
 <script src="assets/characters/thug_assist_v1.js"></script>
 <script src="assets/characters/yankee_assist_v1.js"></script>
@@ -541,11 +541,12 @@ for(const key in ESET){const S=ESET[key];S.palettes={};S.files.forEach((f,n)=>{c
   }
   if(++S.loaded===2)S.ready=S.data.every(d=>!!window[d]);
 };im.src='assets/'+f+'.png'+(key==='yankee'?'?v=2':'');S.img[n]=im})}
-function blit(e,F,img,i,vf,k){
+function blit(e,F,img,i,vf,k,region){
   const f=F[i],s=.5*e.scale*(k||1);
   g.save();
   if(e.flash>0&&g.filter!==undefined)g.filter='brightness(1.9)';
   g.translate(Math.round((e.x-cam)*2)/2,Math.round((e.y-e.z)*2)/2);g.scale(vf*(CHARACTER_PROFILES[e.styKey]?.width||1),characterBreath(e.styKey,e.at,e.state));
+  if(region){g.beginPath();g.rect((region[0]-f.ax)*s,(region[1]-f.ay)*s,region[2]*s,region[3]*s);g.clip()}
   g.drawImage(img,f.x,f.y,f.w,f.h,-f.ax*s,-(f.ay!=null?f.ay:f.h)*s,f.w*s,f.h*s);
   g.restore();g.filter='none';
 }
@@ -584,14 +585,16 @@ for(const kind of ['aoi','thug','yankee','brute']){
   };
   entry.img.src='assets/characters/'+kind+'_restraint_'+(kind==='aoi'?'v3':'v2')+'.png'+(kind==='yankee'?'?v=2':'');RESTRAINT_SPRITES[kind]=entry;
 }
-function drawRestraint(e){
+function drawRestraint(e,handsOnly=false){
   const assist=assistFrame(e),i=assist!=null?assist:restraintFrame(e),S=assist!=null?ASSIST_SPRITES[e.styKey]:RESTRAINT_SPRITES[e.styKey];
   if(i==null||!S?.frames||!S.img.complete||!S.img.naturalWidth)return false;
   // Tiny regular tremors suggest struggling without tilting the whole fighter.
   const sway=restraintSway(e);
   g.save();
   if(sway)g.translate(sway*e.scale,0);
-  blit(e,S.frames,S.palettes?S.palettes[e.variant||0]:S.img,i,e.face,e.styKey==='yankee'?.88:1);
+  // The rear wrists stay visible above overlapping enemy hands, in either facing.
+  const hands=handsOnly?(assist===2?[39,81,38,40]:[44,95,43,42]):null;
+  blit(e,S.frames,S.palettes?S.palettes[e.variant||0]:S.img,i,e.face,e.styKey==='yankee'?.88:1,hands);
   g.restore();return true;
 }
 const loadT0=performance.now();
@@ -605,6 +608,7 @@ function drawCharacters(list){
     if(hasSprite(e))e.styKey==='aoi'?drawSprite(e):drawEnemy(e);
     else drawPerson(e);
   }
+  for(const e of list)if(e.styKey==='aoi'&&e.state==='restrained')drawRestraint(e,true);
   list.forEach(warn);
 }
 
@@ -638,8 +642,9 @@ function damage(t,a,A){
   if(a.kind==='enemy'&&a.def.boss&&a.hp<a.maxhp*.5)A=Object.assign({},A,{dmg:A.dmg*1.25});
   t.hp-=A.dmg;t.flash=5;
   const big=!!A.down||t.hp<=0;
-  freeze=Math.max(freeze,big?7:3);spark(A.n==='bellyHit'?t.x+t.face*12:(a.x+t.x)/2,t.y,t.z+(A.n==='bellyHit'?65:85),big);
-  (big?sfx.heavy:sfx.punch)();
+  freeze=Math.max(freeze,A.hitStop||(big?7:3));spark(A.n==='bellyHit'?t.x+t.face*12:(a.x+t.x)/2,t.y,t.z+(A.n==='bellyHit'?65:85),big);
+  if(A.n==='bellyHit')shake=Math.max(shake,3);
+  (big||A.heavy?sfx.heavy:sfx.punch)();
   let down=A.down||t.hp<=0,stun=true;
   if(a.kind==='player'){
     combo++;comboT=80;a.meter=Math.min(100,a.meter+(A.multi?1.5:5));score+=A.dmg*5;lastTarget=t;lastTargetT=240;

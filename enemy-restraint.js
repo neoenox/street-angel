@@ -22,8 +22,9 @@ const EnemyRestraint=(()=>{
     if(pressed)p.escape++;
     if((p.t>=180&&!p.assistedBy)||p.escape>=8)release(p);
   }
-  const assistHits=[18,36,54,72];
-  const bellyHit={n:'bellyHit',dmg:6,kb:0,stun:0};
+  const assistTiming=typeof module!=='undefined'?require('./character-motion.js').ASSIST_TIMING:ASSIST_TIMING;
+  const assistHits=assistTiming.hits;
+  const bellyHit={n:'bellyHit',dmg:6,kb:0,stun:0,hitStop:10,heavy:true};
   function canAssist(e,p){
     return !e.def?.boss&&e!==p.heldBy&&!p.assistUsed&&!p.assistedBy&&p.state==='restrained'&&p.hp>0&&p.heldBy?.state==='holding';
   }
@@ -45,7 +46,7 @@ const EnemyRestraint=(()=>{
     if(e.assistHit<4&&e.t>=assistHits[e.assistHit]){
       e.assistHit++;e.hitSet=new Set();hit(p,e,bellyHit);
     }
-    if(p.assistedBy===e&&e.t>=90)endAssist(p);
+    if(p.assistedBy===e&&e.t>=assistTiming.end)endAssist(p);
   }
   return {attack,capture,release,tick,align,isBehind,canAssist,startAssist,endAssist,tickAssist,alignAssist,assistDistance,assistHits};
 })();
