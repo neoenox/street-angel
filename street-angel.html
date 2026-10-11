@@ -8,19 +8,19 @@
 <script src="enemy-restraint.js?v=5"></script>
 <script src="assets/characters/aoi_restraint_v3.js"></script>
 <script src="assets/characters/thug_restraint_v2.js"></script>
-<script src="assets/characters/yankee_restraint_v2.js"></script>
+<script src="assets/characters/yankee_restraint_v2.js?v=2"></script>
 <script src="assets/characters/brute_restraint_v2.js"></script>
 <script src="assets/aoi_walk4.js"></script>
 <script src="assets/characters/aoi_attack_v2.js"></script>
 <script src="assets/characters/thug_combat_v2.js"></script>
-<script src="assets/characters/yankee_combat_v2.js"></script>
+<script src="assets/characters/yankee_combat_v2.js?v=2"></script>
 <script src="assets/characters/boss_motion_v2.js"></script>
 <script src="assets/characters/boss_combat_v2.js"></script>
 
 <script src="assets/aoi_jump.js"></script>
 <script src="assets/aoi_hit.js"></script>
 <script src="assets/thug_walk.js"></script>
-<script src="assets/yk_walk.js"></script>
+<script src="assets/yk_walk.js?v=2"></script>
 <script src="assets/br_walk.js?v=2"></script>
 <script src="assets/br_cmb.js?v=2"></script>
 <style>
@@ -536,7 +536,7 @@ for(const key in ESET){const S=ESET[key];S.palettes={};S.files.forEach((f,n)=>{c
     }
   }
   if(++S.loaded===2)S.ready=S.data.every(d=>!!window[d]);
-};im.src='assets/'+f+'.png';S.img[n]=im})}
+};im.src='assets/'+f+'.png'+(key==='yankee'?'?v=2':'');S.img[n]=im})}
 function blit(e,F,img,i,vf,k){
   const f=F[i],s=.5*e.scale*(k||1);
   g.save();
@@ -567,7 +567,7 @@ for(const kind of ['aoi','thug','yankee','brute']){
       shiftClothingPixels(pixels.data,kind,variant);ctx.putImageData(pixels,0,0);entry.palettes.push(c);
     }
   };
-  entry.img.src='assets/characters/'+kind+'_restraint_'+(kind==='aoi'?'v3':'v2')+'.png';RESTRAINT_SPRITES[kind]=entry;
+  entry.img.src='assets/characters/'+kind+'_restraint_'+(kind==='aoi'?'v3':'v2')+'.png'+(kind==='yankee'?'?v=2':'');RESTRAINT_SPRITES[kind]=entry;
 }
 function drawRestraint(e){
   const i=restraintFrame(e),S=RESTRAINT_SPRITES[e.styKey];
