@@ -18,10 +18,11 @@
 ## ビジュアル
 
 - 葵・チンピラの馬乗り姿勢は一組の画像として描き、体の重なりとサイズを固定する。
-- 振り上げるのも打ち下ろすのも同じ奥側の腕。手前側の拳は胸元で構える。
+- 振り上げるのも打ち下ろすのも、黒い上腕バンドのある同じ手前側の腕。奥側の拳は両方の姿勢で胸元に残す。
 - チンピラの色違いは専用画像にも反映し、葵の赤いグローブやリボンは色変更の領域から外す。
 - 重なりはこの組の中だけで完結し、手前の他の敵を削らない。
 - [採用素材](../source_art/character-v2/mount-source.png)、[生成プロンプト](../source_art/character-v2/mount-provenance.json)。
+- 馬乗りの構え・打撃は[腕の対応を修正した2枚](../source_art/character-v2/mount-arms-v2-source.png)へ置き換え。[修正プロンプト](../source_art/character-v2/mount-arms-v2-provenance.json)。肩・黒いバンド・拳を追って同じ腕であることを確認する。
 - `tools/pack_mount_sheet.py` で既存のクロマキー処理・一律倍率を使って6ポーズをパック。拡大率・元画像とアトラスのハッシュは `assets/characters/mount-validation.json` に記録。
 
 ## 確認
@@ -31,7 +32,7 @@ Node 56件・Python 10件、合計66件が通過。新しい回帰テストで�
 別のローカル検証ブラウザーで、ダウンからAIが実際にタックルして馬乗りになり、4発でHP100→76、終了後ダウンへ戻ることを確認。実キー8回で脱出し、ダウン中のZ入力で起き上がることも確認。ゲームオーバー移行後もマウント成立。ブラウザーエラーなし。CIは未設定。
 
 ![タメ](character-review/mount-charge.jpg)
-![振り上げ](character-review/mount-prep.jpg)
-![同じ腕で打撃](character-review/mount-hit.jpg)
-![左右反転と服色](character-review/mount-hit-left.jpg)
+![手前のバンド付き腕を振り上げ](character-review/mount-prep-v2.jpg)
+![同じ手前の腕を胸の前に通して打撃](character-review/mount-hit-v2.jpg)
+![左右反転と服色](character-review/mount-hit-left-v2.jpg)
 ![ゲームオーバー後](character-review/mount-gameover.jpg)

@@ -13,6 +13,13 @@ ROOT=Path(__file__).resolve().parents[1]
 def main():
     source=ROOT/'source_art/character-v2/mount-source.png'
     poses=extract_poses(Image.open(source),3,2,'red')
+    arm_source=ROOT/'source_art/character-v2/mount-arms-v2-source.png'
+    arm_poses=extract_poses(Image.open(arm_source),2,1,'red')
+    # One shared scale for both corrected poses; keep the original world size.
+    pair_scale=poses[2][0].height/arm_poses[0][0].height
+    for index,(im,ax,bounds) in enumerate(arm_poses):
+        im=im.resize((round(im.width*pair_scale),round(im.height*pair_scale)),Image.Resampling.LANCZOS)
+        poses[index+2]=(im,ax*pair_scale,bounds)
     group=[]
     for index,(im,_,bounds) in enumerate(poses):
         # Torso anchor rather than foot anchor for horizontal and paired poses.
@@ -25,6 +32,8 @@ def main():
     atlas.save(output,optimize=True)
     output.with_suffix('.js').write_text('window.SPR_MOUNT='+json.dumps({'frames':frames})+';\n',encoding='utf-8')
     report={'sourceSha256':hashlib.sha256(source.read_bytes()).hexdigest(),
+            'armSourceSha256':hashlib.sha256(arm_source.read_bytes()).hexdigest(),
+            'pairScale':pair_scale,
             'atlasSha256':hashlib.sha256(output.read_bytes()).hexdigest(),
             'sourceSize':list(Image.open(source).size),'frameCount':6,'scale':scale,
             'background':'chroma green removed using existing key_background pipeline'}
