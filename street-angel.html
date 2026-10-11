@@ -542,12 +542,17 @@ for(const key in ESET){const S=ESET[key];S.palettes={};S.files.forEach((f,n)=>{c
   }
   if(++S.loaded===2)S.ready=S.data.every(d=>!!window[d]);
 };im.src='assets/'+f+'.png'+(key==='yankee'?'?v=2':'');S.img[n]=im})}
-function blit(e,F,img,i,vf,k,headOnly=false){
+function blit(e,F,img,i,vf,k,headOnly=false,hiddenGrip=null){
   const f=F[i],s=.5*e.scale*(k||1);
   g.save();
   if(e.flash>0&&g.filter!==undefined)g.filter='brightness(1.9)';
   g.translate(Math.round((e.x-cam)*2)/2,Math.round((e.y-e.z)*2)/2);g.scale(vf*(CHARACTER_PROFILES[e.styKey]?.width||1),characterBreath(e.styKey,e.at,e.state));
   if(headOnly){g.beginPath();g.rect(-f.ax*s,-f.ay*s,f.w*s,94*s);g.clip()}
+  // Clip this sprite only; never erase pixels from the shared scene.
+  if(hiddenGrip){
+    g.beginPath();g.rect(-f.ax*s,-f.ay*s,f.w*s,f.h*s);
+    g.rect((hiddenGrip[0]-f.ax)*s,(hiddenGrip[1]-f.ay)*s,hiddenGrip[2]*s,hiddenGrip[3]*s);g.clip('evenodd');
+  }
   g.drawImage(img,f.x,f.y,f.w,f.h,-f.ax*s,-(f.ay!=null?f.ay:f.h)*s,f.w*s,f.h*s);
   g.restore();g.filter='none';
 }
@@ -593,7 +598,12 @@ function drawRestraint(e,headOnly=false){
   const sway=restraintSway(e);
   g.save();
   if(sway)g.translate(sway*e.scale,0);
-  blit(e,S.frames,S.palettes?S.palettes[e.variant||0]:S.img,i,e.face,e.styKey==='yankee'?.88:1,headOnly);
+  const grip=e.assistPlayer?{
+    thug:i===2?[230,85,51,49]:[238,100,60,50],
+    yankee:i===2?[254,69,60,56]:[254,77,60,61],
+    brute:i===2?[282,80,60,65]:[288,88,66,67],
+  }[e.styKey]:null;
+  blit(e,S.frames,S.palettes?S.palettes[e.variant||0]:S.img,i,e.face,e.styKey==='yankee'?.88:1,headOnly,grip);
   g.restore();return true;
 }
 const loadT0=performance.now();
@@ -601,14 +611,20 @@ const assetsReady=()=>SPR.ready&&Object.values(ESET).every(x=>x.ready);
 const mayStart=()=>assetsReady()||performance.now()-loadT0>20000;   // a missing file must not lock the game
 /* Every fighter uses the same 2D presentation. Missing sheets retain the procedural fallback. */
 function drawCharacters(list){
-  const rank=e=>e.heldPlayer?-1:e.assistPlayer?1:0;
-  for(const e of list.slice().sort((x,y)=>x.y-y.y||rank(x)-rank(y))){
-    if(drawRestraint(e))continue;
-    if(hasSprite(e))e.styKey==='aoi'?drawSprite(e):drawEnemy(e);
-    else drawPerson(e);
+  const roots=list.filter(e=>{
+    const p=e.heldPlayer||e.assistPlayer;
+    return !(p?.state==='restrained'&&list.includes(p));
+  }).sort((x,y)=>x.y-y.y);
+  for(const root of roots){
+    const group=root.state==='restrained'?[root.heldBy,root,root.assistedBy].filter(e=>e&&list.includes(e)):[root];
+    for(const e of group){
+      if(drawRestraint(e))continue;
+      if(hasSprite(e))e.styKey==='aoi'?drawSprite(e):drawEnemy(e);
+      else drawPerson(e);
+    }
+    // Finish the linked group before drawing unrelated fighters in front.
+    if(root.styKey==='aoi'&&root.state==='restrained'&&root.assistedBy)drawRestraint(root,true);
   }
-  // The supporting arm passes behind Aoi's head, leaving her face unobscured.
-  for(const e of list)if(e.styKey==='aoi'&&e.state==='restrained'&&e.assistedBy)drawRestraint(e,true);
   list.forEach(warn);
 }
 
