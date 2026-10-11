@@ -9,7 +9,7 @@ function pair(face=1,state='idle'){
  return [e,p];
 }
 function ctxFor(e,p){
- const ctx=vm.createContext({EnemyMount:M,EnemyRestraint:R,P:p,enemies:[e],ST:{len:3000,tok:2},cam:0,W:960,Y0:380,Y1:490,
+ const ctx=vm.createContext({spriteScale:require('../sprite-scale.js').spriteScale,EnemyMount:M,EnemyRestraint:R,P:p,enemies:[e],ST:{len:3000,tok:2},cam:0,W:960,Y0:380,Y1:490,
   GR:.45,fx:[],rand:()=>0,ri:()=>60,pick:a=>a[0],enemyFlankTarget:()=>null,clamp,
   freeze:0,shake:0,combo:0,damageVoice:{play(){}},spark(){},sfx:{punch(){},heavy(){},hurt(){},warn(){}},hit:()=>false,dn:()=>false});
  vm.runInContext(html.slice(html.indexOf('function strike('),html.indexOf('function spark('))+html.slice(html.indexOf('function damage('),html.indexOf('/* ---------- flow ---------- */')),ctx);

@@ -5,6 +5,7 @@
 <script src="visual-style.js?v=2"></script>
 <script src="damage-voice.js?v=3"></script>
 <script src="character-motion.js?v=9"></script>
+<script src="sprite-scale.js?v=1"></script>
 <script src="enemy-restraint.js?v=9"></script>
 <script src="enemy-flanking.js?v=1"></script>
 <script src="enemy-mount.js?v=1"></script>
@@ -490,9 +491,6 @@ function warn(e){if(e.state==='windup'&&e.atk?.n!=='restrain'&&Math.floor(e.t/3)
 const SPR={ready:false,walkImg:new Image(),atkImg:new Image(),hitImg:new Image(),jumpImg:new Image()};
 let sprLoaded=0;const sprOk=()=>{if(++sprLoaded===4)SPR.ready=!!(window.SPR_WALK4&&window.SPR_AOI_ATK_V2&&window.SPR_HIT&&window.SPR_JUMP)};
 SPR.walkImg.onload=sprOk;SPR.atkImg.onload=sprOk;SPR.hitImg.onload=sprOk;SPR.jumpImg.onload=sprOk;SPR.jumpImg.src='assets/aoi_jump.png';SPR.hitImg.src='assets/aoi_hit.png';SPR.walkImg.src='assets/aoi_walk4.png';SPR.atkImg.src='assets/characters/aoi_attack_v2.png';
-const JUMP_K=.94; // jump/special sheet: head read ~6% bigger than the attack guard
-const WALK_K=1.04; // Retain the smoother original walk and its head-size correction.
-const SHEET_K=.82; // Retained hit sheet needs its original head-size correction.
 const WALK_SEQ=[0,1,2,3,4,6,8,9]; // Restore the original eight-pose cycle; the four-pose replacement repeated the same leg.
 function drawSprite(e){
   if(drawRestraint(e))return;
@@ -516,7 +514,8 @@ function drawSprite(e){
     else i=(e.lt||0)<5?6:7;
   }
   else if(st==='getup'){F=window.SPR_HIT.frames;img=SPR.hitImg;const p=t/28;i=p<.18?8:p<.5?9:p<.8?10:11}
-  const f=F[i],s=.5*e.scale*(img===SPR.walkImg?WALK_K:img===SPR.jumpImg?JUMP_K:img===SPR.hitImg?SHEET_K:1),lie=Math.min(1,Math.abs(rot)/1.5);
+  const asset=img===SPR.walkImg?'aoi_walk4':img===SPR.jumpImg?'aoi_jump':img===SPR.hitImg?'aoi_hit':'characters/aoi_attack_v2';
+  const f=F[i],s=.5*e.scale*spriteScale(asset),lie=Math.min(1,Math.abs(rot)/1.5);
   const px=(f.ax+(f.w/2-f.ax)*lie)*s;
   g.save();
   if(e.inv>0&&e.kind==='player'&&Math.floor(frame/3)%2)g.globalAlpha=.45;
@@ -565,12 +564,12 @@ function drawEnemy(e){
   const pose=enemyPose(e);let sheet=pose.sheet,i=pose.frame;
   if(st==='walk'){sheet=0;i=S.walkSeq[Math.floor(e.wp/S.walkDiv)%S.walkSeq.length]}
   const F=window[S.data[sheet]].frames,img=S.img[sheet],palettes=S.palettes[sheet];
-  blit(e,F,palettes?palettes[e.variant||0]:img,i,spriteFacing(e.styKey,sheet,i,e.face),S.k);
+  blit(e,F,palettes?palettes[e.variant||0]:img,i,spriteFacing(e.styKey,sheet,i,e.face),spriteScale(S.files[sheet]));
 }
 const hasSprite=e=>e.styKey==='aoi'?SPR.ready:ESET[e.styKey]?ESET[e.styKey].ready:false;
 const RESTRAINT_SPRITES={},ASSIST_SPRITES={};
 for(const kind of ['aoi','thug','yankee','brute']){
-  const assist={img:new Image(),frames:window['SPR_'+kind.toUpperCase()+'_ASSIST']?.frames};
+  const assist={img:new Image(),frames:window['SPR_'+kind.toUpperCase()+'_ASSIST']?.frames,asset:'characters/'+kind+'_assist_v1'};
   assist.img.onload=()=>{
     if(kind!=='yankee'&&kind!=='thug')return;
     assist.palettes=[];
@@ -581,7 +580,7 @@ for(const kind of ['aoi','thug','yankee','brute']){
     }
   };
   assist.img.src='assets/characters/'+kind+'_assist_v1.png?v=2';ASSIST_SPRITES[kind]=assist;
-  const entry={img:new Image(),frames:window['SPR_'+kind.toUpperCase()+'_RESTRAINT']?.frames};
+  const entry={img:new Image(),frames:window['SPR_'+kind.toUpperCase()+'_RESTRAINT']?.frames,asset:'characters/'+kind+'_restraint_'+(kind==='aoi'?'v3':'v2')};
   entry.img.onload=()=>{
     if(kind!=='yankee'&&kind!=='thug')return;
     entry.palettes=[];
@@ -605,7 +604,7 @@ function drawRestraint(e,headOnly=false){
     yankee:i===2?[254,69,60,56]:[254,77,60,61],
     brute:i===2?[282,80,60,65]:[288,88,66,67],
   }[e.styKey]:null;
-  blit(e,S.frames,S.palettes?S.palettes[e.variant||0]:S.img,i,e.face,e.styKey==='yankee'?.88:1,headOnly,grip);
+  blit(e,S.frames,S.palettes?S.palettes[e.variant||0]:S.img,i,e.face,spriteScale(S.asset),headOnly,grip);
   g.restore();return true;
 }
 const loadT0=performance.now();
@@ -630,7 +629,7 @@ function drawMount(e){
   const i=EnemyMount.frame(a),S=MOUNT_SPRITE;
   if(i==null||!S.frames||!S.img.complete||!S.img.naturalWidth)return false;
   // The mount is a paired illustration: do not flash the attacker when Aoi is hit.
-  blit(mounted?{...e,flash:0}:e,S.frames,S.palettes?S.palettes[a.variant||0]:S.img,i,e.face,1);
+  blit(mounted?{...e,flash:0}:e,S.frames,S.palettes?S.palettes[a.variant||0]:S.img,i,e.face,spriteScale('characters/mount_v1'));
   // A readable floor cue grows throughout the charge, without hiding the pose.
   if(e.state==='mountCharge'){
     g.save();g.strokeStyle='#ffb43b';g.lineWidth=3;g.beginPath();
@@ -694,7 +693,8 @@ function damage(t,a,A){
   if(a.kind==='enemy'&&a.def.boss&&a.hp<a.maxhp*.5)A=Object.assign({},A,{dmg:A.dmg*1.25});
   t.hp-=A.dmg;t.flash=5;
   const big=!!A.down||(t.hp<=0&&!t.defeated);
-  freeze=Math.max(freeze,A.hitStop||(big?7:3));spark(A.n==='mountPunch'?t.x+t.face*66:A.n==='bellyHit'?t.x+t.face*12:(a.x+t.x)/2,t.y,t.z+(mounted?22:t.defeated&&!held?18:A.n==='bellyHit'?65:85),big);
+  const mountK=mounted?spriteScale('characters/mount_v1'):1;
+  freeze=Math.max(freeze,A.hitStop||(big?7:3));spark(A.n==='mountPunch'?t.x+t.face*66*mountK:A.n==='bellyHit'?t.x+t.face*12:(a.x+t.x)/2,t.y,t.z+(mounted?22*mountK:t.defeated&&!held?18:A.n==='bellyHit'?65:85),big);
   if(A.n==='bellyHit')shake=Math.max(shake,3);
   (big||A.heavy?sfx.heavy:sfx.punch)();
   let down=A.down||(t.hp<=0&&!t.defeated),stun=true;
