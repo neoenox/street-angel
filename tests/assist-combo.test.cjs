@@ -80,3 +80,25 @@ test('each body punch uses heavy feedback without knockdown or breaking the rear
  assert.equal(p.hp,94);assert.equal(p.state,'restrained');assert.equal(p.heldBy,rear);
  assert.equal(ctx.freeze,10);assert.equal(ctx.shake,3);assert.equal(heavy,1);assert.equal(punch,0);
 });
+
+test('defeated Aoi can be captured from the ground and receive the complete combo at zero HP',()=>{
+ const fs=require('node:fs'),vm=require('node:vm');
+ const html=fs.readFileSync(require('node:path').join(__dirname,'../street-angel.html'),'utf8');
+ for(const face of [-1,1])for(const type of ['thug','yankee','brute']){
+  const {p,rear,front}=scene(face,type);R.release(p);
+  Object.assign(p,{hp:0,defeated:true,state:'down',restraintCooldown:0,meter:0});
+  p.z=1;assert.equal(R.capture(rear,p),false);p.z=0;
+  assert.equal(R.capture(rear,p),true);assert.equal(R.startAssist(front,p),true);
+  const ctx=vm.createContext({EnemyRestraint:R,freeze:0,shake:0,combo:0,spark(){},
+   sfx:{heavy(){},punch(){},hurt(){}},damageVoice:{play(){}}});
+  vm.runInContext(html.slice(html.indexOf('function damage('),html.indexOf('function physics(')),ctx);
+  for(const t of R.assistHits){
+   p.t=t;R.tick(p,false);front.t=t;R.tickAssist(front,p,ctx.damage);
+   assert.equal(p.state,'restrained');assert.equal(p.hp,0);assert.equal(p.heldBy,rear);
+  }
+  assert.equal(front.assistHit,4);front.t=210;R.tickAssist(front,p,ctx.damage);
+  assert.equal(p.state,'down');assert.equal(p.heldBy,null);assert.equal(p.assistedBy,null);
+  p.restraintCooldown=0;assert.equal(R.capture(rear,p),true);p.t=180;R.tick(p,false);
+  assert.equal(p.state,'down');assert.equal(p.heldBy,null);
+ }
+});

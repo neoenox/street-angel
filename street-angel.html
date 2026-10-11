@@ -5,7 +5,7 @@
 <script src="visual-style.js?v=2"></script>
 <script src="damage-voice.js?v=3"></script>
 <script src="character-motion.js?v=9"></script>
-<script src="enemy-restraint.js?v=8"></script>
+<script src="enemy-restraint.js?v=9"></script>
 <script src="enemy-flanking.js?v=1"></script>
 <script src="assets/characters/aoi_assist_v1.js"></script>
 <script src="assets/characters/thug_assist_v1.js?v=2"></script>
@@ -642,7 +642,7 @@ function damage(t,a,A){
   if(a.kind==='enemy'&&a.def.boss&&a.hp<a.maxhp*.5)A=Object.assign({},A,{dmg:A.dmg*1.25});
   t.hp-=A.dmg;t.flash=5;
   const big=!!A.down||(t.hp<=0&&!t.defeated);
-  freeze=Math.max(freeze,A.hitStop||(big?7:3));spark(A.n==='bellyHit'?t.x+t.face*12:(a.x+t.x)/2,t.y,t.z+(t.defeated?18:A.n==='bellyHit'?65:85),big);
+  freeze=Math.max(freeze,A.hitStop||(big?7:3));spark(A.n==='bellyHit'?t.x+t.face*12:(a.x+t.x)/2,t.y,t.z+(t.defeated&&!held?18:A.n==='bellyHit'?65:85),big);
   if(A.n==='bellyHit')shake=Math.max(shake,3);
   (big||A.heavy?sfx.heavy:sfx.punch)();
   let down=A.down||(t.hp<=0&&!t.defeated),stun=true;
@@ -656,8 +656,11 @@ function damage(t,a,A){
     if(t.hurtN>=3){down=true;t.hurtN=0;t.hurtT=null}
     if(t.hp<=0){t.hp=0}
   }
-  if(t.kind==='player'&&t.defeated){t.state='down';t.z=t.vx=t.vz=0;t.lt=Math.max(8,t.lt||0);t.atk=null;return}
-  if(held&&t.hp>0){t.vx=0;t.vz=0;t.hurtN=0;t.hurtT=null;return}
+  if(held&&(t.hp>0||t.defeated)){t.vx=0;t.vz=0;t.hurtN=0;t.hurtT=null;return}
+  if(t.kind==='player'&&t.defeated){
+    t.state='down';t.t=0;t.lt=8;t.vx=dir*clamp((A.kb||4)*.7,2,5);t.vz=A.down?4.2:3.2;
+    t.atk=null;t.hurtN=0;t.hurtT=null;return;
+  }
   if(held)EnemyRestraint.release(t);
   if(!stun){t.vx+=dir*.8;return}
   t.face=-dir;
@@ -670,8 +673,8 @@ function physics(e){
   else{e.x+=e.vx;e.vx*=.78;if(Math.abs(e.vx)<.05)e.vx=0}
 }
 function downLogic(e){
-  if(e.kind==='player'&&e.defeated){e.z=e.vx=e.vz=0;return}
   physics(e);
+  if(e.kind==='player'&&e.defeated){e.lt=Math.max(8,e.lt||0);return}
   if(e.z===0&&e.vz===0){e.lt++;
     if(e.lt>(e.hp<=0&&!e.defeated?34:46)){
       if(e.hp<=0&&!e.defeated){e.state='dead';e.t=0}else{e.state='getup';e.t=0}
@@ -729,7 +732,7 @@ function updPlayer(p){
         else{p.hp=p.maxhp;p.state='getup';p.t=0;p.inv=160;p.z=0;p.vz=0;p.x=clamp(p.x,cam+60,cam+W-60)}}
       break;
   }
-  if(p.state!=='down'&&p.state!=='dead'){p.x=clamp(p.x,cam+18,Math.min(cam+W-18,ST.len-18))}
+  if(p.defeated||(p.state!=='down'&&p.state!=='dead')){p.x=clamp(p.x,cam+18,Math.min(cam+W-18,ST.len-18))}
   p.y=clamp(p.y,Y0,Y1);
   if(p.state==='down'||p.state==='dead')p.y=clamp(p.y,Y0,Y1);
 }
@@ -763,8 +766,8 @@ function updEnemy(e){
           if(e.state!=='assisting')e.state=moved?'walk':'idle';
           break;
         }
-        if(e.next?.n==='restrain'&&(p.defeated||!EnemyRestraint.isBehind(e,p)||p.heldBy||p.restraintCooldown>0))e.next=null;
-        const canGrab=!p.defeated&&!def.boss&&EnemyRestraint.isBehind(e,p)&&!p.heldBy&&!(p.restraintCooldown>0);
+        if(e.next?.n==='restrain'&&(!EnemyRestraint.isBehind(e,p)||p.heldBy||p.restraintCooldown>0))e.next=null;
+        const canGrab=!def.boss&&EnemyRestraint.isBehind(e,p)&&!p.heldBy&&!(p.restraintCooldown>0)&&(!p.defeated||p.z<=0);
         if(e.cd<=0&&!e.next)e.next=canGrab&&(e.type==='thug'||Math.random()<.25)?EnemyRestraint.attack:pick(def.atks);
         if(canGrab&&e.type==='thug'&&e.next?.n==='jab')e.next=EnemyRestraint.attack;
         if(e.next&&tokens()<ST.tok&&(p.defeated||p.state!=='down'||Math.random()<.02)){
@@ -856,7 +859,7 @@ function update(){
   if(paused)return;
   if(banner){banner.t++;if(banner.t>150)banner=null}
   if(freeze>0){
-    if(P.state==='restrained')EnemyRestraint.tick(P,hit('KeyZ','KeyJ','KeyX','KeyK','Space','KeyC','KeyL'));
+    if(P.state==='restrained')EnemyRestraint.tick(P,!P.defeated&&hit('KeyZ','KeyJ','KeyX','KeyK','Space','KeyC','KeyL'));
     freeze--;return;
   }
   if(shake>0)shake*=.86;if(shake<.3)shake=0;
@@ -905,7 +908,7 @@ function drawFx(){
 function bar(x,y,w,h,v,col1,col2,bg='#120c1c'){g.fillStyle=bg;g.fillRect(x-2,y-2,w+4,h+4);g.fillStyle='#3a2a44';g.fillRect(x,y,w,h);const gr=g.createLinearGradient(x,y,x,y+h);gr.addColorStop(0,col1);gr.addColorStop(1,col2);g.fillStyle=gr;g.fillRect(x,y,w*clamp(v,0,1),h)}
 const PORT=new Image();PORT.src='assets/portrait.png';
 function drawHUD(){
-  if(P.state==='restrained'){
+  if(P.state==='restrained'&&!P.defeated){
     txt('拘束中! 攻撃 / ジャンプ連打で脱出',W/2,H-78,20,'#ffe14f','center',4);
     bar(W/2-80,H-62,160,8,(P.escape||0)/8,'#ffe14f','#ff8b4a');
   }
