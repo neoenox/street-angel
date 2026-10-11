@@ -11,7 +11,7 @@ class MountAssetsTests(unittest.TestCase):
         atlas=root/'assets/characters/mount_v1.png'
         report=json.loads((atlas.parent/'mount-validation.json').read_text())
         self.assertEqual(report['sourceSha256'],hashlib.sha256(source.read_bytes()).hexdigest())
-        self.assertEqual(report['armSourceSha256'],hashlib.sha256((source.parent/'mount-arms-v2-source.png').read_bytes()).hexdigest())
+        self.assertEqual(report['armSourceSha256'],hashlib.sha256((source.parent/'mount-no-guard-v3-source.png').read_bytes()).hexdigest())
         self.assertEqual(report['atlasSha256'],hashlib.sha256(atlas.read_bytes()).hexdigest())
         im=Image.open(atlas)
         self.assertEqual(im.mode,'RGBA');self.assertEqual(im.getextrema()[3],(0,255))

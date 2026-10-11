@@ -13,7 +13,7 @@ ROOT=Path(__file__).resolve().parents[1]
 def main():
     source=ROOT/'source_art/character-v2/mount-source.png'
     poses=extract_poses(Image.open(source),3,2,'red')
-    arm_source=ROOT/'source_art/character-v2/mount-arms-v2-source.png'
+    arm_source=ROOT/'source_art/character-v2/mount-no-guard-v3-source.png'
     arm_poses=extract_poses(Image.open(arm_source),2,1,'red')
     # One shared scale for both corrected poses; keep the original world size.
     pair_scale=poses[2][0].height/arm_poses[0][0].height
