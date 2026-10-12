@@ -1,0 +1,14 @@
+{
+  "sourceSha256": "ac1fe0a647ed692407217f1a4579199a76a4f1d519a4a51b59039907eac4874b",
+  "armSourceSha256": "fe0b96abb44aa1629f91385c8bf806683c140e87e5d72f7454299d0df1d7d75c",
+  "registrationSourceSha256": "7644f1b49a0fd294b981f6ccd4a39904612013ac46abe760adfc8ea4d88faa22",
+  "pairScale": 0.5971107544141252,
+  "atlasSha256": "a73ddd9fbff9dc2ec54903157d4a15b092360b6cb4d0b1b9877b0138dcbd5bc3",
+  "sourceSize": [
+    1536,
+    1024
+  ],
+  "frameCount": 6,
+  "scale": 0.7006369426751592,
+  "background": "chroma green removed using existing key_background pipeline"
+}

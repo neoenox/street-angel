@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>つかみ動作・3D試作</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#101723;color:#eef3fa;font:15px system-ui}canvas{display:block;width:100%;height:100%}#scene{position:fixed;inset:0}header{position:absolute;top:24px;left:28px;pointer-events:none}h1{font-size:23px;margin:0 0 8px}p{margin:4px 0;color:#b9c8d9}#status{color:#8be4d9}aside{position:absolute;bottom:24px;left:24px;right:24px;max-width:700px;background:#172332ee;border:1px solid #38506a;border-radius:16px;padding:16px;backdrop-filter:blur(12px)}button,select{font:inherit;color:#eff8ff;background:#273c50;border:1px solid #567189;border-radius:8px;padding:9px 13px;cursor:pointer}button.active{background:#146f77;border-color:#7ce3dc}button:disabled{opacity:.4}nav{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}label{display:inline-flex;align-items:center;gap:8px;margin-right:16px}input[type=range]{accent-color:#74dfd4;width:130px}small{color:#b9c8d9}a{color:#85dbeb}details{margin-top:10px}#error{color:#ffb5ab} @media(max-width:600px){header{left:16px;top:16px}aside{left:12px;right:12px;bottom:12px;padding:12px}h1{font-size:19px}}
+</style>
+<style>
+#scene{right:330px}aside{left:auto;right:20px;top:140px;bottom:auto;width:300px;padding:16px}label{margin:8px 0;flex-wrap:wrap}header{max-width:calc(100% - 350px)}
+@media(max-width:700px){#scene{right:0;bottom:245px}aside{top:auto;left:12px;right:12px;bottom:12px;width:auto}header{max-width:100%;top:10px}header p{font-size:12px}h1{font-size:17px}nav{margin:6px 0;gap:5px}button{padding:6px 10px}aside small{font-size:11px}label{margin:4px 0}}
+</style>
+<script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js","three/addons/":"./vendor/three/examples/jsm/"}}</script>
+<div id="scene"></div><header><h1>つかみ動作・3D試作</h1><p>青：拘束される側　／　橙：拘束する側</p><p id="status" role="status">モデルを読み込み中…</p><p id="error" role="alert"></p></header>
+<aside><nav aria-label="動作"><button id="cycle" disabled>一連を再生</button><button id="hold" disabled>拘束を確認</button><button id="release" disabled>解除する</button><button id="pause" disabled>停止</button></nav>
+<label>相手の体格 <input id="size" aria-label="拘束する側の体格" type="range" min="0.85" max="1.15" step="0.01" value="1"><output id="sizeValue">100%</output></label>
+<nav aria-label="カメラ"><button data-view="side">横</button><button data-view="front">正面</button><button data-view="back">背面</button><button data-view="angle">斜め</button></nav>
+<small>ドラッグで回転・ホイールで拡大。手首の接触位置を保ちながら、上半身だけが小さくもがきます。</small>
+<details><summary>この試作について</summary><p>無料のRobotExpressive（CC0）を２体使用。現在の2Dゲームとは独立した動作検証です。指の握り込み・人体の関節制限・衣服の衝突は未調整です。</p><a href="README.md">素材の出典・検証範囲</a> ／ <a href="../street-angel.html">今のゲームへ</a><p id="metrics"></p></details></aside>
+<script type="module" src="./app.js"></script></html>
