@@ -1,0 +1,3 @@
+# Preserve upstream bytes so the asset receipt also verifies on Windows checkouts.
+vendor/** -text
+models/** -text
