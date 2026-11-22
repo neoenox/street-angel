@@ -1,0 +1,6 @@
+{
+  "prompt": "Edit this sprite atlas layout only. Preserve ALL sixteen character drawings, same identities, same rear-wrist restraint poses, exact clothes, colors, proportions, clean linework. The rows currently touch each other (Aoi shoes touch Thug hair, Yankee shoes touch Brute head), which prevents clean extraction. Re-layout to a taller spacious regular FOUR COLUMN x FOUR ROW grid with generous FULLY TRANSPARENT gutters on ALL sides of EVERY full-body sprite. Shrink each entire character uniformly to fit in 75% of its cell height; retain all hair/soles and native transparent background. Every character must be separate from every other character by at least 40 pixels of actual transparency. Do not join sprites, crop limbs, add frames, add text, shadows or floor. Same four characters in same four rows and same pose ordering. Each row its four heads keep identical scale, no deep crouching. Return one clean transparent production sprite sheet.",
+  "tool": "built-in image_gen",
+  "generatedFile": "exec-e94a057a-a36f-40ad-900f-f759fc121779.png",
+  "referenceGeneratedFile": "exec-3a47aa50-1efa-4a52-a149-1543e069d7d6.png"
+}

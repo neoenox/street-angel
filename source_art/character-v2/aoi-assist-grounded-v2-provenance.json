@@ -1,0 +1,7 @@
+{
+  "tool": "image_gen",
+  "reference": "aoi-restraint-rear-v3-source.png",
+  "output": "aoi-assist-grounded-v2-source.png",
+  "prompt": "Edit this exact four-column arcade character sprite sheet. Preserve exact canvas dimensions, all four figure positions, adult fully clothed Aoi identity, head/body sizes, red fully closed boxing gloves, white navy sailor blouse red tie, navy skirt opaque shorts socks white sneakers, black ponytail, pure flat #00ff00 background. Columns 1,2,4 should all use the SAME standing rear-hand-held pose from COLUMN TWO: both gloved hands held behind lower back, braced feet planted, worried face. COLUMN THREE ONLY: a restrained reaction to a non-graphic arcade body hit, upper torso folds slightly forward at waist and head dips with eyes shut and mouth briefly open, shoulders tense; hands remain behind lower back at same place, elbows bend naturally. Crucial BOTH FEET, shoe positions, knee angles, hip height, head size stay EXACTLY the same as column two. Do NOT crouch, jump, lift feet, shrink character, or pull arms forward. Only abdomen/upper torso and head react, small believable motion. No attacker visible, no blood injuries effects text or glow. Maintain source costume and anatomy, exactly two arms, four isolated figures with green gutters.",
+  "selection": "Only column 3 is used for impact. All other frames reuse the exact existing rear hold pose to prevent size and stance changes."
+}

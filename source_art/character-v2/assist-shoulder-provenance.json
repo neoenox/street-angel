@@ -1,0 +1,11 @@
+{
+  "tool": "built-in image_gen",
+  "prompt": "Edit this existing transparent 4 by 4 fighting-game sprite atlas. Preserve EXACT grid, all 16 separate cells, transparency, art style, character identities, clothes, feet positions, scale, and row spacing. Only change the extended grabbing arm of the red-haired thug in row 2 and teal-jacket Yankee in row 3, in ALL four columns. Their extended open hand is currently too high and covers the opponent's face. LOWER that extended grabbing hand and forearm by about 50 source pixels, to lower-chest / shoulder-of-a-shorter-opponent level, with the elbow naturally sloping DOWN from shoulder. The open grabbing hand must be clearly BELOW the attacker's own shoulder and chin, at about the height of their sternum. Keep the reach horizontally unchanged. In column 3 keep the other punching fist at its existing low abdominal punch level; the now lowered grabbing hand should remain above the punching fist, not merge. This is a restrained adjustment to one arm only. Do not modify Aoi row 1 or brute row 4 at all. No new subjects or background, no text, no added objects. Maintain crisp clean sprite outlines and genuine alpha transparency.",
+  "reference": "assist-combo-source.png",
+  "output": "assist-shoulder-source.png",
+  "generated": "exec-fa34db5a-7bef-4eb0-a1d3-09a9795965b2.png",
+  "usedRows": [
+    "thug",
+    "yankee"
+  ]
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "kind": "aoi",
+    "source": "aoi-assist-grounded-v2-source.png",
+    "output": "aoi_assist_v1.png",
+    "referenceHeight": 264,
+    "sourceSha256": "7d5c456aabf8e7dab6e787fc1b98abfe577d85ebc09aef299da55a19b209f53c",
+    "atlasSha256": "87869d5cb88b3ba1c32a7e23c9f35341e6a375e61026bbfdd33280306cfec57e",
+    "frameCount": 4,
+    "scale": 0.4067796610169492,
+    "heldSource": "aoi-restraint-rear-v3-source.png",
+    "heldSourceSha256": "980758f0ea89db89713b34f4a9762a6e826d3ee85b1382d061fa2dc1b69afc19"
+  },
+  {
+    "kind": "thug",
+    "source": "assist-shoulder-source.png",
+    "output": "thug_assist_v1.png",
+    "referenceHeight": 300,
+    "sourceSha256": "80cc069a813b8a885fd2d02b17b7829c3d35070215073ce4d254ffe24dac5b20",
+    "atlasSha256": "ef049679391f43ac8877b521d93de778bbce52e5fa822f86c75cdde5b867d98f",
+    "frameCount": 4,
+    "scale": 1.1029411764705883
+  },
+  {
+    "kind": "yankee",
+    "source": "assist-shoulder-source.png",
+    "output": "yankee_assist_v1.png",
+    "referenceHeight": 300,
+    "sourceSha256": "80cc069a813b8a885fd2d02b17b7829c3d35070215073ce4d254ffe24dac5b20",
+    "atlasSha256": "cef4f9a550b9a8664af1002b6bba1891301ea4763be9a891997417448b5b0ec7",
+    "frameCount": 4,
+    "scale": 1.1811023622047243
+  },
+  {
+    "kind": "brute",
+    "source": "brute-assist-source.png",
+    "output": "brute_assist_v1.png",
+    "referenceHeight": 331,
+    "sourceSha256": "f0af4a193246bf646b3d81ab5f2165d9d6dea4d139028038a46876e6141cc38f",
+    "atlasSha256": "d42c565acadc55c90b40c1813a54ab0e8e941e3baa3a30cd231e594ac67eb571",
+    "frameCount": 4,
+    "scale": 0.6796714579055442
+  }
+]

@@ -1,0 +1,5 @@
+[
+  {"kind":"yankee","source":"yankee-collar-v1-source.png","aoiTop":119,"aoiGround":1036,"aoiAnchorX":500,"aoiTargetHeight":264,"paletteLeft":680},
+  {"kind":"boss","source":"boss-armlock-v1-source.png","aoiTop":272,"aoiGround":1264,"aoiAnchorX":765,"aoiTargetHeight":252},
+  {"kind":"brute","source":"brute-bearhug-v1-source.png","aoiTop":292,"aoiGround":1116,"aoiAnchorX":828,"aoiTargetHeight":264}
+]

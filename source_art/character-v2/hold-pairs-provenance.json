@@ -1,0 +1,55 @@
+{
+  "tool": "image_gen",
+  "commonReference": "aoi-restraint-rear-v3-source.png",
+  "selectedOutputs": [
+    "yankee-collar-v1-source.png",
+    "brute-bearhug-v1-source.png",
+    "boss-armlock-v1-source.png"
+  ],
+  "prompts": [
+    {
+      "kind": "yankee",
+      "reference": "yankee-combat-source.png",
+      "prompt": "One single full body paired arcade beat-em-up sprite, BOTH characters standing with feet fully visible, flat solid #00ff00 green background no floor shadow or glow, no text. Adult fully clothed fighters, non-graphic. Match references crisp cel shading black outlines, identity clothes/colors exactly. Aoi white navy sailor blouse red necktie navy pleated skirt opaque dark shorts navy socks white sneakers red boxing gloves black high ponytail red tie. Aoi worried reluctant face, raised inward eyebrows mouth slightly open, visibly resisting. No hand covers her face. Exactly two arms per person, clear anatomy. Aoi head/body consistent reference size; pair occupies middle with generous green margins. Static readable hold, no throw, no extra copies. Aoi on LEFT facing RIGHT. Yankee on RIGHT facing LEFT, same height as Aoi or at most 5 percent taller: dark blue spiky hair blue bandana, TEAL jacket red sleeve embroidery white stripes, black shirt light gray cargo pants red-white sneakers black fingerless gloves. Yankee grabs ONLY fabric at front sailor collar below collarbone with one hand, other grips Aoi upper arm to stop movement. NOT neck/throat. Aoi BOTH red gloves push against his forearm, elbows naturally bent in front. Faces clearly separated, neither hand behind Aoi back. Both stand braced apart."
+    },
+    {
+      "kind": "brute",
+      "reference": "restraint-rear-source.png",
+      "prompt": "One single full body paired arcade beat-em-up sprite, BOTH characters standing with feet fully visible, flat solid #00ff00 green background no floor shadow or glow, no text. Adult fully clothed fighters, non-graphic. Match references crisp cel shading black outlines, identity clothes/colors exactly. Aoi white navy sailor blouse red necktie navy pleated skirt opaque dark shorts navy socks white sneakers red boxing gloves black high ponytail red tie. Aoi worried reluctant face, raised inward eyebrows mouth slightly open, visibly resisting. No hand covers her face. Exactly two arms per person, clear anatomy. Aoi head/body consistent reference size; pair occupies middle with generous green margins. Static readable hold, no throw, no extra copies. Aoi on RIGHT facing RIGHT, a hulking bald muscular bearded brute behind her on LEFT also facing RIGHT: dark sunglasses, charcoal sleeveless denim vest over black shirt, brown cargo pants black boots black studded wristbands shoulder tattoo. Brute about 20 percent taller and twice torso width of Aoi, no gigantic head. His TWO huge arms wrap around her upper waist/rib cage below shoulders, hands clasp at her side, CLEAR bear hug from behind, no wrists pulled behind back. Aoi red gloves grip and try to pry his forearm across front of ribs, her elbows in front, head turned worried, her abdomen below grip remains visible. Both feet planted, knees slightly bent, no lifting."
+    },
+    {
+      "kind": "boss",
+      "reference": "boss-combat-source.png",
+      "prompt": "One single full body paired arcade beat-em-up sprite, BOTH characters standing with feet fully visible, flat solid #00ff00 green background no floor shadow or glow, no text. Adult fully clothed fighters, non-graphic. Match references crisp cel shading black outlines, identity clothes/colors exactly. Aoi white navy sailor blouse red necktie navy pleated skirt opaque dark shorts navy socks white sneakers red boxing gloves black high ponytail red tie. Aoi worried reluctant face, raised inward eyebrows mouth slightly open, visibly resisting. No hand covers her face. Exactly two arms per person, clear anatomy. Aoi head/body consistent reference size; pair occupies middle with generous green margins. Static readable hold, no throw, no extra copies. Aoi on RIGHT facing RIGHT, boss on LEFT behind-left facing RIGHT, 20 percent taller: black pompadour hair, long black coat gold buttons red embroidery, red shirt and red waist sash, black pants/shoes. Boss controls ONE of Aoi red gloved arms bent behind her back: one hand holds her glove wrist at lower back, other hand controls SAME elbow, clear single-arm lock. Aoi OTHER arm remains free reaching forward with red glove, body leans slightly forward, worried tense face looks right, feet stay planted. Only ONE arm pinned, anatomically natural elbow, no impossible bending. Boss face clear. Distinct from two-wrist rear hold and bearhug."
+    }
+  ],
+  "corrections": [
+    {
+      "kind": "brute",
+      "prompt": "Edit ONLY Aoi's blouse so its white fabric extends down fully to navy skirt waistband, covering exposed abdomen below brute arms. Keep every other pixel/pose/anatomy/size/position/green background exactly. Preserve bear hug, both red gloves trying to pry brute forearms. No cropping or resizing. Non-graphic fully clothed arcade sprite."
+    },
+    {
+      "kind": "boss",
+      "prompt": "Edit ONLY Aoi's forward extended right-side red glove to a full closed red BOXING GLOVE covering ALL fingers including thumb in red padding, rounded mitten shape matching other rear red boxing glove. No exposed fingers or knuckles on Aoi, she wears boxing gloves not fingerless gloves. Boss bare hands unchanged. Keep exact positions, arm lock, sizes, anatomy, worried face, all clothes, flat green background. No cropping/resizing, non-graphic arcade sprite."
+    }
+  ],
+  "sizeCorrections": [
+    {
+      "kind": "boss",
+      "prompt": "Adjust only the man's proportions in this fully clothed non-graphic game sprite. Keep woman identical size and pose. Make man 12 percent taller in his own body: legs and torso longer, head 10 percent larger, keeping shoes on same baseline and hands contacting woman's wrist/elbow. Add extra green space above rather than crop. Preserve all clothing and woman exactly, fixed woman scale. Plain green background, crisp existing cel-shaded style."
+    },
+    {
+      "kind": "yankee",
+      "prompt": "Adjust only the man in this fully clothed non-graphic game sprite so he is exactly the same height and head size as woman, instead of taller. His crown should be level with her crown excluding ponytail. Keep woman's size and pose identical, keep man hands holding blouse collar fabric and upper arm in same positions, preserve teal jacket bandana and gray pants, feet on same baseline. Shorten his torso and legs by about 10 percent, reduce his head by 8 percent. Plain green background, same canvas and style, no other changes."
+    },
+    {
+      "kind": "brute",
+      "prompt": "Proportion correction for this non-graphic, fully clothed arcade game character sprite. Keep woman identical in pose and size. Man's height must be 140 percent of woman's height, with a longer torso and legs, broad shoulders, ordinary head size. Keep his clothes, face and the current two-person pose. Add green space above to fit taller man without cropping. Keep both standing on same baseline, preserve woman's costume and all hand contacts. Plain bright green background, no effects, no injuries, no text. Change only man's proportions."
+    },
+    {
+      "kind": "brute",
+      "prompt": "Size calibration of this fully clothed non-graphic two-person game sprite. Keep woman exactly unchanged, including her head and feet. Enlarge ONLY the man by 20 percent in every dimension (head, shoulders, torso, limbs), anchored at his shoes on ground, so he matches the bulk of a large heavy arcade enemy. His hands remain at the same contact position around woman's waist by bending elbows. He must be much wider and taller relative to woman than now, including his head 20 percent larger than current. Add green canvas at top/left to fit. Preserve outfit and current pose and all woman pixels. Flat green background, no shadow, same cel shading."
+    }
+  ],
+  "verification": "Final images inspected for distinct collar/bearhug/single-arm poses, complete boxing gloves, blouse coverage, unobscured faces. Registered from Aoi landmarks; compare actual runtime with standing enemy."
+}

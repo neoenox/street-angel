@@ -1,0 +1,7 @@
+{
+  "tool": "image_gen",
+  "reference": "mount-arms-v2-source.png",
+  "output": "mount-no-guard-v3-source.png",
+  "prompt": "Edit this exact two-frame arcade fighting sprite sheet. Preserve canvas dimensions, green background #00ff00, all character identities clothing and body sizes, pose registration, legs, heads, attacker anatomy and same-arm continuity. ONLY change Aoi's guarding arms: in BOTH frames lower her red boxing gloves away from her face, arms resting outward on the floor beside her shoulders, hands on the right portion of each pair near her hair, face completely exposed. LEFT frame her eyes watch attacker, no face guard. RIGHT frame attacker's SAME near arm with black upper-arm band stays extended across chest and wrapped fist now contacts her exposed cheek directly, head slight recoil eyes closed. Preserve far tucked fist at his chest and raised near banded arm in left frame exactly. No extra arms, no blood, no wounds, non-graphic arcade combat, all fully clothed. Keep overall silhouettes within existing pair bounds, no size change, crisp cel shaded black outlines. Two isolated pairs on pure flat green, no text or glow.",
+  "verification": "Both poses lower Aoi's gloves beside her shoulders, exposing her face. The same near banded arm punches, far fist stays at chest; original canvas and body sizes preserved."
+}
