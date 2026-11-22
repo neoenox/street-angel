@@ -23,14 +23,21 @@ test('Aoi jab, cross, uppercut and kick reach their hit poses at damage onset', 
   assert.equal(playerAttackFrame('kick',18,7,12),15);
 });
 
-test('Brute anticipation is corrected in both directions without reversing the hit or other fighters', () => {
+test('No draw-time mirroring anywhere: packed atlases already face right (brute frame 4 was mirror-fixed in the asset)', () => {
   for(const face of [-1,1]){
-    const wind=enemyPose({styKey:'brute',state:'windup'});
-    assert.equal(spriteFacing('brute',wind.sheet,wind.frame,face),-face);
     for(let frame=0;frame<16;frame++){
-      assert.equal(spriteFacing('brute',0,frame,face),face);
-      if(frame!==4)assert.equal(spriteFacing('brute',1,frame,face),face);
-      for(const style of ['aoi','thug','yankee','boss'])assert.equal(spriteFacing(style,1,frame,face),face);
+      for(const style of ['aoi','thug','yankee','brute','boss']){
+        assert.equal(spriteFacing(style,0,frame,face),face);
+        assert.equal(spriteFacing(style,1,frame,face),face);
+      }
     }
   }
+});
+test('Brute grab squeezes with alternating frames while holding', () => {
+  const grab={hs:8,he:160,grab:{}};
+  assert.equal(enemyPose({styKey:'brute',state:'attack',t:0,atk:grab}).frame,4);
+  assert.equal(enemyPose({styKey:'brute',state:'attack',t:9,atk:grab}).frame,6);
+  assert.equal(enemyPose({styKey:'brute',state:'attack',t:15,atk:grab}).frame,5);
+  assert.equal(enemyPose({styKey:'brute',state:'holding',t:0}).frame,5);
+  assert.equal(enemyPose({styKey:'brute',state:'holding',t:7}).frame,6);
 });
