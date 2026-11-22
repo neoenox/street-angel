@@ -27,9 +27,10 @@ function enemyPose(e) {
   return {sheet:1,frame};
 }
 
-// Brute's overhead anticipation alone was drawn facing left in the source atlas.
-// Correct at draw time around the same anchor; hit/recovery and other sheets face right.
-function spriteFacing(style,sheet,frame,face){return style==='brute'&&sheet===1&&frame===4?-face:face}
+// The packed atlases already face right consistently (brute sheet-1 frame 4 was
+// mirror-fixed in assets/br_cmb.png with ax updated), so no draw-time flip is needed.
+// A previous revision flipped it here, which double-mirrored the fixed asset.
+function spriteFacing(style,sheet,frame,face){return face}
 
 // A shared profile is used by the game and the character lineup.
 const CHARACTER_PROFILES={
